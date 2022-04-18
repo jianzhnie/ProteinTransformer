@@ -5,4 +5,3 @@ python function_predcit.py \
         --model-path /Users/robin/xbiome/DeepFold/work_dir/model/deepgoplus \
         --summary-path /Users/robin/xbiome/DeepFold/work_dir/logs/deepgoplus
        
- 
