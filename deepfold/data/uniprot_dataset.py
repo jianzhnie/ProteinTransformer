@@ -8,7 +8,6 @@ from .aminoacids import MAXLEN, AminoacidsVocab
 # ------------------------------------------------------------------------------------------
 # Customized pytorch Dateset for annotated sequences
 class AnnotatedSequences(Dataset):
-
     def __init__(self,
                  data_frame,
                  terms,
@@ -94,7 +93,6 @@ class AnnotatedSequences(Dataset):
 
 # Customized pytorch Dateset for annotated sequences of arbitrary length
 class AnnotatedSequencesXL(Dataset):
-
     def __init__(self,
                  data_frame,
                  terms,
