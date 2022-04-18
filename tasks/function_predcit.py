@@ -199,7 +199,6 @@ def train(model,
     # 训练过程
     for index, (data, target) in enumerate(train_loader):
         train_batch = data.shape[0]
-        print(data.shape)
         data = data.to(device)
         target = target.to(device)
 
