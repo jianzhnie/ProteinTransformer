@@ -8,6 +8,7 @@ from ..data.aminoacids import MAXLEN
 
 # Defining Model: deepgoplus
 class DeepGOPlusModel(nn.Module):
+
     def __init__(self, nb_classes, params):
         super().__init__()
 
@@ -54,7 +55,7 @@ class DeepGOPlusModel(nn.Module):
     def forward(self, x):
 
         conv_output_ls = []
-
+        x = x.permute(0, 2, 1)
         for i, kernel in enumerate(self.kernels):
 
             conv_output = self.conv_ls[i](x)
@@ -69,5 +70,5 @@ class DeepGOPlusModel(nn.Module):
             output = F.relu(output)
 
         output = self.fc(output)
-        output = F.sigmoid(output)
+        output = torch.sigmoid(output)
         return output
