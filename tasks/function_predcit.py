@@ -70,8 +70,8 @@ def main(data_path, model_path, summary_path):
 
     # Hyper parameters of model and training
     params = {
-        'nb_filters': 128,
-        'max_kernel': 15,
+        'nb_filters': 512,
+        'max_kernel': 129,
         'fc_depth': 0,
         'learning_rate': 3e-4,  # 学习率
         'loss': 'binary_crossentropy',  #
