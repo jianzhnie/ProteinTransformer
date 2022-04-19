@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 import sys
 
 sys.path.append('../')
-from deepfold.data.uniprot_dataset import AnnotatedSequences
+from deepfold.data.proseq_dataset import AnnotatedSequences
 from deepfold.loss.metrics import compute_roc
 from deepfold.model.deepgoplus import DeepGOPlusModel
 
@@ -71,7 +71,7 @@ def main(data_path, model_path, summary_path):
     # Hyper parameters of model and training
     params = {
         'nb_filters': 128,
-        'max_kernel': 129,
+        'max_kernel': 15,
         'fc_depth': 0,
         'learning_rate': 3e-4,  # 学习率
         'loss': 'binary_crossentropy',  #
@@ -92,7 +92,7 @@ def main(data_path, model_path, summary_path):
     train_dataset = AnnotatedSequences(train_df, terms_df)
     test_dataset = AnnotatedSequences(test_df, terms_df)
 
-    train_valid_split = 0.9
+    train_valid_split = 0.1
     train_dataset_size = int(len(train_dataset) * train_valid_split)
     valid_dataset_size = len(train_dataset) - train_dataset_size
     train_dataset, valid_dataset = random_split(
@@ -104,9 +104,11 @@ def main(data_path, model_path, summary_path):
 
     train_dataloader = DataLoader(train_dataset,
                                   batch_size=params['train_batch_size'],
+                                  drop_last=True,
                                   shuffle=True)
     valid_dataloader = DataLoader(valid_dataset,
                                   batch_size=params['valid_batch_size'],
+                                  drop_last=True,
                                   shuffle=True)
     test_dataloader = DataLoader(test_dataset,
                                  batch_size=params['test_batch_size'],
@@ -187,18 +189,16 @@ def train(model,
           valid_loader,
           train_len,
           valid_len,
-          nb_classes,
           device='cpu'):
     model.train()  # 设置为训练模式
     train_loss = 0  # 初始化训练损失为0
     train_auc = 0  # 初始化预测正确个数为0
 
-    train_preds = np.zeros((train_len, nb_classes))
-    train_trues = np.zeros((valid_len, nb_classes))
+    train_preds = []
+    train_trues = []
 
     # 训练过程
     for index, (data, target) in enumerate(train_loader):
-        train_batch = data.shape[0]
         data = data.to(device)
         target = target.to(device)
 
@@ -212,10 +212,11 @@ def train(model,
         pred_numpy = output.detach().cpu().numpy()
         true_numpy = target.detach().cpu().numpy()
 
-        train_preds[index * train_batch:(index + 1) *
-                    train_batch, :] = pred_numpy  # 获取预测值
-        train_trues[index * train_batch:(index + 1) *
-                    train_batch, :] = true_numpy
+        train_preds.append(pred_numpy)  # 获取预测值
+        train_trues.append(true_numpy)
+
+    train_preds = np.concatenate(train_preds)
+    train_trues = np.concatenate(train_trues)
 
     train_auc = compute_roc(train_trues, train_preds)  # 训练集准确率
 
@@ -223,8 +224,8 @@ def train(model,
     valid_loss = 0  # 初始化测试损失值为0
     valid_auc = 0  # 初始化预测正确的数据个数为0
 
-    valid_preds = np.zeros((len(valid_len), nb_classes))
-    valid_trues = np.zeros((len(valid_len), nb_classes))
+    valid_preds = []
+    valid_trues = []
 
     # 验证效果
     for index, (data, target) in enumerate(valid_loader):
@@ -243,10 +244,11 @@ def train(model,
         pred_numpy = output.detach().cpu().numpy()
         true_numpy = target.detach().cpu().numpy()
 
-        valid_preds[index * valid_batch:(index + 1) *
-                    valid_batch, :] = pred_numpy  # 获取预测值
-        valid_trues[index * valid_batch:(index + 1) *
-                    valid_batch, :] = true_numpy
+        valid_preds.append(pred_numpy)  # 获取预测值
+        valid_trues.append(true_numpy)
+
+        valid_preds = np.concatenate(train_trues)
+        valid_trues = np.concatenate(valid_trues)
 
     valid_auc = compute_roc(valid_trues, valid_preds)  # 训练集准确率
 
@@ -263,13 +265,13 @@ def train(model,
 
 
 # Testing function
-def test(model, crition, test_loader, test_len, nb_classes, device):
+def test(model, crition, test_loader, test_len, device):
     model.eval()  # 设置为test模式
     test_loss = 0  # 初始化测试损失值为0
     test_auc = 0  # 初始化预测正确的数据个数为0
 
-    y_preds = np.zeros((len(test_len), nb_classes))
-    y_trues = np.zeros((len(test_len), nb_classes))
+    y_preds = []
+    y_trues = []
 
     # 测试结果
     for index, (data, target) in enumerate(test_loader):
@@ -288,12 +290,14 @@ def test(model, crition, test_loader, test_len, nb_classes, device):
         pred_numpy = output.detach().cpu().numpy()
         true_numpy = target.detach().cpu().numpy()
 
-        y_preds[index * test_batch:(index + 1) *
-                test_batch, :] = pred_numpy  # 获取预测值
-        y_trues[index * test_batch:(index + 1) * test_batch, :] = true_numpy
+        y_preds.append(pred_numpy)  # 获取预测值
+        y_trues.append(true_numpy)
+
+    y_preds = np.concatenate(y_preds)
+    y_trues = np.concatenate(y_trues)
 
     test_auc = compute_roc(y_trues, y_preds)
-    test_loss /= len(test_loader.dataset)
+    test_loss /= test_len
     # 因为把所有loss值进行过累加，所以最后要除以总得数据长度才得平均loss
     print('Test set: Average loss: {:.4f}, ROC AUC: {:.2f}'.format(
         test_loss, test_auc))
