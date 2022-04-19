@@ -4,7 +4,7 @@ import logging
 import click as ck
 import pandas as pd
 from ontology import Ontology
-from utils import is_cafa_target, is_exp_code
+from data_utils import is_cafa_target, is_exp_code
 
 logging.basicConfig(level=logging.INFO)
 

@@ -4,7 +4,8 @@ MAXLEN = 2000
 
 
 class AminoacidsVocab(object):
-    def __init__(self, maxlen=2000) -> None:
+
+    def __init__(self, maxlen=2000):
         self.acids_vocab = [
             'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M',
             'F', 'P', 'S', 'T', 'W', 'Y', 'V'
@@ -60,6 +61,9 @@ class AminoacidsVocab(object):
 
 if __name__ == '__main__':
     vocab = AminoacidsVocab()
-    ngram = vocab.gen_acids_ngram()
-    print(ngram)
     print(vocab.token_to_idx)
+    seq = 'MASNTVSAQGGSNRPVRDFSNIQDVAQFLLFDPIWNEQPGSIVPWKMNREQALAERYPELQTSEPSEDYSGPVESLELLPLEIKLDIMQYLSWEQISWCKHPWLWTRWYKDNVVRVSAITFEDFQREYAFPEKIQEIHFTDTRAEEIKAILETTPNVTRLVIRRIDDMNYNTHGDLGLDDLEFLTHLMVEDACGFTDFWAPSLTHLTIKNLDMHPRWFGPVMDGIKSMQSTLKYLYIFETYGVNKPFVQWCTDNIETFYCTNSYRYENVPRPIYVWVLFQEDEWHGYRVEDNKFHRRYMYSTILHKRDTDWVENNPLKTPAQVEMYKFLLRISQLNRDGTGYESDSDPENEHFDDESFSSGEEDSSDEDDPTWAPDSDDSDWETETEEEPSVAARILEKGKLTITNLMKSLGFKPKPKKIQSIDRYFCSLDSNYNSEDEDFEYDSDSEDDDSDSEDDC'
+    onehot = vocab.to_onehot(seq)
+    print(len(seq))
+    print(onehot)
+    print(onehot.shape)
