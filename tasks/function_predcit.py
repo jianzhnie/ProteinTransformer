@@ -64,7 +64,7 @@ def main(data_path, model_path, summary_path):
     data_path_dict['test_data'] = test_data_file
     data_path_dict['predictions'] = predictions_file
 
-    train_df = pd.read_pickle(data_path_dict['test_data'])
+    train_df = pd.read_pickle(data_path_dict['train_data'])
     test_df = pd.read_pickle(data_path_dict['test_data'])
     terms_df = pd.read_pickle(data_path_dict['terms'])
 
@@ -92,7 +92,7 @@ def main(data_path, model_path, summary_path):
     train_dataset = AnnotatedSequences(train_df, terms_df)
     test_dataset = AnnotatedSequences(test_df, terms_df)
 
-    train_valid_split = 0.1
+    train_valid_split = 0.9
     train_dataset_size = int(len(train_dataset) * train_valid_split)
     valid_dataset_size = len(train_dataset) - train_dataset_size
     train_dataset, valid_dataset = random_split(
@@ -142,14 +142,12 @@ def main(data_path, model_path, summary_path):
             valid_dataloader,
             train_len=len(train_dataset),
             valid_len=len(valid_dataset),
-            nb_classes=nb_classes,
             device=device)
         y_trues, y_preds, test_loss, test_auc = test(
             model,
             crition,
             test_dataloader,
             test_len=len(test_dataset),
-            nb_classes=nb_classes,
             device=device)
 
         writer.add_scalar('train_loss', train_loss, epoch + start_epoch)
@@ -171,7 +169,6 @@ def main(data_path, model_path, summary_path):
                                                    crition,
                                                    test_dataloader,
                                                    test_len=len(test_dataset),
-                                                   nb_classes=nb_classes,
                                                    device=device)
 
     # 保存df文件
@@ -247,14 +244,14 @@ def train(model,
         valid_preds.append(pred_numpy)  # 获取预测值
         valid_trues.append(true_numpy)
 
-        valid_preds = np.concatenate(train_trues)
-        valid_trues = np.concatenate(valid_trues)
+    valid_preds = np.concatenate(valid_preds)
+    valid_trues = np.concatenate(valid_trues)
 
     valid_auc = compute_roc(valid_trues, valid_preds)  # 训练集准确率
 
     # total loss should be averaged over dataset
-    train_loss /= len(train_len)
-    valid_loss /= len(valid_len)
+    train_loss /= train_len
+    valid_loss /= valid_len
 
     print('Train set: Average loss: {:.4f}, ROC AUC: {:.4f}'.format(
         train_loss, train_auc))
