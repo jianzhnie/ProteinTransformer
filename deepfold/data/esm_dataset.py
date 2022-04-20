@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 
 
 class ESMDataset(Dataset):
+
     def __init__(self, data_file, terms_file, esm_model='esm1_t6_43M_UR50S'):
         super().__init__()
 
@@ -15,7 +16,7 @@ class ESMDataset(Dataset):
         self.len_df = len(data_df)
         self.nb_classes = len(terms)
         self.ems_model = esm_model
-        self.batch_converter = self.get_esm_batch_converter()
+        self.batch_converter = self.load_esm_model()
         self.data, self.labels = self.data_to_tensor(data_df, terms_dict)
 
     def __len__(self):
@@ -49,7 +50,7 @@ class ESMDataset(Dataset):
         terms = terms_df['terms'].values.flatten()
         return data_df, terms
 
-    def get_esm_batch_converter(self):
+    def load_esm_model(self):
         model, alphabet = torch.hub.load('facebookresearch/esm:main',
                                          self.esm_model)
         # 将未处理的 (labels + strings) batch 转化成(labels + tensor) batch
