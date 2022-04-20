@@ -4,7 +4,6 @@ import torch.nn.functional as F
 
 
 class BottleNeck(nn.Module):
-
     def __init__(self, in_channels=1024, out_channels=512):
         super(BottleNeck, self).__init__()
         self.conv = nn.Conv1d(in_channels, out_channels, 1)
@@ -17,7 +16,6 @@ class BottleNeck(nn.Module):
 
 
 class ResNetBlock(nn.Module):
-
     def __init__(self,
                  channels=1024,
                  kernel_size=9,
@@ -52,8 +50,8 @@ class ResNetBlock(nn.Module):
 
 
 class Ontology_resnet(nn.Module):
-    """backbone=backbone,nb_gos, nb_zero_gos,nb_rels,channels=1024,kernel_size=9,dilation_rate=3,seq_len=1023,nb_residuals=5"""
-
+    """backbone=backbone,nb_gos, nb_zero_gos,nb_rels,channels=1024,kernel_size=
+    9,dilation_rate=3,seq_len=1023,nb_residuals=5."""
     def __init__(self,
                  backbone=backbone,
                  nb_gos=5874,
