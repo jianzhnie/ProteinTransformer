@@ -1,6 +1,6 @@
 import numpy as np
-import torch
 import pandas as pd
+import torch
 from torch.utils.data import Dataset
 
 from .aminoacids import MAXLEN, AminoacidsVocab
@@ -9,7 +9,6 @@ from .aminoacids import MAXLEN, AminoacidsVocab
 # ------------------------------------------------------------------------------------------
 # Customized pytorch Dateset for annotated sequences
 class AnnotatedSequences(Dataset):
-
     def __init__(self,
                  data_file,
                  terms_file,
@@ -103,7 +102,6 @@ class AnnotatedSequences(Dataset):
 
 # Customized pytorch Dateset for annotated sequences of arbitrary length
 class AnnotatedSequencesXL(Dataset):
-
     def __init__(self,
                  data_frame,
                  terms,
