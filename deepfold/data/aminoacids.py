@@ -4,7 +4,6 @@ MAXLEN = 2000
 
 
 class AminoacidsVocab(object):
-
     def __init__(self, maxlen=2000):
         self.acids_vocab = [
             'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M',
