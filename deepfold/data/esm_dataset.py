@@ -1,12 +1,11 @@
-import numpy as np
-import torch
-import pandas as pd
-from torch.utils.data import Dataset
 import esm
+import numpy as np
+import pandas as pd
+import torch
+from torch.utils.data import Dataset
 
 
 class ESMDataset(Dataset):
-
     def __init__(self, data_file, terms_file, esm_model='esm1_t6_43M_UR50S'):
         super().__init__()
 
@@ -51,7 +50,7 @@ class ESMDataset(Dataset):
         return data_df, terms
 
     def get_esm_batch_converter(self):
-        model, alphabet = torch.hub.load("facebookresearch/esm:main",
+        model, alphabet = torch.hub.load('facebookresearch/esm:main',
                                          self.esm_model)
         # 将未处理的 (labels + strings) batch 转化成(labels + tensor) batch
         batch_converter = alphabet.get_batch_converter()
