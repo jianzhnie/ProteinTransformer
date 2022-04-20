@@ -8,7 +8,6 @@ from ..data.aminoacids import MAXLEN
 
 # Defining Model: deepgoplus
 class DeepGOPlusModel(nn.Module):
-
     def __init__(self, nb_classes, params):
         super().__init__()
 
