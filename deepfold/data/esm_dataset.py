@@ -1,4 +1,3 @@
-import esm
 import numpy as np
 import pandas as pd
 import torch
@@ -6,7 +5,6 @@ from torch.utils.data import Dataset
 
 
 class ESMDataset(Dataset):
-
     def __init__(self, data_file, terms_file, esm_model='esm1_t6_43M_UR50S'):
         super().__init__()
 
