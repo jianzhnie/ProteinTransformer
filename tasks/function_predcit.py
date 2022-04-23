@@ -1,23 +1,23 @@
 import os
+import sys
 
 import click as ck
 import numpy as np
 import pandas as pd
 import torch
+import torch.backends.cudnn as cudnn
+import torch.distributed as dist
 import torch.optim as optim
+import torch.utils.data.distributed
 from torch.autograd import Variable
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 
-import sys
-import torch.backends.cudnn as cudnn
-import torch.distributed as dist
-import torch.utils.data.distributed
-
-sys.path.append('../')
 from deepfold.data.proseq_dataset import AnnotatedSequences
 from deepfold.loss.metrics import compute_roc
 from deepfold.model.deepgoplus import DeepGOPlusModel
+
+sys.path.append('../')
 
 
 @ck.command()
