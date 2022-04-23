@@ -1,14 +1,11 @@
-from __future__ import print_function, division
+from __future__ import division, print_function
 
 import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import PackedSequence
 
-import os
-
 
 class SkipLSTM(nn.Module):
-
     def __init__(self,
                  inputs_size,
                  output_size,
