@@ -6,7 +6,6 @@ python function_predcit.py \
         --summary-path /Users/robin/xbiome/DeepFold/work_dir/logs/deepgoplus
        
 
-CUDA_LAUNCH_BLOCKING=1
 python function_predcit.py \
         --data-path /home/niejianzheng/xbiome/DeepFold/data/data \
         --model-path /home/niejianzheng/xbiome/DeepFold/work_dir/model/deepgoplus \
