@@ -10,6 +10,9 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 
 import sys
+import torch.backends.cudnn as cudnn
+import torch.distributed as dist
+import torch.utils.data.distributed
 
 sys.path.append('../')
 from deepfold.data.proseq_dataset import AnnotatedSequences
@@ -27,6 +30,11 @@ from deepfold.model.deepgoplus import DeepGOPlusModel
            '-sp',
            default='logs/deepgoplus',
            help='Path to save summary')
+@ck.option('--pretrained', default='data', help='use pre-trained model')
+@ck.option('-j',
+           '--workers',
+           default=4,
+           help='how many training processes to use (default: 1)')
 def main(data_path, model_path, summary_path):
     # check data_path
     if not os.path.exists(data_path):
