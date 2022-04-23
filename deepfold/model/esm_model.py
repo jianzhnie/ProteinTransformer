@@ -1,11 +1,8 @@
-import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class Esm(nn.Module):
-
     def __init__(self, esm_model, nb_embedding=768, nb_classes=1000):
         super(esm_model, self).__init__()
         self.backbone, alphabet = torch.hub.load('facebookresearch/esm:main',
