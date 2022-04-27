@@ -9,7 +9,7 @@ class ProteinClassifier(nn.Module):
         self.bert = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME)
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.2),
-            nn.Linear(self.bert.config.hidden_size, n_classes), nn.Tanh())
+            nn.Linear(self.bert.config.hidden_size, n_classes))
 
     def forward(self, input_ids, attention_mask):
         output = self.bert(input_ids=input_ids, attention_mask=attention_mask)
