@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
@@ -8,6 +7,7 @@ from .protein_tokenizer import ProteinTokenizer
 
 
 class ProteinSequenceDataset(Dataset):
+
     def __init__(self, sequence, targets, tokenizer, max_len):
         self.sequence = sequence
         self.targets = targets
@@ -39,6 +39,7 @@ class ProteinSequenceDataset(Dataset):
 
 
 class ProteinSequences(Dataset):
+
     def __init__(self, data_file, terms_file):
         super().__init__()
 
@@ -58,19 +59,19 @@ class ProteinSequences(Dataset):
         seqence = self.data_df['sequences'].iloc[idx]
         label_list = self.data_df['prop_annotations'].iloc[idx]
 
-        label = np.zeros(self.num_classes, dtype=np.int8)
+        label = [0] * self.num_classes
         for t_id in label_list:
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 label[label_idx] = 1
 
         token_ids = self.tokenizer.gen_token_ids(seqence)
-        return {'seq': token_ids, 'label': label}
+        return token_ids, label
 
     def collate_fn(self, examples):
         # 从独立样本集合中构建batch输入输出
-        inputs = [torch.tensor(ex['seq']) for ex in examples]
-        targets = [torch.tensor(ex['label']) for ex in examples]
+        inputs = [torch.tensor(ex[0]) for ex in examples]
+        targets = torch.tensor([ex[1] for ex in examples], dtype=torch.float)
         # 对batch内的样本进行padding，使其具有相同长度
         inputs = pad_sequence(inputs,
                               batch_first=True,
