@@ -78,7 +78,7 @@ def main(data_path, model_path, summary_path):
         'initializer': 'glorot_normal',  #
         'epochs': 10,  # 迭代次数
         'model_save_interval': 1,  # save model after interval epoches
-        'train_batch_size': 32,  # 训练集一个batch大小
+        'train_batch_size': 128,  # 训练集一个batch大小
         'valid_batch_size': 64,  # 验证集一个batch大小
         'test_batch_size': 64,  # 测试集一个batch大小
         'threshold': 0.5,
@@ -203,6 +203,7 @@ def train(model,
         optimizer.zero_grad()  # 优化器梯度初始化为零
         output = model(data)  # 把数据输入网络并得到输出，即进行前向传播
         loss = crition(output, target.float())  # 交叉熵损失函数
+        print("train loss: ", loss)
         loss.backward()  # 反向传播梯度
         optimizer.step()  # 结束一次前传+反传之后，更新参数
 
@@ -237,7 +238,7 @@ def train(model,
 
         loss = crition(output, target.float())
         valid_loss += loss.item() * valid_batch
-
+        print("train loss:", loss)
         pred_numpy = output.detach().cpu().numpy()
         true_numpy = target.detach().cpu().numpy()
 
