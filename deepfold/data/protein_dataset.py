@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
 import torch
-from protein_tokenizer import ProteinTokenizer
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
+
+from .protein_tokenizer import ProteinTokenizer
 
 
 class ProteinSequenceDataset(Dataset):

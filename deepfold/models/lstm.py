@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 
 
-class LstmEncoderModel(nn.Layer):
+class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""
     def __init__(self,
                  vocab_size=20,

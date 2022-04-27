@@ -58,7 +58,6 @@ def train(model,
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    interrupted = False
     step = get_train_step(model,
                           criterion,
                           optimizer,
@@ -107,7 +106,7 @@ def train(model,
                                              loss=losses_m,
                                              lr=learning_rate))
 
-    return interrupted, losses_m.avg, batch_size
+    return losses_m.avg, batch_size
 
 
 def get_val_step(model, criterion, use_amp=False):
@@ -208,20 +207,19 @@ def train_loop(
         epochs_since_improvement = 0
 
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
-    interrupted = False
     for epoch in range(start_epoch, end_epoch):
         if not skip_training:
             tic = time.time()
-            interrupted, losses_m, batch_size = train(model,
-                                                      train_loader,
-                                                      criterion,
-                                                      optimizer,
-                                                      scaler,
-                                                      lr_scheduler,
-                                                      logger,
-                                                      epoch,
-                                                      use_amp=use_amp,
-                                                      log_interval=10)
+            losses_m, batch_size = train(model,
+                                         train_loader,
+                                         criterion,
+                                         optimizer,
+                                         scaler,
+                                         lr_scheduler,
+                                         logger,
+                                         epoch,
+                                         use_amp=use_amp,
+                                         log_interval=10)
 
         steps_per_epoch = len(train_loader)
         throughput = int(batch_size * steps_per_epoch / (time.time() - tic))
