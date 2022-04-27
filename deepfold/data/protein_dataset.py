@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 from protein_tokenizer import ProteinTokenizer
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 
@@ -63,11 +64,18 @@ class ProteinSequences(Dataset):
                 label[label_idx] = 1
 
         token_ids = self.tokenizer.gen_token_ids(seqence)
-        token_ids = np.array(token_ids)
-        input_ids = torch.from_numpy(token_ids)
-        label = torch.from_numpy(label)
+        return {'seq': token_ids, 'label': label}
 
-        return {'seq': input_ids, 'label': label}
+    def collate_fn(self, examples):
+        # 从独立样本集合中构建batch输入输出
+        inputs = [torch.tensor(ex['seq']) for ex in examples]
+        targets = [torch.tensor(ex['label']) for ex in examples]
+        # 对batch内的样本进行padding，使其具有相同长度
+        inputs = pad_sequence(inputs,
+                              batch_first=True,
+                              padding_value=self.tokenizer.padding_token_id)
+
+        return (inputs, targets)
 
     def load_data(self, data_file, terms_file):
         data_df = pd.read_pickle(data_file)
