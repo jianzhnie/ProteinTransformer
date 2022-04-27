@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
@@ -9,22 +10,24 @@ from .aminoacids import MAXLEN, AminoacidsVocab
 # Customized pytorch Dateset for annotated sequences
 class AnnotatedSequences(Dataset):
     def __init__(self,
-                 data_frame,
-                 terms,
+                 data_file,
+                 terms_file,
                  transform=None,
                  target_transform=None,
                  data_type='one-hot'):
         super().__init__()
+
+        data_df, terms = self.load_data(data_file, terms_file)
         # convert terms to dict
         terms_dict = {v: i for i, v in enumerate(terms)}
         # convert to tensor
         self.aminoacids_vocab = AminoacidsVocab()
         if data_type in ['one-hot', 'One-hot']:
-            data_tensor, labels = self.df_to_tensor(data_frame, len(terms),
+            data_tensor, labels = self.df_to_tensor(data_df, len(terms),
                                                     terms_dict)
         if data_type in ['label-index', 'Label-index']:
             data_tensor, labels = self.df_to_tensor_label_index(
-                data_frame, len(terms), terms_dict)
+                data_df, len(terms), terms_dict)
         # self.
         self.data_type = data_type
         self.terms = terms
@@ -89,6 +92,12 @@ class AnnotatedSequences(Dataset):
         data_index = torch.from_numpy(data_index).int()
         labels = torch.from_numpy(labels).int()
         return data_index, labels
+
+    def load_data(self, data_file, terms_file):
+        data_df = pd.read_pickle(data_file)
+        terms_df = pd.read_pickle(terms_file)
+        terms = terms_df['terms'].values.flatten()
+        return data_df, terms
 
 
 # Customized pytorch Dateset for annotated sequences of arbitrary length

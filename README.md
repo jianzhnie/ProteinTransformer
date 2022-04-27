@@ -1,2 +1,2 @@
-# TorchDeepGOPlus
-TorchDeepGOPlus: Torch implemention  of deepgoplus, Improved protein function prediction from sequence
+# DeepFold
+DeepFold is an ToolKit Using AI for Computing Biology
