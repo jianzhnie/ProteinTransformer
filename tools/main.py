@@ -16,14 +16,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
 
+sys.path.append('../')
 from deepfold.data.protein_dataset import ProteinSequences
 from deepfold.data.protein_tokenizer import ProteinTokenizer
 from deepfold.models.lstm import LstmEncoderModel
 from deepfold.scheduler import (CosineLRScheduler, ExponentialLRScheduler,
                                 LinearLRScheduler, StepLRScheduler)
 from deepfold.trainer.training import train_loop
-
-sys.path.append('../')
 
 
 def parse_args():
@@ -219,9 +218,6 @@ def prepare_for_training(args):
             )
 
     start_epoch = 0
-    # Creat train losses
-    loss = nn.BCEWithLogitsLoss()
-
     # Create data loaders
     # Result file with a list of terms for prediction task
     terms_file = os.path.join(args.data_path, u'terms.pkl')
@@ -269,7 +265,7 @@ def prepare_for_training(args):
                              embed_dim=128,
                              hidden_size=1024,
                              num_labels=num_classes,
-                             bidirectional=True)
+                             bidirectional=False)
 
     # model
     if args.distributed:
@@ -294,27 +290,18 @@ def prepare_for_training(args):
         model.cuda()
 
     # define loss function (criterion) and optimizer
-    criterion = loss().cuda(args.gpu)
+    # Creat train losses
+    criterion = nn.BCEWithLogitsLoss().cuda(args.gpu)
     # optimizer and lr_policy
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     if args.lr_schedule == 'step':
-        if args.auto_step:
-            step_ratios = [0.6, 0.9]
-            auto_steps = [int(ratio * args.epochs) for ratio in step_ratios]
-            lr_policy = StepLRScheduler(optimizer=optimizer,
-                                        base_lr=args.lr,
-                                        steps=auto_steps,
-                                        decay_factor=0.1,
-                                        warmup_length=args.warmup,
-                                        logger=logger)
-        else:
-            lr_policy = StepLRScheduler(optimizer=optimizer,
-                                        base_lr=args.lr,
-                                        steps=[30, 60, 80],
-                                        decay_factor=0.1,
-                                        warmup_length=args.warmup,
-                                        logger=logger)
+        lr_policy = StepLRScheduler(optimizer=optimizer,
+                                    base_lr=args.lr,
+                                    steps=[30, 60, 80],
+                                    decay_factor=0.1,
+                                    warmup_length=args.warmup,
+                                    logger=logger)
     elif args.lr_schedule == 'cosine':
         lr_policy = CosineLRScheduler(optimizer=optimizer,
                                       base_lr=args.lr,
@@ -352,7 +339,6 @@ def main(args):
     best_prec1 = 0
     model, criterion, optimizer, lr_policy, scaler, train_loader, valid_loader, start_epoch = prepare_for_training(
         args)
-
     train_loop(
         model,
         criterion,
@@ -364,8 +350,7 @@ def main(args):
         logger=logger,
         use_amp=args.amp,
         start_epoch=start_epoch,
-        end_epoch=min((start_epoch + args.run_epochs), args.epochs)
-        if args.run_epochs != -1 else args.epochs,
+        end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
         best_prec1=best_prec1,
         skip_training=args.evaluate,
