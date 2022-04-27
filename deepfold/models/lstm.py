@@ -5,10 +5,11 @@ from torch.nn import BCEWithLogitsLoss
 class LstmEncoderModel(nn.Layer):
     """LstmEncoderModel."""
     def __init__(self,
-                 vocab_size,
+                 vocab_size=20,
                  embed_dim=128,
                  hidden_size=1024,
                  n_layers=3,
+                 num_labels=None,
                  bidirectional=False,
                  padding_idx=0,
                  dropout_rate=0.1):
@@ -23,14 +24,16 @@ class LstmEncoderModel(nn.Layer):
                                     hidden_size,
                                     num_layers=n_layers,
                                     bidirectional=bidirectional)
+        self.classifier = nn.Linear(hidden_size, num_labels)
 
     def forward(self, input):
         """forward."""
         token_embed = self.embedding(input)
         encoder_output, _ = self.lstm_encoder(token_embed)
         encoder_output = self.dropout(encoder_output)
+        logits = self.classifier(encoder_output)
 
-        return encoder_output
+        return logits
 
 
 class MultiLabelSequenceClassification():
