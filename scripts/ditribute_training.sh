@@ -5,9 +5,9 @@ python function_predcit.py \
 
 
 python main.py \
---data_path /Users/robin/xbiome/datasets/protein \
---output-dir /Users/robin/xbiome/DeepFold/work_dir \
+--data_path /home/niejianzheng/xbiome/dataset/protein \
+--output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
 --epochs 2 \
 --lr 0.001 \
 --epochs 10 \
---batch-size 256
+--batch-size 32
