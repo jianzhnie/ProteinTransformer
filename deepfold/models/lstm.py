@@ -1,9 +1,11 @@
+import torch
 import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 
 
 class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""
+
     def __init__(self,
                  vocab_size=20,
                  embed_dim=128,
@@ -31,13 +33,15 @@ class LstmEncoderModel(nn.Module):
         token_embed = self.embedding(input)
         encoder_output, _ = self.lstm_encoder(token_embed)
         encoder_output = self.dropout(encoder_output)
-        logits = self.classifier(encoder_output)
+        output = torch.mean(encoder_output, dim=1)
+        logits = self.classifier(output)
 
         return logits
 
 
 class MultiLabelSequenceClassification():
     """Bert model adapted for multi-label sequence classification."""
+
     def __init__(self, config, pos_weight=None):
         super(self).__init__(config)
         self.num_labels = config.num_labels
