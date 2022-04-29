@@ -2,8 +2,139 @@ import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
+from transformers import AutoTokenizer
+from torch.utils.data import Dataset
+from protein_tokenizer import ProteinTokenizer
+import os
+import pandas as pd
+import re
 
-from .protein_tokenizer import ProteinTokenizer
+
+class ProtBertDataset(Dataset):
+
+    def __init__(self,
+                 data_path='dataset/',
+                 split="train",
+                 tokenizer_name='Rostlab/prot_bert_bfd',
+                 max_length=1024):
+        self.datasetFolderPath = data_path
+        self.trainFilePath = os.path.join(self.datasetFolderPath,
+                                          'train_data.pkl')
+        self.testFilePath = os.path.join(self.datasetFolderPath,
+                                         'test_data.pkl')
+        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name,
+                                                       do_lower_case=False)
+
+        if split == "train":
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.trainFilePath, self.termsFilePath)
+        else:
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.testFilePath, self.termsFilePath)
+
+        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
+        self.num_classes = len(self.terms)
+        self.max_length = max_length
+
+    def load_dataset(self, data_path, term_path):
+        df = pd.read_pickle(data_path)
+        terms_df = pd.read_pickle(term_path)
+        terms = terms_df['terms'].values.flatten()
+
+        seq = list(df['sequences'])
+        label = list(df['prop_annotations'])
+        assert len(seq) == len(label)
+        return seq, label, terms
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+
+        seq = " ".join("".join(self.seqs[idx].split()))
+        seq = re.sub(r"[UZOB]", "X", seq)
+
+        seq_ids = self.tokenizer(seq,
+                                 truncation=True,
+                                 padding='max_length',
+                                 max_length=self.max_length)
+
+        sample = {key: torch.tensor(val) for key, val in seq_ids.items()}
+
+        label_list = self.labels[idx]
+        multilabel = [0] * self.num_classes
+        for t_id in label_list:
+            if t_id in self.terms_dict:
+                label_idx = self.terms_dict[t_id]
+                multilabel[label_idx] = 1
+
+        sample['labels'] = torch.tensor(multilabel)
+        return sample
+
+
+class ProteinSequences(Dataset):
+
+    def __init__(self, data_path, split="train", max_length=1024):
+        super().__init__()
+
+        self.datasetFolderPath = data_path
+        self.trainFilePath = os.path.join(self.datasetFolderPath,
+                                          'train_data.pkl')
+        self.testFilePath = os.path.join(self.datasetFolderPath,
+                                         'test_data.pkl')
+        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+
+        if split == "train":
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.trainFilePath, self.termsFilePath)
+        else:
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.testFilePath, self.termsFilePath)
+
+        # self.
+        self.tokenizer = ProteinTokenizer()
+        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
+        self.num_classes = len(self.terms)
+        self.max_length = max_length
+
+    def __len__(self):
+        return len(self.data_df)
+
+    def __getitem__(self, idx):
+        seqence = self.seqs[idx]
+        label_list = self.labels[idx]
+
+        multilabel = [0] * self.num_classes
+        for t_id in label_list:
+            if t_id in self.terms_dict:
+                label_idx = self.terms_dict[t_id]
+                multilabel[label_idx] = 1
+
+        token_ids = self.tokenizer.gen_token_ids(seqence)
+        return token_ids, multilabel
+
+    def collate_fn(self, examples):
+        # 从独立样本集合中构建batch输入输出
+        inputs = [torch.tensor(ex[0]) for ex in examples]
+        targets = torch.tensor([ex[1] for ex in examples], dtype=torch.float)
+        # 对batch内的样本进行padding，使其具有相同长度
+        inputs = pad_sequence(inputs,
+                              batch_first=True,
+                              padding_value=self.tokenizer.padding_token_id)
+
+        return (inputs, targets)
+
+    def load_dataset(self, data_path, term_path):
+        df = pd.read_pickle(data_path)
+        terms_df = pd.read_pickle(term_path)
+        terms = terms_df['terms'].values.flatten()
+
+        seq = list(df['sequences'])
+        label = list(df['prop_annotations'])
+        assert len(seq) == len(label)
+        return seq, label, terms
 
 
 class ProteinSequenceDataset(Dataset):
@@ -38,59 +169,17 @@ class ProteinSequenceDataset(Dataset):
         }
 
 
-class ProteinSequences(Dataset):
-
-    def __init__(self, data_file, terms_file):
-        super().__init__()
-
-        self.data_df, terms = self.load_data(data_file, terms_file)
-        # convert terms to dict
-        self.terms_dict = {v: i for i, v in enumerate(terms)}
-
-        # self.
-        self.terms = terms
-        self.num_classes = len(terms)
-        self.tokenizer = ProteinTokenizer()
-
-    def __len__(self):
-        return len(self.data_df)
-
-    def __getitem__(self, idx):
-        seqence = self.data_df['sequences'].iloc[idx]
-        label_list = self.data_df['prop_annotations'].iloc[idx]
-
-        label = [0] * self.num_classes
-        for t_id in label_list:
-            if t_id in self.terms_dict:
-                label_idx = self.terms_dict[t_id]
-                label[label_idx] = 1
-
-        token_ids = self.tokenizer.gen_token_ids(seqence)
-        return token_ids, label
-
-    def collate_fn(self, examples):
-        # 从独立样本集合中构建batch输入输出
-        inputs = [torch.tensor(ex[0]) for ex in examples]
-        targets = torch.tensor([ex[1] for ex in examples], dtype=torch.float)
-        # 对batch内的样本进行padding，使其具有相同长度
-        inputs = pad_sequence(inputs,
-                              batch_first=True,
-                              padding_value=self.tokenizer.padding_token_id)
-
-        return (inputs, targets)
-
-    def load_data(self, data_file, terms_file):
-        data_df = pd.read_pickle(data_file)
-        terms_df = pd.read_pickle(terms_file)
-        terms = terms_df['terms'].values.flatten()
-        return data_df, terms
-
-
 if __name__ == '__main__':
 
     pro_dataset = ProteinSequences(
-        data_file='/Users/robin/xbiome/datasets/protein/train_data.pkl',
-        terms_file='/Users/robin/xbiome/datasets/protein/terms.pkl')
+        data_path='/Users/robin/xbiome/datasets/protein', split=True)
     for i in range(10):
         sample = pro_dataset[i]
-        print(i, sample['seq'], sample['label'])
+        print(i, sample[0], sample[1])
+
+    pro_dataset = ProtBertDataset(
+        data_path='/Users/robin/xbiome/datasets/protein')
+    for i in range(10):
+        sample = pro_dataset[i]
+        for key, val in sample.items():
+            print(key, val)
