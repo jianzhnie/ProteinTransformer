@@ -74,7 +74,7 @@ class ProtBertDataset(Dataset):
         return sample
 
 
-class ProteinSequences(Dataset):
+class CustomProteinSequences(Dataset):
 
     def __init__(self, data_path, split="train", max_length=1024):
         super().__init__()
