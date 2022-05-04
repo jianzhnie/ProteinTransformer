@@ -1,7 +1,7 @@
-tqdm
-tensorboardX
-scipy
-lmdb
-boto3
-requests
 biopython
+boto3
+lmdb
+requests
+scipy
+tensorboardX
+tqdm
