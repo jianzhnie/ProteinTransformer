@@ -3,9 +3,26 @@ import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 
 
+class ProteinLSTMConfig():
+    def __init__(self,
+                 vocab_size: int = 30,
+                 input_size: int = 128,
+                 hidden_size: int = 1024,
+                 num_hidden_layers: int = 3,
+                 hidden_dropout_prob: float = 0.1,
+                 initializer_range: float = 0.02,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.vocab_size = vocab_size
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_hidden_layers = num_hidden_layers
+        self.hidden_dropout_prob = hidden_dropout_prob
+        self.initializer_range = initializer_range
+
+
 class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""
-
     def __init__(self,
                  vocab_size=20,
                  embed_dim=128,
@@ -41,7 +58,6 @@ class LstmEncoderModel(nn.Module):
 
 class MultiLabelSequenceClassification():
     """Bert model adapted for multi-label sequence classification."""
-
     def __init__(self, config, pos_weight=None):
         super(self).__init__(config)
         self.num_labels = config.num_labels
