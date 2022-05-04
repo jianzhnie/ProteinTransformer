@@ -19,6 +19,11 @@ class AminoacidsVocab(object):
             for idx, token in enumerate(self.acids_vocab)
         }
 
+        self.idx_to_token = {
+            idx: token
+            for token, idx in self.token_to_idx.items()
+        }
+
         self.acids_ngram = self.gen_acids_ngram()
 
     def gen_acids_ngram(self):
