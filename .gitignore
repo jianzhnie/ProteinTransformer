@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 work_dir/
 .DS_Store
+logs/
+wandb/
+*.ipynb
+*.ipynb
