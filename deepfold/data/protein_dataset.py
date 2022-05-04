@@ -2,16 +2,15 @@ import os
 import re
 
 import pandas as pd
-import pandas as pd
 import torch
-from protein_tokenizer import ProteinTokenizer
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 
+from .protein_tokenizer import ProteinTokenizer
+
 
 class ProtBertDataset(Dataset):
-
     def __init__(self,
                  data_path='dataset/',
                  split='train',
@@ -75,7 +74,6 @@ class ProtBertDataset(Dataset):
 
 
 class CustomProteinSequences(Dataset):
-
     def __init__(self, data_path, split='train', max_length=1024):
         super().__init__()
 
@@ -138,7 +136,6 @@ class CustomProteinSequences(Dataset):
 
 
 class ProteinSequenceDataset(Dataset):
-
     def __init__(self, sequence, targets, tokenizer, max_len):
         self.sequence = sequence
         self.targets = targets
@@ -179,6 +176,7 @@ if __name__ == '__main__':
 
     pro_dataset = ProtBertDataset(
         data_path='/Users/robin/xbiome/datasets/protein')
+    print(pro_dataset.num_classes)
     for i in range(10):
         sample = pro_dataset[i]
         for key, val in sample.items():
