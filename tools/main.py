@@ -16,13 +16,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
 
-sys.path.append('../')
 from deepfold.data.protein_dataset import ProteinSequences
 from deepfold.data.protein_tokenizer import ProteinTokenizer
 from deepfold.models.lstm import LstmEncoderModel
 from deepfold.scheduler import (CosineLRScheduler, ExponentialLRScheduler,
                                 LinearLRScheduler, StepLRScheduler)
 from deepfold.trainer.training import train_loop
+
+sys.path.append('../')
 
 
 def parse_args():
