@@ -1,20 +1,20 @@
+import os
+import re
+
+import pandas as pd
 import pandas as pd
 import torch
+from protein_tokenizer import ProteinTokenizer
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
-from torch.utils.data import Dataset
-from protein_tokenizer import ProteinTokenizer
-import os
-import pandas as pd
-import re
 
 
 class ProtBertDataset(Dataset):
 
     def __init__(self,
                  data_path='dataset/',
-                 split="train",
+                 split='train',
                  tokenizer_name='Rostlab/prot_bert_bfd',
                  max_length=1024):
         self.datasetFolderPath = data_path
@@ -27,7 +27,7 @@ class ProtBertDataset(Dataset):
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name,
                                                        do_lower_case=False)
 
-        if split == "train":
+        if split == 'train':
             self.seqs, self.labels, self.terms = self.load_dataset(
                 self.trainFilePath, self.termsFilePath)
         else:
@@ -53,8 +53,8 @@ class ProtBertDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        seq = " ".join("".join(self.seqs[idx].split()))
-        seq = re.sub(r"[UZOB]", "X", seq)
+        seq = ' '.join(''.join(self.seqs[idx].split()))
+        seq = re.sub(r'[UZOB]', 'X', seq)
 
         seq_ids = self.tokenizer(seq,
                                  truncation=True,
@@ -76,7 +76,7 @@ class ProtBertDataset(Dataset):
 
 class CustomProteinSequences(Dataset):
 
-    def __init__(self, data_path, split="train", max_length=1024):
+    def __init__(self, data_path, split='train', max_length=1024):
         super().__init__()
 
         self.datasetFolderPath = data_path
@@ -86,7 +86,7 @@ class CustomProteinSequences(Dataset):
                                          'test_data.pkl')
         self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
 
-        if split == "train":
+        if split == 'train':
             self.seqs, self.labels, self.terms = self.load_dataset(
                 self.trainFilePath, self.termsFilePath)
         else:
@@ -171,7 +171,7 @@ class ProteinSequenceDataset(Dataset):
 
 if __name__ == '__main__':
 
-    pro_dataset = ProteinSequences(
+    pro_dataset = CustomProteinSequences(
         data_path='/Users/robin/xbiome/datasets/protein', split=True)
     for i in range(10):
         sample = pro_dataset[i]
