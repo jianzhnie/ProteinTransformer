@@ -35,11 +35,11 @@ if __name__ == '__main__':
     val_dataset = ProtBertDataset(data_path=data_root,
                                   split='valid',
                                   tokenizer_name=model_name,
-                                  max_length=1024)
+                                  max_length=256)
     test_dataset = ProtBertDataset(data_path=data_root,
                                    split='test',
                                    tokenizer_name=model_name,
-                                   max_length=1024)
+                                   max_length=256)
     num_classes = train_dataset.num_classes
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         do_train=True,  # Perform training
         do_eval=True,  # Perform evaluation
         evaluation_strategy='epoch',  # evalute after eachh epoch
-        gradient_accumulation_steps=64,
+        gradient_accumulation_steps=1,
         # total number of steps before back propagation
         fp16=False,  # Use mixed precision
         run_name='ProBert-BFD-MS',  # experiment name
