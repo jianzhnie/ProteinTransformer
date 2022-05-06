@@ -113,15 +113,13 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
+        preds = F.sigmoid(logits)
 
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            outputs = (loss, ) + outputs
-
-            preds = F.sigmoid(logits)
 
         if not return_dict:
             output = (logits, ) + (preds, ) + outputs[2:]
