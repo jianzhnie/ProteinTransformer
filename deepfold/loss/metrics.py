@@ -1,6 +1,15 @@
 import math
 
-from sklearn.metrics import auc, matthews_corrcoef, roc_curve
+from sklearn.metrics import (accuracy_score, auc, f1_score, matthews_corrcoef,
+                             precision_score, recall_score, roc_curve)
+
+
+def accuracy(y_true, y_pred):
+    acc = accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)
+    pre = precision_score(y_true=y_true, y_pred=y_pred, average='samples')
+    recall = recall_score(y_true=y_true, y_pred=y_pred, average='samples')
+    f1 = f1_score(y_true=y_true, y_pred=y_pred, average='samples')
+    return acc, pre, recall, f1
 
 
 # ------------------------------------------------------------------------------------------
