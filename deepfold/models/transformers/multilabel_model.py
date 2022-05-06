@@ -68,8 +68,8 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
 
-        outputs = (logits, ) + outputs[
-            2:]  # add hidden states and attention if they are here
+        outputs = (logits, ) + outputs[2:]
+        # add hidden states and attention if they are here
 
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
