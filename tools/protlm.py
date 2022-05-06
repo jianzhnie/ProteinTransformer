@@ -3,12 +3,11 @@ import sys
 from sklearn.metrics import (accuracy_score, f1_score,
                              precision_recall_fscore_support)
 from transformers import BertConfig, Trainer, TrainingArguments
-
+sys.path.append('../')
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics_(pred):
@@ -29,7 +28,7 @@ def compute_metrics(pred):
     print(pred)
     labels = pred.label_ids
     print(labels)
-    preds = pred.preds
+    preds = pred.predictions
     print(preds)
     print(labels.shape, preds.shape)
     accuracy = accuracy_score(labels, preds)
@@ -61,7 +60,6 @@ if __name__ == '__main__':
     num_classes = train_dataset.num_classes
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
-
     model = BertForMultiLabelSequenceClassification.from_pretrained(
         model_name, config=model_config)
 
@@ -77,7 +75,7 @@ if __name__ == '__main__':
         do_train=True,  # Perform training
         do_eval=True,  # Perform evaluation
         evaluation_strategy='epoch',  # evalute after eachh epoch
-        gradient_accumulation_steps=1,
+        gradient_accumulation_steps=10,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
