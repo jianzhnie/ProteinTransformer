@@ -2,15 +2,30 @@ import sys
 
 from transformers import BertConfig, Trainer, TrainingArguments
 
+sys.path.append('../')
+
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.loss.custom_metrics import do_compute_metrics
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, average_precision_score
 
-sys.path.append('../')
 
 
 def compute_metrics(pred):
+    labels = pred.label_ids
+    preds = pred.predictions
+    print(labels)
+    print(preds)
+    print(labels.shape, preds.shape)
+    # precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='binary')
+    acc = average_precision_score(labels, preds)
+    return {
+        'accuracy': acc
+    }
+
+
+def compute_metrics_(pred):
     labels = pred.label_ids
     preds = pred.predictions
     print(labels.shape, preds.shape)
@@ -42,7 +57,7 @@ if __name__ == '__main__':
 
     training_args = TrainingArguments(
         output_dir='./work_dir',  # output directory
-        num_train_epochs=1,  # total number of training epochs
+        num_train_epochs=2,  # total number of training epochs
         per_device_train_batch_size=128,  # batch size per device during training
         per_device_eval_batch_size=128,  # batch size for evaluation
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
@@ -52,7 +67,7 @@ if __name__ == '__main__':
         do_train=True,  # Perform training
         do_eval=True,  # Perform evaluation
         evaluation_strategy='epoch',  # evalute after eachh epoch
-        gradient_accumulation_steps=10,
+        gradient_accumulation_steps=5,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
