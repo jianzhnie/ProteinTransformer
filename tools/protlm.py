@@ -1,16 +1,19 @@
 import sys
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, f1_score
+
+from sklearn.metrics import (accuracy_score, f1_score,
+                             precision_recall_fscore_support)
 from transformers import BertConfig, Trainer, TrainingArguments
-sys.path.append('../')
+
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
+sys.path.append('../')
 
 
 def compute_metrics_(pred):
     labels = pred.label_ids
-    preds = pred.predictions
+    preds = pred.predictions.sigmoid()
     precision, recall, f1, _ = precision_recall_fscore_support(
         labels, preds, average='binary')
     acc = accuracy_score(labels, preds)
@@ -21,11 +24,12 @@ def compute_metrics_(pred):
         'recall': recall
     }
 
+
 def compute_metrics(pred):
     print(pred)
     labels = pred.label_ids
     print(labels)
-    preds = pred.predictions.argmax(-1)
+    preds = pred.preds
     print(preds)
     print(labels.shape, preds.shape)
     accuracy = accuracy_score(labels, preds)
@@ -38,7 +42,6 @@ def compute_metrics(pred):
     }
 
 
-
 if __name__ == '__main__':
     model_name = 'Rostlab/prot_bert_bfd'
     data_root = '/home/niejianzheng/xbiome/datasets/protein'
@@ -48,13 +51,13 @@ if __name__ == '__main__':
         tokenizer_name=model_name,
         max_length=128)  # max_length is only capped to speed-up example.
     train_dataset = ProtBertDataset(data_path=data_root,
-                                  split='valid',
+                                    split='valid',
+                                    tokenizer_name=model_name,
+                                    max_length=128)
+    val_dataset = ProtBertDataset(data_path=data_root,
+                                  split='test',
                                   tokenizer_name=model_name,
                                   max_length=128)
-    val_dataset = ProtBertDataset(data_path=data_root,
-                                   split='test',
-                                   tokenizer_name=model_name,
-                                   max_length=128)
     num_classes = train_dataset.num_classes
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
@@ -77,7 +80,7 @@ if __name__ == '__main__':
         gradient_accumulation_steps=1,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
-        fp16_opt_level="02",  # mixed precision mode
+        fp16_opt_level='02',  # mixed precision mode
         run_name='ProBert-BFD-MS',  # experiment name
         seed=3  # Seed for experiment reproducibility 3x3
     )
@@ -92,4 +95,4 @@ if __name__ == '__main__':
 
     trainer.train()
     trainer.save_model('models/')
-    predictions, label_ids, metrics = trainer.predict(test_dataset)
+    predictions, label_ids, metrics = trainer.predict(val_dataset)
