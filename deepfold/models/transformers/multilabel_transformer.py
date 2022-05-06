@@ -1,5 +1,3 @@
-from typing import Optional, Tuple
-
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -9,6 +7,7 @@ from transformers import (BertModel, BertPreTrainedModel, DistilBertModel,
                           FlaubertModel, LongformerModel, RobertaModel,
                           XLMModel, XLMPreTrainedModel, XLNetModel,
                           XLNetPreTrainedModel)
+from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers.modeling_utils import PreTrainedModel, SequenceSummary
 from transformers.models.albert.modeling_albert import (AlbertModel,
                                                         AlbertPreTrainedModel)
@@ -35,37 +34,6 @@ from transformers.models.xlm_roberta.configuration_xlm_roberta import \
     XLMRobertaConfig
 from transformers.models.xlm_roberta.modeling_xlm_roberta import \
     XLM_ROBERTA_PRETRAINED_MODEL_ARCHIVE_LIST
-from transformers.utils.generic import ModelOutput
-
-
-class SequenceClassifierOutput(ModelOutput):
-    """Base class for outputs of sentence classification models.
-
-    Args:
-        loss (`torch.FloatTensor` of shape `(1,)`, *optional*, returned when `labels` is provided):
-            Classification (or regression if config.num_labels==1) loss.
-        logits (`torch.FloatTensor` of shape `(batch_size, config.num_labels)`):
-            Classification (or regression if config.num_labels==1) scores (before SoftMax).
-        preds (`torch.FloatTensor` of shape `(batch_size, config.num_labels)`):
-            Classification (or regression if config.num_labels==1) labels.
-        hidden_states (`tuple(torch.FloatTensor)`, *optional*, returned when `output_hidden_states=True` is passed or when `config.output_hidden_states=True`):
-            Tuple of `torch.FloatTensor` (one for the output of the embeddings, if the model has an embedding layer, +
-            one for the output of each layer) of shape `(batch_size, sequence_length, hidden_size)`.
-
-            Hidden-states of the model at the output of each layer plus the optional initial embedding outputs.
-        attentions (`tuple(torch.FloatTensor)`, *optional*, returned when `output_attentions=True` is passed or when `config.output_attentions=True`):
-            Tuple of `torch.FloatTensor` (one for each layer) of shape `(batch_size, num_heads, sequence_length,
-            sequence_length)`.
-
-            Attentions weights after the attention softmax, used to compute the weighted average in the self-attention
-            heads.
-    """
-
-    loss: Optional[torch.FloatTensor] = None
-    logits: torch.FloatTensor = None
-    preds: torch.FloatTensor = None
-    hidden_states: Optional[Tuple[torch.FloatTensor]] = None
-    attentions: Optional[Tuple[torch.FloatTensor]] = None
 
 
 class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
@@ -81,8 +49,6 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         self.dropout = nn.Dropout(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
         self.pos_weight = pos_weight
-
-        self.init_weights()
 
     def forward(
         self,
@@ -124,13 +90,12 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
             preds = F.sigmoid(logits)
 
         if not return_dict:
-            output = (logits, ) + (preds, ) + outputs[2:]
+            output = (preds, ) + outputs[2:]
             return ((loss, ) + output) if loss is not None else output
 
         return SequenceClassifierOutput(
             loss=loss,
-            logits=logits,
-            preds=preds,
+            logits=preds,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
