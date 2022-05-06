@@ -1,44 +1,21 @@
 import sys
 
-from sklearn.metrics import (accuracy_score, f1_score,
-                             precision_recall_fscore_support)
 from transformers import BertConfig, Trainer, TrainingArguments
-sys.path.append('../')
+
 from deepfold.data.protein_dataset import ProtBertDataset
+from deepfold.loss.custom_metrics import do_compute_metrics
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-
-
-def compute_metrics_(pred):
-    labels = pred.label_ids
-    preds = pred.predictions.sigmoid()
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        labels, preds, average='binary')
-    acc = accuracy_score(labels, preds)
-    return {
-        'accuracy': acc,
-        'f1': f1,
-        'precision': precision,
-        'recall': recall
-    }
+sys.path.append('../')
 
 
 def compute_metrics(pred):
-    print(pred)
     labels = pred.label_ids
-    print(labels)
     preds = pred.predictions
-    print(preds)
     print(labels.shape, preds.shape)
-    accuracy = accuracy_score(labels, preds)
-    f1_score_micro = f1_score(labels, preds, average='micro')
-    f1_score_macro = f1_score(labels, preds, average='macro')
-    return {
-        'accuracy': accuracy,
-        'f1_score_micro': f1_score_micro,
-        'f1_score_macro': f1_score_macro
-    }
+    f1_max, auprc = do_compute_metrics(labels, preds)
+    return {'f1_max': f1_max, 'auprc': auprc}
 
 
 if __name__ == '__main__':
@@ -48,11 +25,11 @@ if __name__ == '__main__':
         data_path=data_root,
         split='train',
         tokenizer_name=model_name,
-        max_length=128)  # max_length is only capped to speed-up example.
+        max_length=64)  # max_length is only capped to speed-up example.
     train_dataset = ProtBertDataset(data_path=data_root,
                                     split='valid',
                                     tokenizer_name=model_name,
-                                    max_length=128)
+                                    max_length=64)
     val_dataset = ProtBertDataset(data_path=data_root,
                                   split='test',
                                   tokenizer_name=model_name,
@@ -66,8 +43,8 @@ if __name__ == '__main__':
     training_args = TrainingArguments(
         output_dir='./work_dir',  # output directory
         num_train_epochs=1,  # total number of training epochs
-        per_device_train_batch_size=64,  # batch size per device during training
-        per_device_eval_batch_size=64,  # batch size for evaluation
+        per_device_train_batch_size=128,  # batch size per device during training
+        per_device_eval_batch_size=128,  # batch size for evaluation
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
         logging_dir='./logs',  # directory for storing logs
