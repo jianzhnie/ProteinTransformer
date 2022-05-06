@@ -2,12 +2,12 @@ import sys
 
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from transformers import BertConfig, Trainer, TrainingArguments
-sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtBertDataset
-from deepfold.models.transformers.multilabel_model import \
+from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
+sys.path.append('../')
 
 
 def compute_metrics(pred):
@@ -31,15 +31,15 @@ if __name__ == '__main__':
         data_path=data_root,
         split='train',
         tokenizer_name=model_name,
-        max_length=256)  # max_length is only capped to speed-up example.
+        max_length=1024)  # max_length is only capped to speed-up example.
     val_dataset = ProtBertDataset(data_path=data_root,
                                   split='valid',
                                   tokenizer_name=model_name,
-                                  max_length=256)
+                                  max_length=1024)
     test_dataset = ProtBertDataset(data_path=data_root,
                                    split='test',
                                    tokenizer_name=model_name,
-                                   max_length=256)
+                                   max_length=1024)
     num_classes = train_dataset.num_classes
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
@@ -55,14 +55,14 @@ if __name__ == '__main__':
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
         logging_dir='./logs',  # directory for storing logs
-        logging_steps=1,  # How often to print logs
+        logging_steps=100,  # How often to print logs
         do_train=True,  # Perform training
         do_eval=True,  # Perform evaluation
         evaluation_strategy='epoch',  # evalute after eachh epoch
         gradient_accumulation_steps=1,
         # total number of steps before back propagation
-        fp16=True,  # Use mixed precision
-        fp16_opt_level="02",  # mixed precision mode
+        # fp16=True,  # Use mixed precision
+        # fp16_opt_level="02",  # mixed precision mode
         run_name='ProBert-BFD-MS',  # experiment name
         seed=3  # Seed for experiment reproducibility 3x3
     )
