@@ -85,8 +85,6 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            outputs = (loss, ) + outputs
-
             preds = F.sigmoid(logits)
 
         if not return_dict:
