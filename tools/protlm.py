@@ -4,12 +4,12 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from torch.optim import AdamW
 from transformers import (BertConfig, EarlyStoppingCallback, Trainer,
                           TrainingArguments)
+sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics(pred):
@@ -59,6 +59,7 @@ if __name__ == '__main__':
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5)
 
     training_args = TrainingArguments(
+        report_to='none',
         output_dir='./work_dir',  # output directory
         num_train_epochs=30,  # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
@@ -69,12 +70,14 @@ if __name__ == '__main__':
         logging_steps=100,  # How often to print logs
         do_train=True,  # Perform training
         do_eval=True,  # Perform evaluation
+        save_strategy='epoch', # save model every epoch
         evaluation_strategy='epoch',  # evalute after eachh epoch
         gradient_accumulation_steps=2,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
         # report_to='wandb',  # enable logging to W&B
+        load_best_model_at_end = True,
         run_name='ProBert-BFD-MS',  # experiment name
         seed=3  # Seed for experiment reproducibility 3x3
     )
