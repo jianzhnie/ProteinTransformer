@@ -4,12 +4,11 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from torch.optim import AdamW
 from transformers import (BertConfig, EarlyStoppingCallback, Trainer,
                           TrainingArguments)
-
+sys.path.append('../')
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics(pred):
@@ -56,7 +55,7 @@ if __name__ == '__main__':
         'weight_decay_rate':
         0.0
     }]
-    optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5, correct_bias=True)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5)
 
     training_args = TrainingArguments(
         output_dir='./work_dir',  # output directory
@@ -74,9 +73,8 @@ if __name__ == '__main__':
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
-        report_to='wandb',  # enable logging to W&B
+        # report_to='wandb',  # enable logging to W&B
         run_name='ProBert-BFD-MS',  # experiment name
-        load_best_model_at_end=True,
         seed=3  # Seed for experiment reproducibility 3x3
     )
 
@@ -86,13 +84,13 @@ if __name__ == '__main__':
         train_dataset=train_dataset,  # training dataset
         eval_dataset=val_dataset,  # evaluation dataset
         # compute_metrics=compute_metrics,  # evaluation metrics
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
+        # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
 
     trainer.train()
     trainer.save_model('models/')
     # Load trained model
-    model_path = 'work_dir/checkpoint-50000'
+    model_path = 'work_dir/checkpoint-5000'
     model = BertForMultiLabelSequenceClassification.from_pretrained(
         model_path, num_labels=num_classes)
     # Define test trainer
