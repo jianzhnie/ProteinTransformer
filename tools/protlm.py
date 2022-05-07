@@ -2,12 +2,11 @@ import sys
 
 from sklearn.metrics import average_precision_score, roc_auc_score
 from transformers import BertConfig, Trainer, TrainingArguments
+sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
-
-sys.path.append('../')
 
 
 def compute_metrics(pred):
