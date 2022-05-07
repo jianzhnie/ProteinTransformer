@@ -4,11 +4,12 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from torch.optim import AdamW
 from transformers import (BertConfig, EarlyStoppingCallback, Trainer,
                           TrainingArguments)
-sys.path.append('../')
+
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
+sys.path.append('../')
 
 
 def compute_metrics(pred):
@@ -84,7 +85,7 @@ if __name__ == '__main__':
         train_dataset=train_dataset,  # training dataset
         eval_dataset=val_dataset,  # evaluation dataset
         # compute_metrics=compute_metrics,  # evaluation metrics
-        # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
 
     trainer.train()
