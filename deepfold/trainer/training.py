@@ -1,5 +1,6 @@
 import time
 
+import numpy as np
 import torch
 
 from deepfold.utils.metrics import AverageMeter
@@ -108,6 +109,57 @@ def validate(model, val_loader, device, logger, log_interval=10):
     return losses_m.avg
 
 
+def predict(model, val_loader, device, logger, log_interval=10):
+    batch_time_m = AverageMeter('Time', ':6.3f')
+    data_time_m = AverageMeter('Data', ':6.3f')
+    losses_m = AverageMeter('Loss', ':.4e')
+
+    model.eval()
+    steps_per_epoch = len(val_loader)
+    end = time.time()
+    # Variables to gather full output
+    true_labels, pred_labels = [], []
+    for step, batch in enumerate(val_loader):
+        batch = tuple(t.to(device) for t in batch)
+        input_ids, input_mask, labels, token_types = batch
+        outputs = model(**batch)
+        loss = outputs[0]
+        preds = outputs[1]
+        preds = preds.detach().cpu().numpy()
+        labels = labels.to('cpu').numpy()
+
+        true_labels.append(labels)
+        pred_labels.append(preds)
+
+        bs = loss.shape[0]
+        data_time = time.time() - end
+        it_time = time.time() - end
+        end = time.time()
+
+        batch_time_m.update(it_time)
+        data_time_m.update(data_time)
+        losses_m.update(loss.item(), bs)
+        if (step % log_interval == 0) or (step == steps_per_epoch - 1):
+            if not torch.distributed.is_initialized(
+            ) or torch.distributed.get_rank() == 0:
+                logger_name = 'Test-log'
+                logger.info(
+                    '{0}: [{1:>2d}/{2}] '
+                    'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
+                    'Time: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
+                    'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '.format(
+                        logger_name,
+                        step,
+                        steps_per_epoch,
+                        data_time=data_time_m,
+                        batch_time=batch_time_m,
+                        loss=losses_m))
+    # Flatten outputs
+    true_labels = np.concatenate(true_labels)
+    pred_labels = np.concatenate(pred_labels)
+    return true_labels, pred_labels
+
+
 def train_loop(
     model,
     criterion,
@@ -132,39 +184,26 @@ def train_loop(
 
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        tic = time.time()
-        losses_m, batch_size = train(model,
-                                     train_loader,
-                                     criterion,
-                                     optimizer,
-                                     scaler,
-                                     lr_scheduler,
-                                     logger,
-                                     epoch,
-                                     use_amp=use_amp,
-                                     log_interval=10)
+        losses_m = train(model,
+                         train_loader,
+                         criterion,
+                         optimizer,
+                         scaler,
+                         lr_scheduler,
+                         logger,
+                         epoch,
+                         use_amp=use_amp,
+                         log_interval=10)
 
-        steps_per_epoch = len(train_loader)
-        throughput = int(batch_size * steps_per_epoch / (time.time() - tic))
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, losses_m))
-        logger.info('[Epoch %d] speed: %d samples/sec\ttime cost: %f',
-                    epoch + 1, throughput,
-                    time.time() - tic)
-
-        tic = time.time()
-        losses_m, batch_size = validate(
+        losses_m = validate(
             model,
             val_loader,
             criterion,
             logger,
             use_amp=use_amp,
         )
-        steps_per_epoch = len(val_loader)
-        throughput = int(batch_size * steps_per_epoch / (time.time() - tic))
         logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, losses_m))
-        logger.info('[Epoch %d] speed: %d samples sec time cost: %f',
-                    epoch + 1, throughput,
-                    time.time() - tic)
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
             checkpoint_state = {
