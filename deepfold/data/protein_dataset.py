@@ -55,10 +55,16 @@ class ProtBertDataset(Dataset):
         seq = ' '.join(''.join(self.seqs[idx].split()))
         seq = re.sub(r'[UZOB]', 'X', seq)
 
-        seq_ids = self.tokenizer(seq,
-                                 truncation=True,
-                                 padding='max_length',
-                                 max_length=self.max_length)
+        seq_ids = self.tokenizer(
+            seq,
+            # add_special_tokens=True,  #Add [CLS] [SEP] tokens
+            padding='max_length',
+            max_length=self.max_length,
+            truncation=True,  # Truncate data beyond max length
+            # return_token_type_ids=False,
+            # return_attention_mask=True,  # diff normal/pad tokens
+            return_tensors='pt'  # PyTorch Tensor format
+        )
 
         sample = {key: torch.tensor(val) for key, val in seq_ids.items()}
 

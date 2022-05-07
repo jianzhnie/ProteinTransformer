@@ -3,83 +3,145 @@ import math
 import numpy as np
 
 
-def lr_policy(lr_fn, logger=None):
-    def _alr(optimizer, iteration, epoch):
-        lr = lr_fn(iteration, epoch)
+def lr_update(
+    num_updates: int,
+    warmup_updates: int,
+    warmup_init_lr: float,
+    lr_step: float,
+    decay_factor: float,
+) -> float:
+    """InverseSquareRootSchedule.
 
-        for param_group in optimizer.param_groups:
+    https://github.com/pytorch/fairseq/blob/master/fairseq/optim/lr_scheduler/inverse_square_root_schedule.py#L32
+
+    Args:
+        num_updates: number of batches already used.
+        warmup_updates: number of batch steps for warm up.
+        warmup_init_lr: initial learning rate.
+        lr_step: step for increasing learning rate during warm up.
+        decay_factor: factor for decreasing learning rate after warm up.
+
+    Returns:
+        learning rate multiplicate factor
+    """
+    if num_updates < warmup_updates:
+        lr = warmup_init_lr + num_updates * lr_step
+    else:
+        lr = decay_factor * num_updates**-0.5
+    if warmup_init_lr > 0:
+        return lr / warmup_init_lr
+
+    return 0
+
+
+class StepLRScheduler():
+    """step learning rate scheduler."""
+    def __init__(self,
+                 optimizer,
+                 base_lr,
+                 steps,
+                 decay_factor,
+                 warmup_length,
+                 logger=None):
+        self.optimizer = optimizer
+        self.base_lr = base_lr
+        self.steps = steps
+        self.decay_factor = decay_factor
+        self.warmup_length = warmup_length
+
+    def step(self, epoch):
+        if epoch < self.warmup_length:
+            lr = self.base_lr * (epoch + 1) / self.warmup_length
+        else:
+            lr = self.base_lr
+            for s in self.steps:
+                if epoch >= s:
+                    lr *= self.decay_factor
+        for param_group in self.optimizer.param_groups:
             param_group['lr'] = lr
 
-    return _alr
 
+class LinearLRScheduler():
+    """Linear learning rate decay scheduler."""
+    def __init__(self, optimizer, base_lr, epochs, warmup_length, logger=None):
+        self.optimizer = optimizer
+        self.base_lr = base_lr
+        self.epochs = epochs
+        self.warmup_length = warmup_length
 
-def lr_step_policy(base_lr, steps, decay_factor, warmup_length, logger=None):
-    def _lr_fn(iteration, epoch):
-        if epoch < warmup_length:
-            lr = base_lr * (epoch + 1) / warmup_length
+    def step(self, epoch):
+        if epoch < self.warmup_length:
+            lr = self.base_lr * (epoch + 1) / self.warmup_length
         else:
-            lr = base_lr
-            for s in steps:
-                if epoch >= s:
-                    lr *= decay_factor
-        return lr
-
-    return lr_policy(_lr_fn, logger=logger)
+            e = epoch - self.warmup_length
+            es = self.epochs - self.warmup_length
+            lr = self.base_lr * (1 - (e / es))
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
 
 
-def lr_linear_policy(base_lr, warmup_length, epochs, logger=None):
-    def _lr_fn(iteration, epoch):
-        if epoch < warmup_length:
-            lr = base_lr * (epoch + 1) / warmup_length
+class ExponentialLRScheduler():
+    """Exponential learning rate decay scheduler."""
+    def __init__(self,
+                 optimizer,
+                 base_lr,
+                 epochs,
+                 warmup_length,
+                 final_multiplier=0.001,
+                 decay_factor=None,
+                 decay_step=1,
+                 logger=None):
+        self.optimizer = optimizer
+        self.base_lr = base_lr
+        self.epochs = epochs
+        self.warmup_length = warmup_length
+        self.final_multiplier = final_multiplier
+        self.decay_factor = decay_factor
+        self.decay_step = decay_step
+
+    def step(self, epoch):
+        es = self.epochs - self.warmup_length
+
+        if self.decay_factor is not None:
+            epoch_decay = self.decay_factor
         else:
-            e = epoch - warmup_length
-            es = epochs - warmup_length
-            lr = base_lr * (1 - (e / es))
-        return lr
-
-    return lr_policy(_lr_fn, logger=logger)
-
-
-def lr_cosine_policy(base_lr, warmup_length, epochs, end_lr=0, logger=None):
-    def _lr_fn(iteration, epoch):
-        if epoch < warmup_length:
-            lr = base_lr * (epoch + 1) / warmup_length
+            epoch_decay = np.power(
+                2,
+                np.log2(self.final_multiplier) /
+                math.floor(es / self.decay_step))
+        if epoch < self.warmup_length:
+            lr = self.base_lr * (epoch + 1) / self.warmup_length
         else:
-            e = epoch - warmup_length
-            es = epochs - warmup_length
-            lr = end_lr + (0.5 * (1 + np.cos(np.pi * e / es)) *
-                           (base_lr - end_lr))
-        return lr
+            e = epoch - self.warmup_length
+            lr = self.base_lr * (epoch_decay**math.floor(e / self.decay_step))
 
-    return lr_policy(_lr_fn, logger=logger)
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
 
 
-def lr_exponential_policy(base_lr,
-                          warmup_length,
-                          epochs,
-                          final_multiplier=0.001,
-                          decay_factor=None,
-                          decay_step=1,
-                          logger=None):
-    """Exponential lr policy.
+class CosineLRScheduler():
+    """Linear learning rate decay scheduler."""
+    def __init__(self,
+                 optimizer,
+                 base_lr,
+                 epochs,
+                 warmup_length,
+                 end_lr=0,
+                 logger=None):
+        self.optimizer = optimizer
+        self.base_lr = base_lr
+        self.epochs = epochs
+        self.warmup_length = warmup_length
+        self.end_lr = end_lr
 
-    Setting decay factor parameter overrides final_multiplier
-    """
-    es = epochs - warmup_length
-
-    if decay_factor is not None:
-        epoch_decay = decay_factor
-    else:
-        epoch_decay = np.power(
-            2,
-            np.log2(final_multiplier) / math.floor(es / decay_step))
-
-    def _lr_fn(iteration, epoch):
-        if epoch < warmup_length:
-            lr = base_lr * (epoch + 1) / warmup_length
+    def step(self, epoch):
+        if epoch < self.warmup_length:
+            lr = self.base_lr * (epoch + 1) / self.warmup_length
         else:
-            e = epoch - warmup_length
-            lr = base_lr * (epoch_decay**math.floor(e / decay_step))
-        return lr
+            e = epoch - self.warmup_length
+            es = self.epochs - self.warmup_length
+            lr = self.end_lr + (0.5 * (1 + np.cos(np.pi * e / es)) *
+                                (self.base_lr - self.end_lr))
 
-    return lr_policy(_lr_fn, logger=logger)
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
