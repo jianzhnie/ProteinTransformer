@@ -1,4 +1,4 @@
-import logging as log
+import logging
 from collections import OrderedDict
 from typing import Dict, List, Tuple
 
@@ -15,6 +15,7 @@ class LightningModule(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
         self.hparams = hparams
+        self.num_classes = hparams.num_classes
         self.batch_size = self.hparams.batch_size
         self.model_name = 'Rostlab/prot_bert_bfd'
         # build model
@@ -30,7 +31,7 @@ class LightningModule(pl.LightningModule):
         self.nr_frozen_epochs = self.hparams.nr_frozen_epochs
 
     def __build_model(self) -> None:
-        """Init BERT model + tokenizer + classification head."""
+        """Init BERT model + classification head."""
         self.ProtBertBFD = BertModel.from_pretrained(
             self.model_name,
             gradient_checkpointing=self.hparams.gradient_checkpointing)
@@ -38,8 +39,7 @@ class LightningModule(pl.LightningModule):
 
         # Classification head
         self.classification_head = nn.Sequential(
-            nn.Linear(self.encoder_features * 4,
-                      self.label_encoder.vocab_size), )
+            nn.Linear(self.encoder_features * 4, self.num_classes))
 
     def __build_loss(self):
         """Initializes the loss function/s."""
@@ -48,14 +48,14 @@ class LightningModule(pl.LightningModule):
     def unfreeze_encoder(self) -> None:
         """un-freezes the encoder layer."""
         if self._frozen:
-            log.info('Encoder model fine-tuning')
+            logging.info('Encoder model fine-tuning')
             for param in self.ProtBertBFD.parameters():
                 param.requires_grad = True
             self._frozen = False
 
     def freeze_encoder(self) -> None:
         """freezes the encoder layer."""
-        log.info('Encoder model freezed')
+        logging.info('Encoder model freezed')
         for param in self.ProtBertBFD.parameters():
             param.requires_grad = False
         self._frozen = True
@@ -78,9 +78,8 @@ class LightningModule(pl.LightningModule):
         if pool_max:
             input_mask_expanded = attention_mask.unsqueeze(-1).expand(
                 token_embeddings.size()).float()
-            token_embeddings[
-                input_mask_expanded ==
-                0] = -1e9  # Set padding tokens to large negative value
+            token_embeddings[input_mask_expanded == 0] = -1e9
+            # Set padding tokens to large negative value
             max_over_time = torch.max(token_embeddings, 1)[0]
             output_vectors.append(max_over_time)
         if pool_mean or pool_mean_sqrt:
@@ -107,7 +106,12 @@ class LightningModule(pl.LightningModule):
         return output_vector
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
-
+        """BaseModelOutputWithPoolingAndCrossAttentions(
+        last_hidden_state=sequence_output, pooler_output=pooled_output,
+        past_key_values=encoder_outputs.past_key_values,
+        hidden_states=encoder_outputs.hidden_states,
+        attentions=encoder_outputs.attentions,
+        cross_attentions=encoder_outputs.cross_attentions, )"""
         input_ids = torch.tensor(input_ids, device=self.device)
         attention_mask = torch.tensor(attention_mask, device=self.device)
         word_embeddings = self.ProtBertBFD(
