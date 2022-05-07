@@ -63,7 +63,7 @@ class ProtBertDataset(Dataset):
             truncation=True,  # Truncate data beyond max length
             # return_token_type_ids=False,
             # return_attention_mask=True,  # diff normal/pad tokens
-            return_tensors='pt'  # PyTorch Tensor format
+            # return_tensors='pt'  # PyTorch Tensor format
         )
 
         sample = {key: torch.tensor(val) for key, val in seq_ids.items()}
