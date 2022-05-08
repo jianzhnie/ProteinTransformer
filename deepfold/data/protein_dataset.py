@@ -52,6 +52,7 @@ class ProtBertDataset(Dataset):
 
     def __getitem__(self, idx):
 
+        # Make sure there is a space between every token, and map rarely amino acids
         seq = ' '.join(''.join(self.seqs[idx].split()))
         seq = re.sub(r'[UZOB]', 'X', seq)
 
