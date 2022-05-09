@@ -9,7 +9,7 @@ from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           get_linear_schedule_with_warmup)
 
 
-class LightningModule(pl.LightningModule):
+class LightningTransformer(pl.LightningModule):
     """Create lightning model to use ddp."""
     def __init__(
         self,
@@ -17,12 +17,12 @@ class LightningModule(pl.LightningModule):
         model_name_or_path: str = None,
         num_labels: int = 10,
         task_name: str = 'multi_label_classification',
-        learning_rate: float = 2e-5,
+        learning_rate: float = 1e-3,
+        encoder_learning_rate: float = 2e-5,
         adam_epsilon: float = 1e-8,
         warmup_steps: int = 1000,
         weight_decay: float = 1e-4,
-        train_batch_size: int = 32,
-        eval_batch_size: int = 32,
+        nr_frozen_epochs: int = -1,
         **kwargs,
     ):
         super().__init__()
