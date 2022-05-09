@@ -1,20 +1,26 @@
+from typing import Dict, List, Tuple
+
+import esm
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+from ..utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
+
 
 class ESMDataset(Dataset):
-    def __init__(self, data_file, terms_file, esm_model='esm1_t6_43M_UR50S'):
+    def __init__(self, model_dir: str):
         super().__init__()
+        if model_dir not in ESM_LIST:
+            print(
+                f"Model dir '{model_dir}' not recognized. Using '{DEFAULT_ESM_MODEL}' as default"
+            )
+            model_dir = DEFAULT_ESM_MODEL
 
-        data_df, terms = self.load_data(data_file, terms_file)
-        # convert terms to dict
-        terms_dict = {v: i for i, v in enumerate(terms)}
-        self.len_df = len(data_df)
-        self.nb_classes = len(terms)
-        self.ems_model = esm_model
-        self.batch_converter = self.load_esm_model()
+        self._model, self.alphabet = esm.pretrained.load_model_and_alphabet(
+            model_dir)
+        self.batch_converter = self.alphabet.get_batch_converter()
         self.data, self.labels = self.data_to_tensor(data_df, terms_dict)
 
     def __len__(self):
@@ -31,7 +37,6 @@ class ESMDataset(Dataset):
 
         convert_labels, convert_strs, convert_tokens = self.batch_converter(
             esm_input)
-        convert_tokens = convert_tokens[:, :1024]
 
         for i, row in enumerate(data_df.itertuples()):
             for t_id in row.prop_annotations:
@@ -41,6 +46,26 @@ class ESMDataset(Dataset):
         labels = torch.from_numpy(labels).int()
 
         return convert_tokens, labels
+
+    def process_sequences_and_tokens(
+            self, sequences_list: List[str]) -> Dict[str, torch.Tensor]:
+        """Function to transform tokens string to IDs; it depends on the model
+        used."""
+        if self.is_msa:
+            _, _, all_tokens = self.batch_converter(sequences_list)
+        else:
+            _, _, all_tokens = self.batch_converter([
+                ('', sequence) for sequence in sequences_list
+            ])
+
+        all_tokens = all_tokens.to('cpu')
+        encoded_inputs = {
+            'input_ids': all_tokens,
+            'attention_mask':
+            1 * (all_tokens != self.token_to_id(self.pad_token)),
+            'token_type_ids': torch.zeros(all_tokens.shape),
+        }
+        return encoded_inputs
 
     def load_data(self, data_file, terms_file):
         data_df = pd.read_pickle(data_file)
