@@ -2,7 +2,8 @@ import math
 
 import numpy as np
 from sklearn import metrics
-from sklearn.metrics import auc, matthews_corrcoef, roc_curve
+from sklearn.metrics import (auc, average_precision_score, matthews_corrcoef,
+                             roc_curve)
 
 
 # functions for evaluation
@@ -56,9 +57,7 @@ def compute_aupr(true_labels, pred_scores):
     true_labels = true_labels[:, available_index]
     pred_scores = pred_scores[:, available_index]
 
-    aupr = metrics.average_precision_score(true_labels,
-                                           pred_scores,
-                                           average='macro')
+    aupr = average_precision_score(true_labels, pred_scores, average='macro')
 
     return aupr
 
