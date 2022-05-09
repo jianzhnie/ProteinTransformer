@@ -1,16 +1,20 @@
-import sys
-from sklearn.metrics import average_precision_score, roc_auc_score
-from transformers import Trainer
 import pickle
-sys.path.append('../')
-from deepfold.loss.custom_metrics import compute_mcc, compute_roc
+import sys
+
+from transformers import Trainer
+
 from deepfold.data.protein_dataset import ProtBertDataset
+from deepfold.loss.custom_metrics import compute_mcc, compute_roc
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
+sys.path.append('../')
 
 
-def compute_metrics(labels, preds):
+def compute_metrics(predictions):
+    labels = predictions.label_ids
+    preds = predictions.predictions
+    preds = preds > 0.5
     mcc = compute_mcc(labels, preds)
     roc = compute_roc(labels, preds)
     return {'mcc': mcc, 'roc': roc}
@@ -40,11 +44,8 @@ if __name__ == '__main__':
     # Define test trainer
     test_trainer = Trainer(model)
     predictions = test_trainer.predict(test_dataset)
-    labels = predictions.label_ids
-    preds = predictions.predictions
-    preds = preds > 0.5
-    results = compute_metrics(labels, preds)
+    results = compute_metrics(predictions)
     print(results)
     results_path = 'work_dir/predictions.pkl'
-    with open(results_path, "wb") as f:
+    with open(results_path, 'wb') as f:
         pickle.dump(predictions, f)
