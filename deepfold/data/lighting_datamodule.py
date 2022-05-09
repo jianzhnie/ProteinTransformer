@@ -5,11 +5,12 @@ from .protein_dataset import ProtBertDataset
 
 
 class LightingSeqenceDataModule(pl.LightningDataModule):
-    def _init__(self,
-                data_path='dataset/',
-                tokenizer_name='Rostlab/prot_bert_bfd',
-                batch_size=16,
-                max_length=1024):
+    """pytorch_lighting seqence Dataset Model."""
+    def __init__(self,
+                 data_path='dataset/',
+                 tokenizer_name='Rostlab/prot_bert_bfd',
+                 batch_size=16,
+                 max_length=1024):
         super().__init__()
 
         self.data_path = data_path
@@ -17,7 +18,7 @@ class LightingSeqenceDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.max_token_len = max_length
 
-    def setup(self):
+    def setup(self, stage: str):
         self.train_dataset = ProtBertDataset(
             data_path=self.data_path,
             split='train',
