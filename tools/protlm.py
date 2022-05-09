@@ -64,21 +64,22 @@ if __name__ == '__main__':
         num_train_epochs=30,  # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=16,  # batch size for evaluation
+        learning_rate=0.0001,  # learning_rate
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
-        logging_dir='./logs',  # directory for storing logs
-        logging_steps=100,  # How often to print logs
-        do_train=True,  # Perform training
-        do_eval=True,  # Perform evaluation
-        save_strategy='epoch',  # save model every epoch
-        evaluation_strategy='epoch',  # evalute after each epoch
         gradient_accumulation_steps=2,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
+        do_train=True,  # Perform training
+        do_eval=True,  # Perform evaluation
+        save_strategy='epoch',  # save model every epoch
+        evaluation_strategy='epoch',  # evalute after each epoch
         # report_to='wandb',  # enable logging to W&B
         load_best_model_at_end=True,
         run_name='ProBert-BFD-MS',  # experiment name
+        logging_dir='./logs',  # directory for storing logs
+        logging_steps=100,  # How often to print logs
         seed=3  # Seed for experiment reproducibility 3x3
     )
 
