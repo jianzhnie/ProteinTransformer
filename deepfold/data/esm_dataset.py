@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 from typing import Dict, List
 
@@ -16,7 +17,8 @@ class ESMDataset(Dataset):
     def __init__(self,
                  data_path: str = 'dataset/',
                  split: str = 'train',
-                 model_dir: str = None):
+                 model_dir: str = None,
+                 max_length: int = 1024):
         super().__init__()
 
         self.datasetFolderPath = data_path
@@ -35,6 +37,7 @@ class ESMDataset(Dataset):
 
         self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
+        self.max_length = max_length
 
         if model_dir not in ESM_LIST:
             print(
@@ -97,7 +100,9 @@ class ESMDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        seq = self.seqs[idx]
+        seq_all = self.seqs[idx]
+        seq_crop = crop_sequence(seq_all, crop_length=self.max_length)
+
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
         for t_id in label_list:
@@ -105,7 +110,7 @@ class ESMDataset(Dataset):
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
 
-        return seq, multilabel
+        return seq_crop, multilabel
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -139,6 +144,16 @@ class ESMDataset(Dataset):
         }
         encoded_inputs['labels'] = torch.tensor(multilabel_list)
         return encoded_inputs
+
+
+def crop_sequence(sequence: str, crop_length: int) -> str:
+    """If the length of the sequence is superior to crop_length, crop randomly
+    the sequence to get the proper length."""
+    if len(sequence) <= crop_length:
+        return sequence
+    else:
+        start_idx = random.randint(0, len(sequence) - crop_length)
+        return sequence[start_idx:(start_idx + crop_length)]
 
 
 if __name__ == '__main__':
