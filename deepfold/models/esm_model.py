@@ -8,7 +8,7 @@ from torch.nn import BCEWithLogitsLoss
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
-class Esm(nn.Module):
+class ESMTransformer(nn.Module):
     def __init__(self, model_dir: str, num_labels: int = 1000):
         super().__init__()
 
