@@ -4,8 +4,10 @@ import esm
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
+import sys
 
-from ..utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
+sys.path.append('../../')
+from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
 class ESMDataset(Dataset):
@@ -91,3 +93,15 @@ class ESMDataset(Dataset):
         }
         encoded_inputs['labels'] = torch.tensor(multilabel_list)
         return encoded_inputs
+
+
+if __name__ == '__main__':
+
+    pro_dataset = ESMDataset(data_path='/Users/robin/xbiome/datasets/protein',
+                             split=True,
+                             model_dir='esm1b_t33_650M_UR50S')
+    print(pro_dataset.num_classes)
+    for i in range(10):
+        sample = pro_dataset[i]
+        for key, val in sample.items():
+            print(key, val)
