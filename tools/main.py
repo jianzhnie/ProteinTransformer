@@ -14,14 +14,11 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
-
-sys.path.append('../')
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -36,8 +33,8 @@ def parse_args():
                         help='path to dataset')
     parser.add_argument('--model',
                         metavar='MODEL',
-                        default='resnet18',
-                        help='model architecture: (default: resnet18)')
+                        default='esm',
+                        help='model architecture: (default: esm)')
     parser.add_argument('-j',
                         '--workers',
                         type=int,
@@ -321,3 +318,4 @@ if __name__ == '__main__':
     logger.addHandler(streamhandler)
     cudnn.benchmark = True
     start_time = time.time()
+    main(args)
