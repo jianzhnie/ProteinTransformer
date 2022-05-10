@@ -1,17 +1,18 @@
-from typing import Dict
 import os
+import sys
+from typing import Dict
+
 import esm
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-import sys
+
+from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 sys.path.append('../../')
-from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
 class ESMDataset(Dataset):
-
     def __init__(self,
                  data_path: str = 'dataset/',
                  split: str = 'train',

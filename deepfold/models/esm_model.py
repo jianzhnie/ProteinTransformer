@@ -1,14 +1,14 @@
+from typing import Tuple
+
+import esm
 import torch
 import torch.nn as nn
-import esm
-from deepfold.utils.constant import ESM_LIST, DEFAULT_ESM_MODEL
-from typing import Dict, List, Tuple
 from torch.nn import BCEWithLogitsLoss
-from transformers.modeling_outputs import SequenceClassifierOutput
+
+from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
 class Esm(nn.Module):
-
     def __init__(self, model_dir: str, num_labels: int = 1000):
         super().__init__()
 
@@ -25,7 +25,7 @@ class Esm(nn.Module):
         self.repr_layers = (repr_layers + self.num_layers +
                             1) % (self.num_layers + 1)
         self.hidden_size = self._model.args.embed_dim
-        self.is_msa = "msa" in model_dir
+        self.is_msa = 'msa' in model_dir
 
         self.classifier = nn.Linear(self.hidden_size, num_labels)
 
@@ -39,10 +39,10 @@ class Esm(nn.Module):
                 token_type_ids=None,
                 position_ids=None,
                 labels=None) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Function which computes logits and embeddings based on a list of sequences,
-        a provided batch size and an inference configuration. The output is obtained
-        by computing a forward pass through the model ("forward inference")
+        """Function which computes logits and embeddings based on a list of
+        sequences, a provided batch size and an inference configuration. The
+        output is obtained by computing a forward pass through the model
+        ("forward inference")
 
         The datagenerator is not the same the multi_gpus inference. We use a tqdm progress bar
         that is updated by the worker. The progress bar is instantiated before ray.remote
@@ -58,8 +58,8 @@ class Esm(nn.Module):
             input_ids,
             repr_layers=[self.repr_layers],
         )
-        batch_logits = model_outputs["logits"]
-        batch_embeddings = model_outputs["representations"][self.repr_layers]
+        # batch_logits = model_outputs['logits']
+        batch_embeddings = model_outputs['representations'][self.repr_layers]
 
         pooled_output = self.dropout(batch_embeddings)
         logits = self.classifier(pooled_output)
@@ -74,10 +74,3 @@ class Esm(nn.Module):
             outputs = (loss, ) + outputs
 
         return outputs
-
-    def forward(self, x):
-        embedding = self.backbone(x, repr_layers=[5])['representations'][5]
-        embedding = torch.mean(embedding, axis=1)
-        x = self.fc(embedding)
-        x = torch.sigmoid(x)
-        return x
