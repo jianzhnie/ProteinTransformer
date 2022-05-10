@@ -9,7 +9,6 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
-import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
@@ -57,6 +56,13 @@ def parse_args():
         type=int,
         metavar='N',
         help='early stopping after N epochs without improving',
+    )
+    parser.add_argument(
+        '--gradient_accumulation_steps',
+        default=1,
+        type=int,
+        metavar='N',
+        help='=To run gradient descent after N steps',
     )
     parser.add_argument('-b',
                         '--batch-size',
@@ -260,8 +266,6 @@ def main(args):
 
     start_epoch = 0
     # define loss function (criterion) and optimizer
-    # Creat train losses
-    criterion = nn.BCEWithLogitsLoss().cuda(args.gpu)
     # optimizer and lr_policy
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     lr_policy = LinearLRScheduler(optimizer=optimizer,
@@ -270,29 +274,22 @@ def main(args):
                                   epochs=args.epochs,
                                   logger=logger)
 
-    scaler = torch.cuda.amp.GradScaler(
-        init_scale=args.static_loss_scale,
-        growth_factor=2,
-        backoff_factor=0.5,
-        growth_interval=100 if args.dynamic_loss_scale else 1000000000,
-        enabled=args.amp,
-    )
+    gradient_accumulation_steps = args.gradient_accumulation_steps
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     train_loop(
         model,
-        criterion,
         optimizer,
-        scaler,
         lr_policy,
+        gradient_accumulation_steps,
         train_loader,
         valid_loader,
+        device,
         logger=logger,
-        use_amp=args.amp,
         start_epoch=start_epoch,
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
-        skip_training=args.evaluate,
-        skip_validation=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
         checkpoint_dir=args.output_dir,
         checkpoint_filename=args.checkpoint_filename,

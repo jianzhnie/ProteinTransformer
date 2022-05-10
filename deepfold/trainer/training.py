@@ -162,15 +162,13 @@ def predict(model, val_loader, device, logger, log_interval=10):
 
 def train_loop(
     model,
-    criterion,
     optimizer,
-    scaler,
     lr_scheduler,
+    gradient_accumulation_steps,
     train_loader,
     val_loader,
+    device,
     logger,
-    use_amp=False,
-    best_prec1=0,
     start_epoch=0,
     end_epoch=0,
     early_stopping_patience=-1,
@@ -182,27 +180,21 @@ def train_loop(
     if early_stopping_patience > 0:
         epochs_since_improvement = 0
 
+    best_prec1 = 0
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         losses_m = train(model,
                          train_loader,
-                         criterion,
                          optimizer,
-                         scaler,
                          lr_scheduler,
-                         logger,
+                         gradient_accumulation_steps,
                          epoch,
-                         use_amp=use_amp,
+                         device,
+                         logger,
                          log_interval=10)
 
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, losses_m))
-        losses_m = validate(
-            model,
-            val_loader,
-            criterion,
-            logger,
-            use_amp=use_amp,
-        )
+        losses_m = validate(model, val_loader, device, logger, log_interval=10)
         logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, losses_m))
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
