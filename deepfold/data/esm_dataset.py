@@ -1,13 +1,15 @@
 import os
 import sys
-from typing import Dict, List, Tuple
+from typing import Dict, List
+
 import esm
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-sys.path.append('../../')
+
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
+sys.path.append('../../')
 
 
 class ESMDataset(Dataset):
@@ -40,7 +42,7 @@ class ESMDataset(Dataset):
             )
             model_dir = DEFAULT_ESM_MODEL
 
-        self.is_msa = "msa" in model_dir
+        self.is_msa = 'msa' in model_dir
         self._model, self.alphabet = esm.pretrained.load_model_and_alphabet(
             model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
@@ -50,23 +52,14 @@ class ESMDataset(Dataset):
         """Return torch model."""
         return self._model
 
-    def set_model(self, model: torch.nn.Module):
-        """Set torch model."""
-        self._model = model.to(self._device)
-
-    @property
-    def clean_model_id(self) -> str:
-        """Clean model ID (in case the model directory is not)"""
-        return self.model_id
-
     @property
     def model_vocabulary(self) -> List[str]:
-        """Returns the whole vocabulary list"""
+        """Returns the whole vocabulary list."""
         return list(self.alphabet.tok_to_idx.keys())
 
     @property
     def vocab_size(self) -> int:
-        """Returns the whole vocabulary size"""
+        """Returns the whole vocabulary size."""
         return len(list(self.alphabet.tok_to_idx.keys()))
 
     @property
@@ -91,12 +84,12 @@ class ESMDataset(Dataset):
 
     @property
     def does_end_token_exist(self) -> bool:
-        """Returns true if a end of sequence token exists"""
+        """Returns true if a end of sequence token exists."""
         return self.alphabet.append_eos
 
     @property
     def token_to_id(self):
-        """Returns a function which maps tokens to IDs"""
+        """Returns a function which maps tokens to IDs."""
         return lambda x: self.alphabet.tok_to_idx[x]
 
     def __len__(self):
@@ -151,13 +144,14 @@ class ESMDataset(Dataset):
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
     data_root = '/home/niejianzheng/xbiome/datasets/protein'
+    data_root = '/Users/robin/xbiome/datasets/protein'
     pro_dataset = ESMDataset(data_path=data_root,
                              model_dir='esm1b_t33_650M_UR50S')
     print(pro_dataset.num_classes)
     data_loader = DataLoader(pro_dataset,
-                          batch_size=8,
-                          collate_fn=pro_dataset.collate_fn)
-    
+                             batch_size=8,
+                             collate_fn=pro_dataset.collate_fn)
+
     for index, batch in enumerate(data_loader):
         for key, val in batch.items():
             print(key, val.shape, val)
