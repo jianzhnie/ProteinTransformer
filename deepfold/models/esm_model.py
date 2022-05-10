@@ -9,7 +9,10 @@ from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
 class ESMTransformer(nn.Module):
-    def __init__(self, model_dir: str, num_labels: int = 1000):
+    def __init__(self,
+                 model_dir: str,
+                 num_labels: int = 1000,
+                 dropout_ratio: float = 0.0):
         super().__init__()
 
         if model_dir not in ESM_LIST:
@@ -27,6 +30,7 @@ class ESMTransformer(nn.Module):
         self.hidden_size = self._model.args.embed_dim
         self.is_msa = 'msa' in model_dir
 
+        self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.hidden_size, num_labels)
 
     def _freeze_backbone(self):
