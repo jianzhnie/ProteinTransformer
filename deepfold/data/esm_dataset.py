@@ -144,7 +144,7 @@ class ESMDataset(Dataset):
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
     data_root = '/home/niejianzheng/xbiome/datasets/protein'
-    data_root = '/Users/robin/xbiome/datasets/protein'
+    # data_root = '/Users/robin/xbiome/datasets/protein'
     pro_dataset = ESMDataset(data_path=data_root,
                              model_dir='esm1b_t33_650M_UR50S')
     print(pro_dataset.num_classes)
