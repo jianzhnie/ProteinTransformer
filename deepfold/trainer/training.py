@@ -25,7 +25,7 @@ def train(model,
     end = time.time()
     for step, batch in enumerate(train_loader):
         # Add batch to GPU
-        batch = tuple(t.to(device) for t in batch)
+        batch = {key: val.to(device) for key, val in batch.items()}
         # Clear out the gradients (by default they accumulate)
         optimizer.zero_grad()
         # Forward pass for multilabel classification
@@ -79,7 +79,7 @@ def validate(model, val_loader, device, logger, log_interval=10):
     steps_per_epoch = len(val_loader)
     end = time.time()
     for step, batch in enumerate(val_loader):
-        batch = tuple(t.to(device) for t in batch)
+        batch = {key: val.to(device) for key, val in batch.items()}
         outputs = model(**batch)
         loss = outputs[0]
         bs = loss.shape[0]
@@ -120,8 +120,8 @@ def predict(model, val_loader, device, logger, log_interval=10):
     # Variables to gather full output
     true_labels, pred_labels = [], []
     for step, batch in enumerate(val_loader):
-        batch = tuple(t.to(device) for t in batch)
-        input_ids, input_mask, labels, token_types = batch
+        batch = {key: val.to(device) for key, val in batch.items()}
+        labels = batch['labels']
         outputs = model(**batch)
         loss = outputs[0]
         preds = outputs[1]
