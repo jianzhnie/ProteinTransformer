@@ -6,7 +6,6 @@ import sys
 import time
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
@@ -16,11 +15,9 @@ import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
 
-from deepfold.data.protein_dataset import ProteinSequences
-from deepfold.data.protein_tokenizer import ProteinTokenizer
-from deepfold.models.lstm import LstmEncoderModel
-from deepfold.scheduler import (CosineLRScheduler, ExponentialLRScheduler,
-                                LinearLRScheduler, StepLRScheduler)
+from deepfold.data.esm_dataset import ESMDataset
+from deepfold.models.esm_model import ESMTransformer
+from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 
 sys.path.append('../')
@@ -37,7 +34,6 @@ def parse_args():
                         default='',
                         type=str,
                         help='path to dataset')
-    parser.add_argument('--data-backend', metavar='BACKEND', default='pytorch')
     parser.add_argument('--model',
                         metavar='MODEL',
                         default='resnet18',
@@ -179,7 +175,7 @@ def parse_args():
     return args
 
 
-def prepare_for_training(args):
+def main(args):
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
@@ -218,32 +214,15 @@ def prepare_for_training(args):
                 'Warning: if --amp is not used, static_loss_scale will be ignored.'
             )
 
-    start_epoch = 0
-    # Create data loaders
-    # Result file with a list of terms for prediction task
-    terms_file = os.path.join(args.data_path, u'terms.pkl')
-    # Result file with a DataFrame for training
-    train_data_file = os.path.join(args.data_path, u'train_data.pkl')
-    # Result file with a DataFrame for testing
-    test_data_file = os.path.join(args.data_path, u'test_data.pkl')
-    # Result file with a DataFrame of prediction annotations
-    predictions_file = os.path.join(args.data_path, 'predictions.pkl')
-
-    data_path_dict = {}
-    data_path_dict['terms'] = terms_file
-    data_path_dict['train_data'] = train_data_file
-    data_path_dict['test_data'] = test_data_file
-    data_path_dict['predictions'] = predictions_file
-
-    # Terms of annotations
-    terms_df = pd.read_pickle(data_path_dict['terms'])
-    terms = terms_df['terms'].values.flatten()
-    num_classes = len(terms)
-
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = ProteinSequences(train_data_file, terms_file)
-    test_dataset = ProteinSequences(test_data_file, terms_file)
+    train_dataset = ESMDataset(data_path=args.data_path,
+                               split='train',
+                               model_dir='esm1b_t33_650M_UR50S')
+
+    test_dataset = ESMDataset(data_path=args.data_path,
+                              split='test',
+                              model_dir='esm1b_t33_650M_UR50S')
 
     # dataloders
     train_loader = DataLoader(train_dataset,
@@ -255,19 +234,11 @@ def prepare_for_training(args):
                               batch_size=args.batch_size,
                               collate_fn=train_dataset.collate_fn,
                               pin_memory=True)
-    # test_loader = DataLoader(test_dataset,
-    #                          batch_size=args.batch_size,
-    #                          collate_fn=train_dataset.collate_fn,
-    #                          shuffle=False)
 
     # model
-    vocab_size = ProteinTokenizer().vocab_size
-    model = LstmEncoderModel(vocab_size=vocab_size,
-                             embed_dim=128,
-                             hidden_size=1024,
-                             num_labels=num_classes,
-                             bidirectional=False)
-
+    num_labels = train_dataset.num_classes
+    model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+                           num_labels=num_labels)
     # model
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
@@ -290,38 +261,17 @@ def prepare_for_training(args):
     else:
         model.cuda()
 
+    start_epoch = 0
     # define loss function (criterion) and optimizer
     # Creat train losses
     criterion = nn.BCEWithLogitsLoss().cuda(args.gpu)
     # optimizer and lr_policy
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
-    if args.lr_schedule == 'step':
-        lr_policy = StepLRScheduler(optimizer=optimizer,
-                                    base_lr=args.lr,
-                                    steps=[30, 60, 80],
-                                    decay_factor=0.1,
-                                    warmup_length=args.warmup,
-                                    logger=logger)
-    elif args.lr_schedule == 'cosine':
-        lr_policy = CosineLRScheduler(optimizer=optimizer,
-                                      base_lr=args.lr,
-                                      warmup_length=args.warmup,
-                                      epochs=args.epochs,
-                                      end_lr=args.end_lr,
-                                      logger=logger)
-    elif args.lr_schedule == 'linear':
-        lr_policy = LinearLRScheduler(optimizer=optimizer,
-                                      base_lr=args.lr,
-                                      warmup_length=args.warmup,
-                                      epochs=args.epochs,
-                                      logger=logger)
-    elif args.lr_schedule == 'exponential':
-        lr_policy = ExponentialLRScheduler(optimizer=optimizer,
-                                           base_lr=args.lr,
-                                           warmup_length=args.warmup,
-                                           epochs=args.epochs,
-                                           logger=logger)
+    lr_policy = LinearLRScheduler(optimizer=optimizer,
+                                  base_lr=args.lr,
+                                  warmup_length=args.warmup,
+                                  epochs=args.epochs,
+                                  logger=logger)
 
     scaler = torch.cuda.amp.GradScaler(
         init_scale=args.static_loss_scale,
@@ -331,15 +281,6 @@ def prepare_for_training(args):
         enabled=args.amp,
     )
 
-    return (model, criterion, optimizer, lr_policy, scaler, train_loader,
-            valid_loader, start_epoch)
-
-
-def main(args):
-    global best_prec1
-    best_prec1 = 0
-    model, criterion, optimizer, lr_policy, scaler, train_loader, valid_loader, start_epoch = prepare_for_training(
-        args)
     train_loop(
         model,
         criterion,
@@ -353,7 +294,6 @@ def main(args):
         start_epoch=start_epoch,
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
-        best_prec1=best_prec1,
         skip_training=args.evaluate,
         skip_validation=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
@@ -381,4 +321,3 @@ if __name__ == '__main__':
     logger.addHandler(streamhandler)
     cudnn.benchmark = True
     start_time = time.time()
-    main(args)
