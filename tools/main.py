@@ -13,11 +13,14 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
+
+sys.path.append('../')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
