@@ -97,7 +97,10 @@ class ESMTransformer(nn.Module):
                                       hiddendim_lstm=256)
 
         self.dropout = nn.Dropout(dropout_ratio)
-        self.classifier = nn.Linear(self.hidden_size, num_labels)
+        self.classifier = nn.Linear(self.hidden_size * 2, num_labels)
+        if self.pool_mode == 'mean_max':
+            self.classifier = nn.Linear(self.hidden_size, num_labels)
+
         self.fintune = fintune
         if not self.fintune:
             self._freeze_backbone
@@ -126,7 +129,7 @@ class ESMTransformer(nn.Module):
         Returns:
             Tuple[torch.tensor, torch.tensor]:
                     * logits [num_seqs, max_len_seqs, vocab_size]
-                    * embeddings [num_seqs, max_len_seqs+1, embedding_size]
+                    * embeddings [num_seqs, max_len_seqs, embedding_size]
         """
         model_outputs = self._model(
             input_ids,
@@ -141,16 +144,15 @@ class ESMTransformer(nn.Module):
             embeddings = torch.mean(last_hidden_state, 1)
         elif self.pool_mode == 'cls':
             embeddings = last_hidden_state[:, 0]
-        elif self.pool_mode == 'pool':
-            embeddings = self.pooler(last_hidden_state)
-        elif self.pool_mode == 'cnn':
-            embeddings = self.pooler(last_hidden_state)
         elif self.pool_mode == 'mean_max':
             max_pooling_embeddings = torch.max(last_hidden_state, 1)
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
                 (mean_pooling_embeddings, max_pooling_embeddings), 1)
-
+        elif self.pool_mode == 'pool':
+            embeddings = self.pooler(last_hidden_state)
+        elif self.pool_mode == 'cnn':
+            embeddings = self.pooler(last_hidden_state)
         elif self.pool_mode == 'weighted':
             weighted_pooling_embeddings = self.pooler(all_hidden_states)
             embeddings = weighted_pooling_embeddings[:, 0]
