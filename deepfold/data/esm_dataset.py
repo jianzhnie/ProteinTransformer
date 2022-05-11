@@ -110,8 +110,8 @@ class ESMDataset(Dataset):
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
-        lengths = [len(sequence) for sequence in seq_crop]
-        return seq_crop, lengths, multilabel
+        length = len(seq_crop)
+        return seq_crop, length, multilabel
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
