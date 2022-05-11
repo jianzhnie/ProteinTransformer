@@ -10,13 +10,12 @@ from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 class ESMTransformer(nn.Module):
     def __init__(
-        self,
-        model_dir: str,
-        num_labels: int = 1000,
-        max_len: int = 1024,
-        dropout_ratio: float = 0.0,
-        pool_mode: Tuple[str, ...] = ('cls', 'first-last-avg', 'last-avg',
-                                      'pooler'),
+            self,
+            model_dir: str,
+            num_labels: int = 1000,
+            max_len: int = 1024,
+            dropout_ratio: float = 0.0,
+            pool_mode: Tuple[str, ...] = ('cls', 'mean'),
     ):
         super().__init__()
 
