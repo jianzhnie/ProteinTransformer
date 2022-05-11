@@ -145,15 +145,12 @@ class WKPooling(nn.Module):
 
 
 class WeightedLayerPooling(nn.Module):
-    def __init__(self,
-                 num_hidden_layers,
-                 layer_start: int = 4,
-                 layer_weights=None):
+    def __init__(self, num_layers, layer_start: int = 4, layer_weights=None):
         super(WeightedLayerPooling, self).__init__()
         self.layer_start = layer_start
-        self.num_hidden_layers = num_hidden_layers
+        self.num_hidden_layers = num_layers
         self.layer_weights = layer_weights if layer_weights is not None else nn.Parameter(
-            torch.tensor([1] * (num_hidden_layers + 1 - layer_start),
+            torch.tensor([1] * (num_layers + 1 - layer_start),
                          dtype=torch.float))
 
     def forward(self, all_hidden_states):
