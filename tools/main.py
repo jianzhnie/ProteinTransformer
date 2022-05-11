@@ -244,6 +244,7 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+                        pool_mode='mean',
                            num_labels=num_labels)
     # model
     if args.distributed:

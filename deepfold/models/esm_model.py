@@ -15,7 +15,7 @@ class ESMTransformer(nn.Module):
             num_labels: int = 1000,
             max_len: int = 1024,
             dropout_ratio: float = 0.0,
-            pool_mode: Tuple[str, ...] = ('cls', 'mean'),
+            pool_mode: str = 'cls',
     ):
         super().__init__()
 
@@ -84,7 +84,7 @@ class ESMTransformer(nn.Module):
         # for [dim1, token_size, emb_size]
 
         filtered_embeddings = [
-            emb.transpose()[:, 1:(length + 1)].transpose()
+            emb[1:(length + 1), :]
             for emb, length in zip(batch_embeddings, lengths)
         ]
         # if self.pool_mode in 'first-last-avg':
@@ -93,15 +93,14 @@ class ESMTransformer(nn.Module):
         #         nn.AdaptiveAvgPool1d(batch_embeddings[-1])
         #     ]
         #     embeddings = torch.mean(outputs)
-        if self.pool_mode in 'mean':
-            embeddings = torch.stack([
-                emb.transpose().mean(1).transpose()
+        if self.pool_mode == 'mean':
+            embeddings = torch.stack([torch.mean(emb, dim=0)
                 for emb in filtered_embeddings
             ])
         # keep class token only
-        elif self.pool_mode in 'cls':
+        elif self.pool_mode == 'cls':
             embeddings = torch.stack([
-                emb.transpose()[:, 0].transpose() for emb in batch_embeddings
+                emb[0,:] for emb in batch_embeddings
             ])
 
         pooled_output = self.dropout(embeddings)
