@@ -46,6 +46,7 @@ class ESMDataset(Dataset):
             model_dir = DEFAULT_ESM_MODEL
 
         self.is_msa = 'msa' in model_dir
+
         self._model, self.alphabet = esm.pretrained.load_model_and_alphabet(
             model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
@@ -101,7 +102,7 @@ class ESMDataset(Dataset):
     def __getitem__(self, idx):
 
         seq_all = self.seqs[idx]
-        seq_crop = crop_sequence(seq_all, crop_length=self.max_length -2)
+        seq_crop = crop_sequence(seq_all, crop_length=self.max_length - 2)
 
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
@@ -109,8 +110,8 @@ class ESMDataset(Dataset):
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
-
-        return seq_crop, multilabel
+        lengths = [len(sequence) for sequence in seq_crop]
+        return seq_crop, lengths, multilabel
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -126,7 +127,8 @@ class ESMDataset(Dataset):
         """Function to transform tokens string to IDs; it depends on the model
         used."""
         sequences_list = [ex[0] for ex in examples]
-        multilabel_list = [ex[1] for ex in examples]
+        lengths = [ex[1] for ex in examples]
+        multilabel_list = [ex[2] for ex in examples]
 
         if self.is_msa:
             _, _, all_tokens = self.batch_converter(sequences_list)
@@ -142,6 +144,7 @@ class ESMDataset(Dataset):
             1 * (all_tokens != self.token_to_id(self.pad_token)),
             'token_type_ids': torch.zeros(all_tokens.shape),
         }
+        encoded_inputs['lengths'] = torch.tensor(lengths)
         encoded_inputs['labels'] = torch.tensor(multilabel_list)
         return encoded_inputs
 
