@@ -10,12 +10,12 @@ from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 class ESMTransformer(nn.Module):
     def __init__(
-            self,
-            model_dir: str,
-            num_labels: int = 1000,
-            max_len: int = 1024,
-            dropout_ratio: float = 0.0,
-            pool_mode: str = 'cls',
+        self,
+        model_dir: str,
+        num_labels: int = 1000,
+        max_len: int = 1024,
+        dropout_ratio: float = 0.0,
+        pool_mode: str = 'cls',
     ):
         super().__init__()
 
@@ -94,14 +94,11 @@ class ESMTransformer(nn.Module):
         #     ]
         #     embeddings = torch.mean(outputs)
         if self.pool_mode == 'mean':
-            embeddings = torch.stack([torch.mean(emb, dim=0)
-                for emb in filtered_embeddings
-            ])
+            embeddings = torch.stack(
+                [torch.mean(emb, dim=0) for emb in filtered_embeddings])
         # keep class token only
         elif self.pool_mode == 'cls':
-            embeddings = torch.stack([
-                emb[0,:] for emb in batch_embeddings
-            ])
+            embeddings = torch.stack([emb[0, :] for emb in batch_embeddings])
 
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)
