@@ -1,3 +1,4 @@
+from distutils.command.build_scripts import first_line_re
 from typing import Dict, List, Tuple, Union
 
 import esm
@@ -70,6 +71,7 @@ class ESMTransformer(nn.Module):
         repr_layers = -1
         self.repr_layers = (repr_layers + self.num_layers +
                             1) % (self.num_layers + 1)
+        self.repr_layers = list(range(self.num_layers + 1))
         self.hidden_size = self._model.args.embed_dim
         self.is_msa = 'msa' in model_dir
 
@@ -132,13 +134,11 @@ class ESMTransformer(nn.Module):
         """
         model_outputs = self._model(
             input_ids,
-            repr_layers=[self.repr_layers],
+            repr_layers=self.repr_layers,
         )
-
-        all_hidden_states = torch.stack(model_outputs['representations'][1:])
-        last_hidden_state = model_outputs['representations'][self.repr_layers]
+        all_hidden_states = torch.stack([model_outputs['representations'][i] for i in self.repr_layers])
+        last_hidden_state = model_outputs['representations'][self.repr_layers[-1]]
         # batch_embeddings: batch_size * seq_length * embedding_dim
-
         if self.pool_mode == 'mean':
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
         elif self.pool_mode == 'cls':
