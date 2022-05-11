@@ -101,7 +101,7 @@ class ESMDataset(Dataset):
     def __getitem__(self, idx):
 
         seq_all = self.seqs[idx]
-        seq_crop = crop_sequence(seq_all, crop_length=self.max_length)
+        seq_crop = crop_sequence(seq_all, crop_length=self.max_length -2)
 
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes

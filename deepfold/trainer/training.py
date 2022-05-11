@@ -34,12 +34,12 @@ def train(model,
 
         loss = outputs[0]
         loss = loss / gradient_accumulation_steps
-        batch_size = loss.shape[0]
+        batch_size = batch['input_ids'].shape[0]
         if step % gradient_accumulation_steps == 0 or step == steps_per_epoch - 1:
             # Backward pass
             loss.backward()
             optimizer.step()
-            lr_scheduler.step()
+            lr_scheduler.step(epoch)
             optimizer.zero_grad()
 
         it_time = time.time() - end
@@ -82,7 +82,7 @@ def validate(model, val_loader, device, logger, log_interval=10):
         batch = {key: val.to(device) for key, val in batch.items()}
         outputs = model(**batch)
         loss = outputs[0]
-        bs = loss.shape[0]
+        batch_size = batch['input_ids'].shape[0]
 
         data_time = time.time() - end
         it_time = time.time() - end
@@ -90,7 +90,7 @@ def validate(model, val_loader, device, logger, log_interval=10):
 
         batch_time_m.update(it_time)
         data_time_m.update(data_time)
-        losses_m.update(loss.item(), bs)
+        losses_m.update(loss.item(), batch_size)
         if (step % log_interval == 0) or (step == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:

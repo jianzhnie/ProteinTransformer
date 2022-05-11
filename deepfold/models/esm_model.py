@@ -12,7 +12,9 @@ class ESMTransformer(nn.Module):
     def __init__(self,
                  model_dir: str,
                  num_labels: int = 1000,
-                 dropout_ratio: float = 0.0):
+                 max_len: int =1024,
+                 dropout_ratio: float = 0.0, 
+                 pooling_type='mean'):
         super().__init__()
 
         if model_dir not in ESM_LIST:
@@ -30,6 +32,8 @@ class ESMTransformer(nn.Module):
         self.hidden_size = self._model.args.embed_dim
         self.is_msa = 'msa' in model_dir
 
+        self.num_labels = num_labels
+        self.max_len = max_len
         self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.hidden_size, num_labels)
 
@@ -64,14 +68,14 @@ class ESMTransformer(nn.Module):
         )
         # batch_logits = model_outputs['logits']
         batch_embeddings = model_outputs['representations'][self.repr_layers]
-
+        batch_embeddings = torch.mean(batch_embeddings[:, 1:self.max_len +1], dim=1)
         pooled_output = self.dropout(batch_embeddings)
         logits = self.classifier(pooled_output)
 
         outputs = (logits, )
 
         if labels is not None:
-            loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
+            loss_fct = BCEWithLogitsLoss()
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
