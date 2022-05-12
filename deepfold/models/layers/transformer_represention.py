@@ -4,6 +4,26 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class CNNPooler(nn.Module):
+    def __init__(self, hidden_size):
+        super().__init__()
+        self.conv1 = nn.Conv1d(in_channels=hidden_size,
+                               out_channels=256,
+                               kernel_size=1,
+                               padding=1)
+        self.conv2 = nn.Conv1d(in_channels=256,
+                               out_channels=1,
+                               kernel_size=2,
+                               padding=1)
+
+    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
+        hidden_states = hidden_states.permute(0, 2, 1)
+        cnn_embeddings = self.conv1(hidden_states)
+        cnn_embeddings = F.relu(cnn_embeddings)
+        cnn_embeddings = self.conv1(cnn_embeddings)
+        return cnn_embeddings
+
+
 class AttentionPooling(nn.Module):
     def __init__(self, num_layers, hidden_size, hiddendim_fc):
         super(AttentionPooling, self).__init__()
