@@ -12,7 +12,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -328,8 +328,8 @@ def main(args):
         gradient_accumulation_steps,
         train_loader,
         valid_loader,
-        use_amp,
-        device,
+        use_amp=args.amp,
+        device=args.device,
         logger=logger,
         start_epoch=start_epoch,
         end_epoch=args.epochs,
