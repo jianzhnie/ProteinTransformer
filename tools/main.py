@@ -13,13 +13,13 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
-sys.path.append('../')
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 
+sys.path.append('../')
 
 
 def parse_args():
@@ -244,7 +244,7 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                        pool_mode='mean',
+                           pool_mode='mean',
                            num_labels=num_labels)
     # model
     if args.distributed:
