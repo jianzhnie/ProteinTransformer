@@ -3,12 +3,12 @@ from typing import Dict, List, Tuple, Union
 import esm
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn import BCEWithLogitsLoss
 
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
-from .layers.transformer_represention import (AttentionPooling, LSTMPooling,
+from .layers.transformer_represention import (AttentionPooling, CNNPooler,
+                                              LSTMPooling,
                                               WeightedLayerPooling)
 
 
@@ -25,26 +25,6 @@ class ESMPooler(nn.Module):
         pooled_output = self.dense(first_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
-
-
-class CNNPooler(nn.Module):
-    def __init__(self, hidden_size):
-        super().__init__()
-        self.conv1 = nn.Conv1d(in_channels=hidden_size,
-                               out_channels=256,
-                               kernel_size=1,
-                               padding=1)
-        self.conv2 = nn.Conv1d(in_channels=256,
-                               out_channels=1,
-                               kernel_size=2,
-                               padding=1)
-
-    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
-        hidden_states = hidden_states.permute(0, 2, 1)
-        cnn_embeddings = self.conv1(hidden_states)
-        cnn_embeddings = F.relu(cnn_embeddings)
-        cnn_embeddings = self.conv1(cnn_embeddings)
-        return cnn_embeddings
 
 
 class ESMTransformer(nn.Module):
