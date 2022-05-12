@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 import esm
 import torch
 import torch.nn as nn
+from torch.cuda.amp import autocast
 from torch.nn import BCEWithLogitsLoss
 
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
@@ -77,9 +78,9 @@ class ESMTransformer(nn.Module):
                                       hiddendim_lstm=256)
 
         self.dropout = nn.Dropout(dropout_ratio)
-        self.classifier = nn.Linear(self.hidden_size * 2, num_labels)
+        self.classifier = nn.Linear(self.hidden_size, num_labels)
         if self.pool_mode == 'mean_max':
-            self.classifier = nn.Linear(self.hidden_size, num_labels)
+            self.classifier = nn.Linear(self.hidden_size * 2, num_labels)
 
         self.fintune = fintune
         if not self.fintune:
@@ -89,6 +90,10 @@ class ESMTransformer(nn.Module):
         for p in self._model.parameters():
             p.requires_grad = False
 
+    # we decorate the *forward()* method with *autocast()* to enable
+    # mixed-precision training in a distributed manner
+
+    @autocast()
     def forward(self,
                 input_ids,
                 attention_mask=None,
@@ -122,6 +127,8 @@ class ESMTransformer(nn.Module):
         # batch_embeddings: batch_size * seq_length * embedding_dim
         if self.pool_mode == 'mean':
             embeddings = torch.mean(last_hidden_state, 1)
+        if self.pool_mode == 'max':
+            embeddings = torch.max(last_hidden_state, 1)
         elif self.pool_mode == 'cls':
             embeddings = last_hidden_state[:, 0]
         elif self.pool_mode == 'mean_max':
