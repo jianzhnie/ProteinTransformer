@@ -1,17 +1,16 @@
 import argparse
 import logging
 import os
-import random
 import sys
 import time
 
-import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
+import yaml
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import ESMDataset
@@ -20,6 +19,20 @@ from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 
 sys.path.append('../')
+
+has_native_amp = False
+try:
+    if getattr(torch.cuda.amp, 'autocast') is not None:
+        has_native_amp = True
+except AttributeError:
+    pass
+
+try:
+    import wandb
+
+    has_wandb = True
+except ImportError:
+    has_wandb = False
 
 
 def parse_args():
@@ -174,14 +187,25 @@ def parse_args():
         + '--static-loss-scale.',
     )
     parser.add_argument('--output-dir',
-                        default='./work_dirs/protein_function_go',
+                        default='./work_dirs',
                         type=str,
                         help='output directory for model and log')
+    parser.add_argument('--log-wandb',
+                        action='store_true',
+                        help='while to use wandb log systerm')
     args = parser.parse_args()
     return args
 
 
 def main(args):
+    if args.log_wandb:
+        if has_wandb:
+            wandb.init(project=args.experiment, config=args)
+        else:
+            logger.warning(
+                "You've requested to log metrics to wandb but package not found. "
+                'Metrics not being logged to wandb, try `pip install wandb`')
+
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
@@ -189,36 +213,43 @@ def main(args):
     else:
         args.local_rank = 0
 
+    args.device = device = torch.device(
+        'cuda:0' if torch.cuda.is_available() else 'cpu')
+
     args.gpu = 0
     args.world_size = 1
+    args.rank = 0  # global rank
 
     if args.distributed:
         args.gpu = args.local_rank % torch.cuda.device_count()
-        torch.cuda.set_device(args.gpu)
+        torch.cuda.set_device(args.local_rank)
+        logger('->setting device:', args.local_rank)
         dist.init_process_group(backend='nccl', init_method='env://')
         args.world_size = torch.distributed.get_world_size()
-
-    if args.seed is not None:
-        print('Using seed = {}'.format(args.seed))
-        torch.manual_seed(args.seed + args.local_rank)
-        torch.cuda.manual_seed(args.seed + args.local_rank)
-        np.random.seed(seed=args.seed + args.local_rank)
-        random.seed(args.seed + args.local_rank)
-
-        def _worker_init_fn(id):
-            np.random.seed(seed=args.seed + args.local_rank + id)
-            random.seed(args.seed + args.local_rank + id)
-
+        args.rank = torch.distributed.get_rank()
+        logger.info(
+            'Training in distributed mode with multiple processes, 1 GPU per process. Process %d, total %d.'
+            % (args.rank, args.world_size))
     else:
+        logger.info('Training with a single process on 1 GPUs.')
+    assert args.rank >= 0
 
-        def _worker_init_fn(id):
-            pass
-
+    # resolve AMP arguments based on PyTorch / Apex availability
+    use_amp = None
+    if args.amp:
+        # `--amp` chooses native amp before apex (APEX ver not actively maintained)
+        if has_native_amp:
+            args.native_amp = True
+    if args.native_amp and has_native_amp:
+        use_amp = 'native'
     if args.static_loss_scale != 1.0:
         if not args.amp:
             print(
                 'Warning: if --amp is not used, static_loss_scale will be ignored.'
             )
+
+    if args.distributed:
+        torch.distributed.barrier()
 
     # get data loaders
     # Dataset and DataLoader
@@ -244,8 +275,17 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode='mean',
+                           pool_mode='pool',
                            num_labels=num_labels)
+
+    scaler = torch.cuda.amp.GradScaler(
+        init_scale=args.static_loss_scale,
+        growth_factor=2,
+        backoff_factor=0.5,
+        growth_interval=100 if args.dynamic_loss_scale else 1000000000,
+        enabled=args.amp,
+    )
+
     # model
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
@@ -266,7 +306,7 @@ def main(args):
             model = torch.nn.parallel.DistributedDataParallel(model,
                                                               output_device=0)
     else:
-        model.cuda()
+        model.to(device)
 
     start_epoch = 0
     # define loss function (criterion) and optimizer
@@ -280,15 +320,15 @@ def main(args):
 
     gradient_accumulation_steps = args.gradient_accumulation_steps
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     train_loop(
         model,
         optimizer,
         lr_policy,
+        scaler,
         gradient_accumulation_steps,
         train_loader,
         valid_loader,
+        use_amp,
         device,
         logger=logger,
         start_epoch=start_epoch,
@@ -303,13 +343,17 @@ def main(args):
 
 if __name__ == '__main__':
     args = parse_args()
-    task_name = args.data_name + '-' + args.model
+    # Cache the args as a text string to save them in the output dir later
+    args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
+    task_name = 'ProtLM' + '_' + args.model
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:
         if not os.path.exists(args.output_dir):
             os.makedirs(args.output_dir)
 
+    with open(os.path.join(args.output_dir, 'args.yaml'), 'w') as f:
+        f.write(args_text)
     logger = logging.getLogger('')
     filehandler = logging.FileHandler(
         os.path.join(args.output_dir, 'summary.log'))
