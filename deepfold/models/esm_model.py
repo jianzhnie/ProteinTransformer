@@ -57,11 +57,9 @@ class ESMTransformer(nn.Module):
         self.max_len = max_len
         self.pool_mode = pool_mode
 
-        if pool_mode not in POOLING_MODE_LIST:
-            print(
-                f"Pooling Mode '{pool_mode}' not recognized. Using '{DEFAULT_POOL_MODE}' as default"
+        assert pool_mode in POOLING_MODE_LIST, (
+                f"Pooling Mode '{pool_mode}' not recognized. allowed pooling method {POOLING_MODE_LIST}"
             )
-            pool_mode = 'cls'
 
         if pool_mode == 'pool':
             self.pooler = ESMPooler(self.hidden_size)

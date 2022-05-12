@@ -37,7 +37,7 @@ except ImportError:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Model-based Asynchronous HPO')
+        description='Protein function Classification Model-based')
     parser.add_argument('--data_name',
                         default='',
                         type=str,
@@ -275,7 +275,7 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode='pool',
+                           pool_mode='cls',
                            num_labels=num_labels)
 
     scaler = torch.cuda.amp.GradScaler(
