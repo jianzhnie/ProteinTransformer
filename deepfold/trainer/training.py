@@ -2,17 +2,49 @@ import time
 
 import numpy as np
 import torch
+from torch.cuda.amp import autocast
 
 from deepfold.utils.metrics import AverageMeter
-from deepfold.utils.model import save_checkpoint
+from deepfold.utils.model import reduce_tensor, save_checkpoint
+
+
+def get_train_step(model,
+                   optimizer,
+                   scaler,
+                   gradient_accumulation_steps,
+                   use_amp=False):
+    def _step(**inputs):
+
+        with autocast(enabled=use_amp):
+            outputs = model(**inputs)
+            loss = outputs[0]
+            loss /= gradient_accumulation_steps
+            if torch.distributed.is_initialized():
+                reduced_loss = reduce_tensor(loss.data)
+            else:
+                reduced_loss = loss.data
+
+        scaler.scale(loss).backward()
+
+        scaler.step(optimizer)
+        scaler.update()
+        optimizer.zero_grad()
+
+        torch.cuda.synchronize()
+
+        return reduced_loss
+
+    return _step
 
 
 def train(model,
           train_loader,
           optimizer,
+          scaler,
           lr_scheduler,
           gradient_accumulation_steps,
           epoch,
+          use_amp,
           device,
           logger,
           log_interval=1):
@@ -20,27 +52,22 @@ def train(model,
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
+    step = get_train_step(model, optimizer, scaler,
+                          gradient_accumulation_steps, use_amp)
+
     model.train()
+    optimizer.zero_grad()
     steps_per_epoch = len(train_loader)
     end = time.time()
     for step, batch in enumerate(train_loader):
+        lr_scheduler.step(epoch)
         # Add batch to GPU
         batch = {key: val.to(device) for key, val in batch.items()}
-        # Clear out the gradients (by default they accumulate)
-        optimizer.zero_grad()
-        # Forward pass for multilabel classification
-        outputs = model(**batch)
+
         data_time = time.time() - end
 
-        loss = outputs[0]
-        loss = loss / gradient_accumulation_steps
+        loss = step(**batch)
         batch_size = batch['input_ids'].shape[0]
-        if step % gradient_accumulation_steps == 0 or step == steps_per_epoch - 1:
-            # Backward pass
-            loss.backward()
-            optimizer.step()
-            lr_scheduler.step(epoch)
-            optimizer.zero_grad()
 
         it_time = time.time() - end
         batch_time_m.update(it_time)
@@ -70,21 +97,42 @@ def train(model,
     return losses_m.avg
 
 
-def validate(model, val_loader, device, logger, log_interval=10):
+def get_val_step(model, use_amp=False):
+    def _step(**inputs):
+
+        with autocast(enabled=use_amp):
+            outputs = model(**inputs)
+            loss = outputs[0]
+            if torch.distributed.is_initialized():
+                reduced_loss = reduce_tensor(loss.data)
+            else:
+                reduced_loss = loss.data
+
+        torch.cuda.synchronize()
+
+        return reduced_loss
+
+    return _step
+
+
+def validate(model, val_loader, use_amp, device, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
+
+    step = get_train_step(model, use_amp)
 
     model.eval()
     steps_per_epoch = len(val_loader)
     end = time.time()
     for step, batch in enumerate(val_loader):
         batch = {key: val.to(device) for key, val in batch.items()}
-        outputs = model(**batch)
-        loss = outputs[0]
-        batch_size = batch['input_ids'].shape[0]
 
         data_time = time.time() - end
+
+        loss = step(**batch)
+        batch_size = batch['input_ids'].shape[0]
+
         it_time = time.time() - end
         end = time.time()
 
@@ -164,9 +212,11 @@ def train_loop(
     model,
     optimizer,
     lr_scheduler,
+    scaler,
     gradient_accumulation_steps,
     train_loader,
     val_loader,
+    use_amp,
     device,
     logger,
     start_epoch=0,
@@ -186,15 +236,22 @@ def train_loop(
         losses_m = train(model,
                          train_loader,
                          optimizer,
+                         scaler,
                          lr_scheduler,
                          gradient_accumulation_steps,
                          epoch,
+                         use_amp,
                          device,
                          logger,
                          log_interval=10)
 
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, losses_m))
-        losses_m = validate(model, val_loader, device, logger, log_interval=10)
+        losses_m = validate(model,
+                            val_loader,
+                            use_amp,
+                            device,
+                            logger,
+                            log_interval=10)
         logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, losses_m))
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
