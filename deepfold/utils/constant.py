@@ -23,3 +23,9 @@ DEFAULT_ROSTLAB_MODEL = 'Rostlab/prot_bert'
 BACKEND_LIST = ESM_LIST + list(MAPPING_PROTBERT.keys())
 
 NATURAL_AAS_LIST = list('ACDEFGHIKLMNPQRSTVWY')
+
+POOLING_MODE_LIST = [
+    'cls', 'mean', 'mean_max', 'pooler', 'cnn', 'weighted', 'attention', 'lstm'
+]
+
+DEFAULT_POOL_MODE = 'cls'
