@@ -59,7 +59,7 @@ def train(model,
     optimizer.zero_grad()
     steps_per_epoch = len(train_loader)
     end = time.time()
-    for step, batch in enumerate(train_loader):
+    for idx, batch in enumerate(train_loader):
         lr_scheduler.step(epoch)
         # Add batch to GPU
         batch = {key: val.to(device) for key, val in batch.items()}
@@ -75,7 +75,7 @@ def train(model,
         losses_m.update(loss.item(), batch_size)
 
         end = time.time()
-        if (step % log_interval == 0) or (step == steps_per_epoch - 1):
+        if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:
                 learning_rate = optimizer.param_groups[0]['lr']
@@ -87,7 +87,7 @@ def train(model,
                     'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '
                     'lr: {lr:>4.6f} '.format(log_name,
                                              epoch + 1,
-                                             step,
+                                             idx,
                                              steps_per_epoch,
                                              data_time=data_time_m,
                                              batch_time=batch_time_m,
@@ -120,12 +120,12 @@ def validate(model, val_loader, use_amp, device, logger, log_interval=10):
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    step = get_train_step(model, use_amp)
+    step = get_val_step(model, use_amp)
 
     model.eval()
     steps_per_epoch = len(val_loader)
     end = time.time()
-    for step, batch in enumerate(val_loader):
+    for idx, batch in enumerate(val_loader):
         batch = {key: val.to(device) for key, val in batch.items()}
 
         data_time = time.time() - end
@@ -139,7 +139,7 @@ def validate(model, val_loader, use_amp, device, logger, log_interval=10):
         batch_time_m.update(it_time)
         data_time_m.update(data_time)
         losses_m.update(loss.item(), batch_size)
-        if (step % log_interval == 0) or (step == steps_per_epoch - 1):
+        if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:
                 logger_name = 'Test-log'
@@ -149,7 +149,7 @@ def validate(model, val_loader, use_amp, device, logger, log_interval=10):
                     'Time: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
                     'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '.format(
                         logger_name,
-                        step,
+                        idx,
                         steps_per_epoch,
                         data_time=data_time_m,
                         batch_time=batch_time_m,
@@ -167,7 +167,7 @@ def predict(model, val_loader, device, logger, log_interval=10):
     end = time.time()
     # Variables to gather full output
     true_labels, pred_labels = [], []
-    for step, batch in enumerate(val_loader):
+    for idx, batch in enumerate(val_loader):
         batch = {key: val.to(device) for key, val in batch.items()}
         labels = batch['labels']
         outputs = model(**batch)
@@ -187,7 +187,7 @@ def predict(model, val_loader, device, logger, log_interval=10):
         batch_time_m.update(it_time)
         data_time_m.update(data_time)
         losses_m.update(loss.item(), bs)
-        if (step % log_interval == 0) or (step == steps_per_epoch - 1):
+        if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:
                 logger_name = 'Test-log'
@@ -197,7 +197,7 @@ def predict(model, val_loader, device, logger, log_interval=10):
                     'Time: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
                     'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '.format(
                         logger_name,
-                        step,
+                        idx,
                         steps_per_epoch,
                         data_time=data_time_m,
                         batch_time=batch_time_m,
