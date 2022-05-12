@@ -6,7 +6,8 @@ import torch.nn as nn
 from torch.cuda.amp import autocast
 from torch.nn import BCEWithLogitsLoss
 
-from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
+from deepfold.utils.constant import (DEFAULT_ESM_MODEL, DEFAULT_POOL_MODE,
+                                     ESM_LIST, POOLING_MODE_LIST)
 
 from .layers.transformer_represention import (AttentionPooling, CNNPooler,
                                               LSTMPooling,
@@ -55,6 +56,12 @@ class ESMTransformer(nn.Module):
         self.num_labels = num_labels
         self.max_len = max_len
         self.pool_mode = pool_mode
+
+        if pool_mode not in POOLING_MODE_LIST:
+            print(
+                f"Pooling Mode '{pool_mode}' not recognized. Using '{DEFAULT_POOL_MODE}' as default"
+            )
+            pool_mode = 'cls'
 
         if pool_mode == 'pool':
             self.pooler = ESMPooler(self.hidden_size)
