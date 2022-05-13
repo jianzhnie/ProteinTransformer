@@ -14,8 +14,9 @@ sys.path.append('../')
 
 if __name__ == '__main__':
     seed_everything(42)
-    model_name = 'Rostlab/prot_bert_bfd'
+    model_name = 'esm1b_t33_650M_UR50S'
     data_path = '/Users/robin/xbiome/datasets/protein'
+    data_path = '/home/niejianzheng/xbiome/datasets/protein'
     checkpoint_dir = '/Users/robin/xbiome/work_dir'
     pretrain_model = 'esm1b'
     dm = LightingESMDataModule(data_path=data_path,
