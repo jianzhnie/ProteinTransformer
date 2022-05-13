@@ -38,7 +38,7 @@ def get_train_step(model,
 
 
 def train(model,
-          train_loader,
+          loader,
           optimizer,
           scaler,
           lr_scheduler,
@@ -57,9 +57,9 @@ def train(model,
 
     model.train()
     optimizer.zero_grad()
-    steps_per_epoch = len(train_loader)
+    steps_per_epoch = len(loader)
     end = time.time()
-    for idx, batch in enumerate(train_loader):
+    for idx, batch in enumerate(loader):
         lr_scheduler.step(epoch)
         # Add batch to GPU
         batch = {key: val.to(device) for key, val in batch.items()}
