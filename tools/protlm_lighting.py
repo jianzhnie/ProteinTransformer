@@ -3,20 +3,21 @@ import sys
 import torch
 from pytorch_lightning import Trainer, seed_everything
 from transformers import BertConfig
+sys.path.append('../')
 
 from deepfold.data.lighting_datamodule import LightingSeqenceDataModule
 from deepfold.models.transformers.lighting_model import (
     BertForMultiLabelSequenceClassification, LightningTransformer)
 
-sys.path.append('../')
 
 if __name__ == '__main__':
     seed_everything(42)
     model_name = 'Rostlab/prot_bert_bfd'
-    data_path = '/Users/robin/xbiome/datasets/protein'
+    # data_path = '/Users/robin/xbiome/datasets/protein'
+    data_path = '/home/niejianzheng/xbiome/datasets/protein'
     dm = LightingSeqenceDataModule(data_path=data_path,
                                    tokenizer_name='Rostlab/prot_bert_bfd',
-                                   batch_size=1,
+                                   batch_size=16,
                                    max_length=64)
     dm.setup('fit')
 
