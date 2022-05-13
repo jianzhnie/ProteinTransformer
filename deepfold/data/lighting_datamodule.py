@@ -7,7 +7,7 @@ from .esm_dataset import ESMDataset
 from .protein_dataset import ProtBertDataset
 
 
-class LightingSeqenceDataModule(pl.LightningDataModule):
+class LightingProtBertDataModule(pl.LightningDataModule):
     """pytorch_lighting seqence Dataset Model."""
     def __init__(self,
                  data_path='dataset/',
@@ -50,7 +50,7 @@ class LightingSeqenceDataModule(pl.LightningDataModule):
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
 
 
-class ESMDataModule(pl.LightningDataModule):
+class LightingESMDataModule(pl.LightningDataModule):
     """pytorch_lighting seqence Dataset Model."""
     def __init__(self,
                  data_path: str = 'dataset/',
