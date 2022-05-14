@@ -11,16 +11,16 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from timm.utils.random import random_seed
+
 from torch.nn.parallel import DistributedDataParallel as NativeDDP
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
+from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
