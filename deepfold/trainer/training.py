@@ -8,11 +8,8 @@ from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 
 
-def get_train_step(model,
-                   optimizer,
-                   scaler,
-                   gradient_accumulation_steps,
-                   use_amp=False):
+def get_train_step(model, optimizer, scaler, gradient_accumulation_steps,
+                   use_amp):
     def _step(**inputs):
 
         with autocast(enabled=use_amp):
@@ -43,8 +40,8 @@ def train(model,
           scaler,
           lr_scheduler,
           gradient_accumulation_steps,
-          epoch,
           use_amp,
+          epoch,
           device,
           logger,
           log_interval=1):
@@ -172,7 +169,8 @@ def predict(model, val_loader, device, logger, log_interval=10):
         labels = batch['labels']
         outputs = model(**batch)
         loss = outputs[0]
-        preds = outputs[1]
+        logits = outputs[1]
+        preds = torch.sigmoid(logits)
         preds = preds.detach().cpu().numpy()
         labels = labels.to('cpu').numpy()
 
@@ -230,35 +228,40 @@ def train_loop(
     if early_stopping_patience > 0:
         epochs_since_improvement = 0
 
-    best_prec1 = 0
+    best_loss = np.inf
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        losses_m = train(model,
-                         train_loader,
-                         optimizer,
-                         scaler,
-                         lr_scheduler,
-                         gradient_accumulation_steps,
-                         epoch,
-                         use_amp,
-                         device,
-                         logger,
-                         log_interval=10)
+        train_loss = train(model,
+                           train_loader,
+                           optimizer,
+                           scaler,
+                           lr_scheduler,
+                           gradient_accumulation_steps,
+                           epoch,
+                           use_amp,
+                           device,
+                           logger,
+                           log_interval=10)
 
-        logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, losses_m))
-        losses_m = validate(model,
+        logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, train_loss))
+        val_loss = validate(model,
                             val_loader,
                             use_amp,
                             device,
                             logger,
                             log_interval=10)
-        logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, losses_m))
+        logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, val_loss))
+
+        if train_loss < best_loss:
+            is_best = True
+            best_loss = train_loss
+
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
             checkpoint_state = {
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                'best_prec1': best_prec1,
+                'best_loss': val_loss,
                 'optimizer': optimizer.state_dict(),
             }
             save_checkpoint(
@@ -267,6 +270,7 @@ def train_loop(
                 checkpoint_dir=checkpoint_dir,
                 filename=checkpoint_filename,
             )
+
         if early_stopping_patience > 0:
             if not is_best:
                 epochs_since_improvement += 1

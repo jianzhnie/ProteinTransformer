@@ -97,7 +97,6 @@ class ESMTransformer(nn.Module):
     # we decorate the *forward()* method with *autocast()* to enable
     # mixed-precision training in a distributed manner
 
-
     def forward(self,
                 input_ids,
                 attention_mask=None,

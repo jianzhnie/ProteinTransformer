@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
@@ -75,9 +73,9 @@ class LightingESMDataModule(pl.LightningDataModule):
                                         max_length=self.max_token_len)
 
         self.test_dataset = ESMDataset(data_path=self.data_path,
-                                        split='test',
-                                        model_dir=self.model_name,
-                                        max_length=self.max_token_len)
+                                       split='test',
+                                       model_dir=self.model_name,
+                                       max_length=self.max_token_len)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset,
