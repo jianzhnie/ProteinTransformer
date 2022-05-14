@@ -8,13 +8,15 @@ from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 
 
-def get_train_step(model, optimizer, scaler, gradient_accumulation_steps,
-                   use_amp):
+def get_train_step(model, criterion, optimizer, scaler,
+                   gradient_accumulation_steps, use_amp):
     def _step(**inputs):
 
         with autocast(enabled=use_amp):
-            outputs = model(**inputs)
-            loss = outputs[0]
+            labels = inputs['labels']
+            labels = labels.float()
+            logits = model(**inputs)
+            loss = criterion(logits, labels)
             loss /= gradient_accumulation_steps
             if torch.distributed.is_initialized():
                 reduced_loss = reduce_tensor(loss.data)
@@ -35,6 +37,7 @@ def get_train_step(model, optimizer, scaler, gradient_accumulation_steps,
 
 def train(model,
           loader,
+          criterion,
           optimizer,
           lr_scheduler,
           scaler,
@@ -47,7 +50,7 @@ def train(model,
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    step = get_train_step(model, optimizer, scaler,
+    step = get_train_step(model, criterion, optimizer, scaler,
                           gradient_accumulation_steps, use_amp)
 
     model.train()
@@ -92,12 +95,14 @@ def train(model,
     return losses_m.avg
 
 
-def get_val_step(model, use_amp=False):
+def get_val_step(model, criterion, use_amp=False):
     def _step(**inputs):
 
         with torch.no_grad(), autocast(enabled=use_amp):
-            outputs = model(**inputs)
-            loss = outputs[0]
+            labels = inputs['labels']
+            labels = labels.float()
+            logits = model(**inputs)
+            loss = criterion(logits, labels)
             if torch.distributed.is_initialized():
                 reduced_loss = reduce_tensor(loss.data)
             else:
@@ -110,12 +115,12 @@ def get_val_step(model, use_amp=False):
     return _step
 
 
-def validate(model, val_loader, use_amp, logger, log_interval=10):
+def validate(model, criterion, val_loader, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    step = get_val_step(model, use_amp)
+    step = get_val_step(model, criterion, use_amp)
 
     model.eval()
     steps_per_epoch = len(val_loader)
@@ -152,7 +157,7 @@ def validate(model, val_loader, use_amp, logger, log_interval=10):
     return losses_m.avg
 
 
-def predict(model, val_loader, logger, log_interval=10):
+def predict(model, criterion, val_loader, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -165,9 +170,10 @@ def predict(model, val_loader, logger, log_interval=10):
     for idx, batch in enumerate(val_loader):
         batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
-        outputs = model(**batch)
-        loss = outputs[0]
-        logits = outputs[1]
+        labels = batch['labels']
+        labels = labels.float()
+        logits = model(**batch)
+        loss = criterion(logits, labels)
         preds = torch.sigmoid(logits)
         preds = preds.detach().cpu().numpy()
         labels = labels.to('cpu').numpy()
@@ -207,6 +213,7 @@ def predict(model, val_loader, logger, log_interval=10):
 def train_loop(
     model,
     optimizer,
+    criterion,
     lr_scheduler,
     scaler,
     gradient_accumulation_steps,
@@ -229,6 +236,7 @@ def train_loop(
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         train_loss = train(model,
+                           criterion,
                            train_loader,
                            optimizer,
                            lr_scheduler,
@@ -241,6 +249,7 @@ def train_loop(
 
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, train_loss))
         val_loss = validate(model,
+                            criterion,
                             val_loader,
                             use_amp,
                             logger,
