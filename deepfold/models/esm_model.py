@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple, Union
 import esm
 import torch
 import torch.nn as nn
-from torch.nn import BCEWithLogitsLoss
 
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
@@ -155,17 +154,7 @@ class ESMTransformer(nn.Module):
 
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)
-
-        outputs = (logits, )
-
-        if labels is not None:
-            loss_fct = BCEWithLogitsLoss()
-            labels = labels.float()
-            loss = loss_fct(logits.view(-1, self.num_labels),
-                            labels.view(-1, self.num_labels))
-            outputs = (loss, ) + outputs
-
-        return outputs
+        return logits
 
     def compute_embeddings(
             self,
