@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 import time
-from contextlib import suppress
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -12,8 +11,6 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from timm.utils import ApexScaler, NativeScaler
-from torch.nn.parallel import DistributedDataParallel as NativeDDP
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import ESMDataset
@@ -23,20 +20,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.random import random_seed
 
 sys.path.append('../')
-
-try:
-    from apex import amp
-    from apex.parallel import DistributedDataParallel as ApexDDP
-    has_apex = True
-except ImportError:
-    has_apex = False
-
-has_native_amp = False
-try:
-    if getattr(torch.cuda.amp, 'autocast') is not None:
-        has_native_amp = True
-except AttributeError:
-    pass
 
 try:
     import wandb
@@ -222,13 +205,16 @@ def main(args):
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
+        args.local_rank = int(os.environ['LOCAL_RANK'])
+    else:
+        args.local_rank = 0
 
-    args.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    args.gpu = 0
     args.world_size = 1
-    args.rank = 0  # global rank
+    args.rank = 0
 
     if args.distributed:
-        args.device = 'cuda:%d' % args.local_rank
+        args.gpu = args.local_rank % torch.cuda.device_count()
         torch.cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl', init_method='env://')
         args.world_size = torch.distributed.get_world_size()
@@ -305,51 +291,26 @@ def main(args):
                                   epochs=args.epochs,
                                   logger=logger)
 
-    # resolve AMP arguments based on PyTorch / Apex availability
-    use_amp = None
-    if args.amp:
-        # `--amp` chooses native amp before apex (APEX ver not actively maintained)
-        if has_native_amp:
-            args.native_amp = True
-        elif has_apex:
-            args.apex_amp = True
-    if args.apex_amp and has_apex:
-        use_amp = 'apex'
-    elif args.native_amp and has_native_amp:
-        use_amp = 'native'
-    elif args.apex_amp or args.native_amp:
-        logger.warning(
-            'Neither APEX or native Torch AMP is available, using float32. '
-            'Install NVIDA apex or upgrade to PyTorch 1.6')
-
-    # setup automatic mixed-precision (AMP) loss scaling and op casting
-    amp_autocast = suppress  # do nothing
-    loss_scaler = None
-    if use_amp == 'apex':
-        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
-        loss_scaler = ApexScaler()
-        if args.local_rank == 0:
-            logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
-    elif use_amp == 'native':
-        amp_autocast = torch.cuda.amp.autocast
-        loss_scaler = NativeScaler()
-        if args.local_rank == 0:
-            logger.info('Using native Torch AMP. Training in mixed precision.')
-    else:
-        if args.local_rank == 0:
-            logger.info('AMP not enabled. Training in float32.')
-
-    # setup distributed training
     if args.distributed:
-        if has_apex and use_amp == 'apex':
-            # Apex DDP preferred unless native amp is activated
-            if args.local_rank == 0:
-                logger.info('Using NVIDIA APEX DistributedDataParallel.')
-            model = ApexDDP(model, delay_allreduce=True)
+        # For multiprocessing distributed, DistributedDataParallel constructor
+        # should always set the single device scope, otherwise,
+        # DistributedDataParallel will use all available devices.
+        if args.gpu is not None:
+            torch.cuda.set_device(args.gpu)
+            model.cuda(args.gpu)
+            # When using a single GPU per process and per
+            # DistributedDataParallel, we need to divide the batch size
+            # ourselves based on the total number of GPUs we have
+            model = torch.nn.parallel.DistributedDataParallel(
+                model, device_ids=[args.gpu], output_device=args.gpu)
         else:
-            if args.local_rank == 0:
-                logger.info('Using native Torch DistributedDataParallel.')
-            model = NativeDDP(model, device_ids=[args.local_rank])
+            model.cuda()
+            # DistributedDataParallel will divide and allocate batch_size to all
+            # available GPUs if device_ids are not set
+            model = torch.nn.parallel.DistributedDataParallel(model,
+                                                              output_device=0)
+    else:
+        model.cuda()
 
     start_epoch = 0
     if args.start_epoch is not None:
@@ -371,10 +332,7 @@ def main(args):
         gradient_accumulation_steps,
         train_loader,
         test_loader,
-        amp_autocast=amp_autocast,
-        loss_scaler=loss_scaler,
         use_amp=args.amp,
-        device=args.device,
         logger=logger,
         start_epoch=start_epoch,
         end_epoch=args.epochs,

@@ -8,11 +8,11 @@ from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 
 
-def get_train_step(model, optimizer, amp_autocast, loss_scaler,
-                   gradient_accumulation_steps):
+def get_train_step(model, optimizer, scaler, gradient_accumulation_steps,
+                   use_amp):
     def _step(**inputs):
 
-        with autocast():
+        with autocast(enabled=use_amp):
             outputs = model(**inputs)
             loss = outputs[0]
             loss /= gradient_accumulation_steps
@@ -21,8 +21,10 @@ def get_train_step(model, optimizer, amp_autocast, loss_scaler,
             else:
                 reduced_loss = loss.data
 
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
         optimizer.zero_grad()
-        optimizer.step()
 
         torch.cuda.synchronize()
 
@@ -35,19 +37,18 @@ def train(model,
           loader,
           optimizer,
           lr_scheduler,
-          amp_autocast,
-          loss_scaler,
+          scaler,
           gradient_accumulation_steps,
+          use_amp,
           epoch,
-          device,
           logger,
           log_interval=1):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    step = get_train_step(model, optimizer, amp_autocast, loss_scaler,
-                          gradient_accumulation_steps)
+    step = get_train_step(model, optimizer, scaler,
+                          gradient_accumulation_steps, use_amp)
 
     model.train()
     optimizer.zero_grad()
@@ -56,7 +57,7 @@ def train(model,
     for idx, batch in enumerate(loader):
         lr_scheduler.step(epoch)
         # Add batch to GPU
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
 
         data_time = time.time() - end
 
@@ -94,7 +95,7 @@ def train(model,
 def get_val_step(model, use_amp=False):
     def _step(**inputs):
 
-        with autocast(enabled=use_amp):
+        with torch.no_grad(), autocast(enabled=use_amp):
             outputs = model(**inputs)
             loss = outputs[0]
             if torch.distributed.is_initialized():
@@ -109,7 +110,7 @@ def get_val_step(model, use_amp=False):
     return _step
 
 
-def validate(model, val_loader, use_amp, device, logger, log_interval=10):
+def validate(model, val_loader, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -120,7 +121,7 @@ def validate(model, val_loader, use_amp, device, logger, log_interval=10):
     steps_per_epoch = len(val_loader)
     end = time.time()
     for idx, batch in enumerate(val_loader):
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
 
         data_time = time.time() - end
 
@@ -151,7 +152,7 @@ def validate(model, val_loader, use_amp, device, logger, log_interval=10):
     return losses_m.avg
 
 
-def predict(model, val_loader, device, logger, log_interval=10):
+def predict(model, val_loader, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -162,7 +163,7 @@ def predict(model, val_loader, device, logger, log_interval=10):
     # Variables to gather full output
     true_labels, pred_labels = [], []
     for idx, batch in enumerate(val_loader):
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
         outputs = model(**batch)
         loss = outputs[0]
@@ -212,7 +213,6 @@ def train_loop(
     train_loader,
     val_loader,
     use_amp,
-    device,
     logger,
     start_epoch=0,
     end_epoch=0,
@@ -231,12 +231,11 @@ def train_loop(
         train_loss = train(model,
                            train_loader,
                            optimizer,
-                           scaler,
                            lr_scheduler,
+                           scaler,
                            gradient_accumulation_steps,
-                           epoch,
                            use_amp,
-                           device,
+                           epoch,
                            logger,
                            log_interval=10)
 
@@ -244,7 +243,6 @@ def train_loop(
         val_loss = validate(model,
                             val_loader,
                             use_amp,
-                            device,
                             logger,
                             log_interval=10)
         logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, val_loss))
