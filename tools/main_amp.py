@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 import time
-from contextlib import suppress
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -12,34 +11,26 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from timm.utils import ApexScaler, NativeScaler
-from torch.nn.parallel import DistributedDataParallel as NativeDDP
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
-from deepfold.trainer.training import train_loop
-from deepfold.utils.random import random_seed
+from deepfold.trainer.training_amp import train_loop
 
 sys.path.append('../')
 
 try:
+    from apex.parallel import DistributedDataParallel as DDP
     from apex import amp
-    from apex.parallel import DistributedDataParallel as ApexDDP
-    has_apex = True
 except ImportError:
-    has_apex = False
-
-has_native_amp = False
-try:
-    if getattr(torch.cuda.amp, 'autocast') is not None:
-        has_native_amp = True
-except AttributeError:
-    pass
+    raise ImportError(
+        'Please install apex from https://www.github.com/nvidia/apex to run this example.'
+    )
 
 try:
     import wandb
+
     has_wandb = True
 except ImportError:
     has_wandb = False
@@ -148,6 +139,8 @@ parser.add_argument('--native-amp',
                     action='store_true',
                     default=False,
                     help='Use Native Torch AMP mixed precision')
+parser.add_argument('--opt-level', type=str)
+parser.add_argument('--loss-scale', type=str, default=None)
 parser.add_argument(
     '--early-stopping-patience',
     default=-1,
@@ -219,15 +212,25 @@ def main(args):
                 "You've requested to log metrics to wandb but package not found. "
                 'Metrics not being logged to wandb, try `pip install wandb`')
 
+    cudnn.benchmark = True
+    if args.deterministic:
+        cudnn.benchmark = False
+        cudnn.deterministic = True
+        torch.manual_seed(args.local_rank)
+        torch.set_printoptions(precision=10)
+
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
+        args.local_rank = os.getenv('LOCAL_RANK', 0)
 
     args.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    args.world_size = 1
-    args.rank = 0  # global rank
 
+    args.gpu = 0
+    args.world_size = 1
+    args.rank = 0
     if args.distributed:
+        args.gpu = args.local_rank
         args.device = 'cuda:%d' % args.local_rank
         torch.cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl', init_method='env://')
@@ -239,9 +242,9 @@ def main(args):
             % (args.rank, args.world_size))
     else:
         logger.info('Training with a single process on %s .' % args.device)
-    assert args.rank >= 0
 
-    random_seed(args.seed, args.rank)
+    assert torch.backends.cudnn.enabled, 'Amp requires cudnn backend to be enabled.'
+    assert args.rank >= 0
 
     # get data loaders
     # Dataset and DataLoader
@@ -288,14 +291,6 @@ def main(args):
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode='cls',
                            num_labels=num_labels)
-
-    scaler = torch.cuda.amp.GradScaler(
-        init_scale=args.static_loss_scale,
-        growth_factor=2,
-        backoff_factor=0.5,
-        growth_interval=100 if args.dynamic_loss_scale else 1000000000,
-        enabled=args.amp,
-    )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -305,51 +300,22 @@ def main(args):
                                   epochs=args.epochs,
                                   logger=logger)
 
-    # resolve AMP arguments based on PyTorch / Apex availability
-    use_amp = None
-    if args.amp:
-        # `--amp` chooses native amp before apex (APEX ver not actively maintained)
-        if has_native_amp:
-            args.native_amp = True
-        elif has_apex:
-            args.apex_amp = True
-    if args.apex_amp and has_apex:
-        use_amp = 'apex'
-    elif args.native_amp and has_native_amp:
-        use_amp = 'native'
-    elif args.apex_amp or args.native_amp:
-        logger.warning(
-            'Neither APEX or native Torch AMP is available, using float32. '
-            'Install NVIDA apex or upgrade to PyTorch 1.6')
-
-    # setup automatic mixed-precision (AMP) loss scaling and op casting
-    amp_autocast = suppress  # do nothing
-    loss_scaler = None
-    if use_amp == 'apex':
-        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
-        loss_scaler = ApexScaler()
-        if args.local_rank == 0:
-            logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
-    elif use_amp == 'native':
-        amp_autocast = torch.cuda.amp.autocast
-        loss_scaler = NativeScaler()
-        if args.local_rank == 0:
-            logger.info('Using native Torch AMP. Training in mixed precision.')
-    else:
-        if args.local_rank == 0:
-            logger.info('AMP not enabled. Training in float32.')
-
-    # setup distributed training
+    # Initialize Amp.  Amp accepts either values or strings for the optional override arguments,
+    # for convenient interoperation with argparse.
+    model, optimizer = amp.initialize(model,
+                                      optimizer,
+                                      opt_level=args.opt_level,
+                                      loss_scale=args.loss_scale)
+    # For distributed training, wrap the model with apex.parallel.DistributedDataParallel.
+    # This must be done AFTER the call to amp.initialize.  If model = DDP(model) is called
+    # before model, ... = amp.initialize(model, ...), the call to amp.initialize may alter
+    # the types of model's parameters in a way that disrupts or destroys DDP's allreduce hooks.
     if args.distributed:
-        if has_apex and use_amp == 'apex':
-            # Apex DDP preferred unless native amp is activated
-            if args.local_rank == 0:
-                logger.info('Using NVIDIA APEX DistributedDataParallel.')
-            model = ApexDDP(model, delay_allreduce=True)
-        else:
-            if args.local_rank == 0:
-                logger.info('Using native Torch DistributedDataParallel.')
-            model = NativeDDP(model, device_ids=[args.local_rank])
+        # By default, apex.parallel.DistributedDataParallel overlaps communication with
+        # computation in the backward pass.
+        # model = DDP(model)
+        # delay_allreduce delays all communication to the end of the backward pass.
+        model = DDP(model, delay_allreduce=True)
 
     start_epoch = 0
     if args.start_epoch is not None:
@@ -361,19 +327,12 @@ def main(args):
     if args.local_rank == 0:
         logger.info('Scheduled epochs: {}'.format(args.epochs))
 
-    gradient_accumulation_steps = args.gradient_accumulation_steps
-
     train_loop(
         model,
         optimizer,
         lr_policy,
-        scaler,
-        gradient_accumulation_steps,
         train_loader,
         test_loader,
-        amp_autocast=amp_autocast,
-        loss_scaler=loss_scaler,
-        use_amp=args.amp,
         device=args.device,
         logger=logger,
         start_epoch=start_epoch,
