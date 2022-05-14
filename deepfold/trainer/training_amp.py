@@ -186,7 +186,6 @@ def train_loop(
     model,
     optimizer,
     lr_scheduler,
-    gradient_accumulation_steps,
     train_loader,
     val_loader,
     device,
