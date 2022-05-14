@@ -12,12 +12,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training_amp import train_loop
 
+sys.path.append('../')
 
 try:
     from apex.parallel import DistributedDataParallel as DDP
@@ -224,14 +225,12 @@ def main(args):
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
         args.local_rank = os.getenv('LOCAL_RANK', 0)
 
-    args.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
     args.gpu = 0
     args.world_size = 1
     args.rank = 0
+
     if args.distributed:
         args.gpu = args.local_rank
-        args.device = 'cuda:%d' % args.local_rank
         torch.cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl', init_method='env://')
         args.world_size = torch.distributed.get_world_size()
@@ -240,8 +239,6 @@ def main(args):
         logger.info(
             'Training in distributed mode with multiple processes, 1 GPU per process. Process %d, total %d.'
             % (args.rank, args.world_size))
-    else:
-        logger.info('Training with a single process on %s .' % args.device)
 
     assert torch.backends.cudnn.enabled, 'Amp requires cudnn backend to be enabled.'
     assert args.rank >= 0
@@ -300,6 +297,7 @@ def main(args):
                                   epochs=args.epochs,
                                   logger=logger)
 
+    model = model.cuda()
     # Initialize Amp.  Amp accepts either values or strings for the optional override arguments,
     # for convenient interoperation with argparse.
     model, optimizer = amp.initialize(model,
@@ -333,7 +331,6 @@ def main(args):
         lr_policy,
         train_loader,
         test_loader,
-        device=args.device,
         logger=logger,
         start_epoch=start_epoch,
         end_epoch=args.epochs,
