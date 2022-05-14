@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import sys
 import time
 
 import torch
@@ -18,6 +19,8 @@ from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
+
+sys.path.append('../')
 
 try:
     import wandb
@@ -38,7 +41,7 @@ parser.add_argument('-c',
                     help='YAML config file specifying default arguments')
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
-parser.add_argument('--data_dir',
+parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')

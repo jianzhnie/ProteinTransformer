@@ -4,13 +4,13 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from transformers import BertConfig
-sys.path.append('../')
 
 from deepfold.data.lighting_datamodule import LightingESMDataModule
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.models.transformers.lighting_model import (
     BertForMultiLabelSequenceClassification, LightningTransformer)
 
+sys.path.append('../')
 
 if __name__ == '__main__':
     seed_everything(42)
