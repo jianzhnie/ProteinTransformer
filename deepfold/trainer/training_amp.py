@@ -19,7 +19,6 @@ def train(model,
           optimizer,
           lr_scheduler,
           epoch,
-          device,
           logger,
           log_interval=1):
     batch_time_m = AverageMeter('Time', ':6.3f')
@@ -32,7 +31,7 @@ def train(model,
     for idx, batch in enumerate(loader):
         lr_scheduler.step(epoch)
         # Add batch to GPU
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
 
         data_time = time.time() - end
 
@@ -82,7 +81,7 @@ def train(model,
     return losses_m.avg
 
 
-def validate(model, val_loader, device, logger, log_interval=10):
+def validate(model, val_loader, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -91,7 +90,7 @@ def validate(model, val_loader, device, logger, log_interval=10):
     steps_per_epoch = len(val_loader)
     end = time.time()
     for idx, batch in enumerate(val_loader):
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
 
         data_time = time.time() - end
 
@@ -130,7 +129,7 @@ def validate(model, val_loader, device, logger, log_interval=10):
     return losses_m.avg
 
 
-def predict(model, val_loader, device, logger, log_interval=10):
+def predict(model, val_loader, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -141,7 +140,7 @@ def predict(model, val_loader, device, logger, log_interval=10):
     # Variables to gather full output
     true_labels, pred_labels = [], []
     for idx, batch in enumerate(val_loader):
-        batch = {key: val.to(device) for key, val in batch.items()}
+        batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
         outputs = model(**batch)
         loss = outputs[0]
@@ -188,7 +187,6 @@ def train_loop(
     lr_scheduler,
     train_loader,
     val_loader,
-    device,
     logger,
     start_epoch=0,
     end_epoch=0,
@@ -209,12 +207,11 @@ def train_loop(
                            optimizer,
                            lr_scheduler,
                            epoch,
-                           device,
                            logger,
                            log_interval=10)
 
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, train_loss))
-        val_loss = validate(model, val_loader, device, logger, log_interval=10)
+        val_loss = validate(model, val_loader, logger, log_interval=10)
         logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, val_loss))
 
         if train_loss < best_loss:
