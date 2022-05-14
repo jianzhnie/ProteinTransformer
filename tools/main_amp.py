@@ -12,13 +12,12 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training_amp import train_loop
 
-sys.path.append('../')
 
 try:
     from apex.parallel import DistributedDataParallel as DDP
@@ -201,6 +200,7 @@ parser.add_argument('--output-dir',
 parser.add_argument('--log-wandb',
                     action='store_true',
                     help='while to use wandb log systerm')
+parser.add_argument('--deterministic', action='store_true')
 
 
 def main(args):
