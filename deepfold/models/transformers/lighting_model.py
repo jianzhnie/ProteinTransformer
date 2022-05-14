@@ -176,7 +176,7 @@ class LightningTransformer(pl.LightningModule):
 
         outputs = self(**batch)
         val_loss, logits = outputs[:2]
-        output = OrderedDict({'loss': val_loss})
+        output = OrderedDict({'val_loss': val_loss})
         return output
 
     def test_step(self, batch: tuple, batch_idx: int, **kwargs) -> dict:
@@ -185,7 +185,7 @@ class LightningTransformer(pl.LightningModule):
         output = OrderedDict({'test_loss': test_loss})
         return output
 
-    def validation_epoch_end(self, outputs: list) -> dict:
+    def on_validation_epoch_end(self, outputs: list) -> dict:
         """Function that takes as input a list of dictionaries returned by the
         validation_step function and measures the model performance accross the
         entire validation set.
@@ -206,7 +206,7 @@ class LightningTransformer(pl.LightningModule):
         }
         return result
 
-    def test_epoch_end(self, outputs: list) -> dict:
+    def on_test_epoch_end(self, outputs: list) -> dict:
         """Function that takes as input a list of dictionaries returned by the
         validation_step function and measures the model performance accross the
         entire validation set.
@@ -223,7 +223,7 @@ class LightningTransformer(pl.LightningModule):
         }
         return result
 
-    def on_epoch_end(self):
+    def on_train_epoch_end(self):
         """Pytorch lightning hook."""
         if self.current_epoch + 1 >= self.nr_frozen_epochs:
             self.unfreeze_encoder()

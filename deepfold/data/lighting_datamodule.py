@@ -64,23 +64,20 @@ class LightingESMDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.max_token_len = max_length
 
-    def setup(self, stage: Optional[str] = None):
+        self.train_dataset = ESMDataset(data_path=self.data_path,
+                                        split='train',
+                                        model_dir=self.model_name,
+                                        max_length=self.max_token_len)
 
-        if stage == 'fit' or stage is None:
-            self.train_dataset = ESMDataset(data_path=self.data_path,
-                                            split='train',
-                                            model_dir=self.model_name,
-                                            max_length=self.max_token_len)
-        if stage == 'test' or stage is None:
-            self.valid_dataset = ESMDataset(data_path=self.data_path,
-                                            split='valid',
-                                            model_dir=self.model_name,
-                                            max_length=self.max_token_len)
-        if stage == 'predict' or stage is None:
-            self.test_dataset = ESMDataset(data_path=self.data_path,
-                                           split='test',
-                                           model_dir=self.model_name,
-                                           max_length=self.max_token_len)
+        self.valid_dataset = ESMDataset(data_path=self.data_path,
+                                        split='valid',
+                                        model_dir=self.model_name,
+                                        max_length=self.max_token_len)
+
+        self.test_dataset = ESMDataset(data_path=self.data_path,
+                                        split='test',
+                                        model_dir=self.model_name,
+                                        max_length=self.max_token_len)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset,

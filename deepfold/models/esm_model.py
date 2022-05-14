@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple, Union
 import esm
 import torch
 import torch.nn as nn
-from torch.cuda.amp import autocast
 from torch.nn import BCEWithLogitsLoss
 
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
@@ -98,7 +97,7 @@ class ESMTransformer(nn.Module):
     # we decorate the *forward()* method with *autocast()* to enable
     # mixed-precision training in a distributed manner
 
-    @autocast()
+
     def forward(self,
                 input_ids,
                 attention_mask=None,
