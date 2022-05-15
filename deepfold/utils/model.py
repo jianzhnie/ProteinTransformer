@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from collections import OrderedDict
 
 import torch
 from torch import distributed as dist
@@ -38,21 +39,17 @@ def adjust_learning_rate(optimizer, epoch, args):
     return lr
 
 
-def load_model_checkpoint(args):
-    if os.path.isfile(args.resume):
-        print("=> loading checkpoint '{}'".format(args.resume))
-        checkpoint = torch.load(
-            args.resume,
-            map_location=lambda storage, loc: storage.cuda(args.gpu))
-        checkpoint = {
-            k[len('module.'):] if k.startswith('module.') else k: v
-            for k, v in checkpoint.items()
-        }
-        optimizer_state = checkpoint['optimizer']
-        model_state = checkpoint['state_dict']
-    else:
-        print("=> no checkpoint found at '{}'".format(args.resume))
-        model_state = None
-        optimizer_state = None
+def load_model_checkpoint(checkpoint_path):
+    if os.path.isfile(checkpoint_path):
+        print("=> loading checkpoint '{}'".format(checkpoint_path))
+        checkpoint = torch.load(checkpoint_path, map_location='cuda:0')
+        if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
+            model_state = OrderedDict()
+            for k, v in checkpoint['state_dict'].items():
+                name = k[7:] if k.startswith('module') else k
+                model_state[name] = v
 
-    return model_state, optimizer_state
+        optimizer_state = checkpoint['optimizer']
+        return model_state, optimizer_state
+    else:
+        raise FileNotFoundError()
