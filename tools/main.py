@@ -18,6 +18,7 @@ from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
+from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
 sys.path.append('../')
@@ -232,18 +233,22 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    # train_dataset = ESMDataset(data_path=args.data_path,
-    #                            split='train',
-    #                            model_dir='esm1b_t33_650M_UR50S')
+    train_dataset = ESMDataset(data_path=args.data_path,
+                               split='train',
+                               model_dir='esm1b_t33_650M_UR50S')
+
+    val_dataset = ESMDataset(data_path=args.data_path,
+                             split='test',
+                             model_dir='esm1b_t33_650M_UR50S')
 
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
-
-    train_dataset = val_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
+        val_sampler = torch.utils.data.distributed.DistributedSampler(
+            test_dataset)
         test_sampler = torch.utils.data.distributed.DistributedSampler(
             test_dataset)
     else:
@@ -264,7 +269,7 @@ def main(args):
     val_loader = DataLoader(
         val_dataset,
         batch_size=args.batch_size,
-        shuffle=(test_sampler is None),
+        shuffle=(val_sampler is None),
         num_workers=args.workers,
         collate_fn=train_dataset.collate_fn,
         pin_memory=True,
@@ -284,6 +289,13 @@ def main(args):
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode='cls',
                            num_labels=num_labels)
+
+    if args.resume is not None:
+        model_state, optimizer_state = load_model_checkpoint(args.resume)
+
+    # load mode state
+    if model_state is not None:
+        model.load_model_state(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
         init_scale=args.static_loss_scale,
@@ -354,7 +366,7 @@ def main(args):
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
         skip_training=args.evaluate,
-        skip_validation=args.training_only,
+        skip_validation=True,
         skip_test=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
         checkpoint_dir=args.output_dir,
