@@ -172,6 +172,7 @@ def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
         batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
         labels = labels.float()
+        data_time = time.time() - end
         with torch.no_grad(), autocast(enabled=use_amp):
             logits = model(**batch)
             loss = criterion(logits, labels)
@@ -179,18 +180,17 @@ def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
         preds = torch.sigmoid(logits)
         preds = preds.detach().cpu().numpy()
         labels = labels.to('cpu').numpy()
-
         true_labels.append(labels)
         pred_labels.append(preds)
 
-        bs = loss.shape[0]
+        batch_size = labels.shape[0]
         data_time = time.time() - end
         it_time = time.time() - end
         end = time.time()
 
         batch_time_m.update(it_time)
         data_time_m.update(data_time)
-        losses_m.update(loss.item(), bs)
+        losses_m.update(loss.item(), batch_size)
         if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:
