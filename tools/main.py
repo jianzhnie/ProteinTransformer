@@ -291,7 +291,7 @@ def main(args):
                            num_labels=num_labels)
 
     if args.resume is not None:
-        model_state, optimizer_state = load_model_checkpoint(args.resume)
+        model_state, optimizer_state = load_model_checkpoint(args)
 
     # load mode state
     if model_state is not None:
