@@ -229,7 +229,7 @@ def train_loop(
     end_epoch=0,
     early_stopping_patience=-1,
     skip_training=False,
-    skip_validation=False,
+    skip_validation=True,
     skip_test=False,
     save_checkpoints=True,
     checkpoint_dir='./',
