@@ -262,9 +262,9 @@ def train_loop(
             logger.info('[Epoch %d] validation: loss=%f' %
                         (epoch + 1, val_loss))
 
-        if train_loss < best_loss:
+        if val_loss < best_loss:
             is_best = True
-            best_loss = train_loss
+            best_loss = val_loss
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
