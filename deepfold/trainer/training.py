@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.cuda.amp import autocast
 
+from deepfold.loss.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 
@@ -157,7 +158,7 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
     return losses_m.avg
 
 
-def predict(model, criterion, val_loader, logger, log_interval=10):
+def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -170,10 +171,11 @@ def predict(model, criterion, val_loader, logger, log_interval=10):
     for idx, batch in enumerate(val_loader):
         batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
-        labels = batch['labels']
         labels = labels.float()
-        logits = model(**batch)
-        loss = criterion(logits, labels)
+        with torch.no_grad(), autocast(enabled=use_amp):
+            logits = model(**batch)
+            loss = criterion(logits, labels)
+
         preds = torch.sigmoid(logits)
         preds = preds.detach().cpu().numpy()
         labels = labels.to('cpu').numpy()
@@ -205,9 +207,10 @@ def predict(model, criterion, val_loader, logger, log_interval=10):
                         batch_time=batch_time_m,
                         loss=losses_m))
     # Flatten outputs
-    true_labels = np.concatenate(true_labels)
-    pred_labels = np.concatenate(pred_labels)
-    return true_labels, pred_labels
+    true_labels = np.concatenate(true_labels, axis=0)
+    pred_labels = np.concatenate(pred_labels, axis=0)
+    test_auc = compute_roc(true_labels, pred_labels)  # 训练集准确率
+    return losses_m.avg, test_auc
 
 
 def train_loop(
@@ -219,6 +222,7 @@ def train_loop(
     gradient_accumulation_steps,
     train_loader,
     val_loader,
+    test_loader,
     use_amp,
     logger,
     start_epoch=0,
@@ -226,6 +230,7 @@ def train_loop(
     early_stopping_patience=-1,
     skip_training=False,
     skip_validation=False,
+    skip_test=False,
     save_checkpoints=True,
     checkpoint_dir='./',
     checkpoint_filename='checkpoint.pth.tar',
@@ -259,12 +264,24 @@ def train_loop(
                                 use_amp,
                                 logger,
                                 log_interval=10)
+
             logger.info('[Epoch %d] validation: loss=%f' %
                         (epoch + 1, val_loss))
 
-        if val_loss < best_loss:
+        if not skip_test:
+            test_loss, test_auc = test(model,
+                                       test_loader,
+                                       criterion,
+                                       use_amp,
+                                       logger,
+                                       log_interval=10)
+
+            logger.info('[Epoch %d] Test: loss=%f, AUC=%f' %
+                        (epoch + 1, test_loss, test_auc))
+
+        if test_loss < best_loss:
             is_best = True
-            best_loss = val_loss
+            best_loss = test_loss
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
