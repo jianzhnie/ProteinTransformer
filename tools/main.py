@@ -14,13 +14,13 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -240,15 +240,12 @@ def main(args):
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
 
-    train_dataset = test_dataset
+    train_dataset = val_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
-        test_sampler = torch.utils.data.distributed.DistributedSampler(
-            test_dataset)
     else:
         train_sampler = None
-        test_sampler = None
 
     # dataloders
     train_loader = DataLoader(
@@ -261,13 +258,19 @@ def main(args):
         pin_memory=True,
     )
 
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        num_workers=args.workers,
+        collate_fn=train_dataset.collate_fn,
+        pin_memory=True,
+    )
+
     test_loader = DataLoader(
         test_dataset,
         batch_size=args.batch_size,
-        shuffle=(train_sampler is None),
         num_workers=args.workers,
         collate_fn=train_dataset.collate_fn,
-        sampler=test_sampler,
         pin_memory=True,
     )
 
@@ -338,6 +341,7 @@ def main(args):
         scaler,
         gradient_accumulation_steps,
         train_loader,
+        val_loader,
         test_loader,
         use_amp=args.amp,
         logger=logger,
@@ -346,6 +350,7 @@ def main(args):
         early_stopping_patience=args.early_stopping_patience,
         skip_training=args.evaluate,
         skip_validation=args.training_only,
+        skip_test=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
         checkpoint_dir=args.output_dir,
         checkpoint_filename=args.checkpoint_filename,
