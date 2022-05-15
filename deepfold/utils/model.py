@@ -36,3 +36,23 @@ def adjust_learning_rate(optimizer, epoch, args):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     return lr
+
+
+def load_model_checkpoint(args):
+    if os.path.isfile(args.resume):
+        print("=> loading checkpoint '{}'".format(args.resume))
+        checkpoint = torch.load(
+            args.resume,
+            map_location=lambda storage, loc: storage.cuda(args.gpu))
+        checkpoint = {
+            k[len('module.'):] if k.startswith('module.') else k: v
+            for k, v in checkpoint.items()
+        }
+        optimizer_state = checkpoint['optimizer']
+        model_state = checkpoint['state_dict']
+    else:
+        print("=> no checkpoint found at '{}'".format(args.resume))
+        model_state = None
+        optimizer_state = None
+
+    return model_state, optimizer_state
