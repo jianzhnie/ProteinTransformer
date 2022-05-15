@@ -13,14 +13,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 from deepfold.utils.random import random_seed
 
-
+sys.path.append('../')
 
 try:
     import wandb
@@ -239,7 +239,7 @@ def main(args):
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
-    
+
     train_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
@@ -305,7 +305,10 @@ def main(args):
             # DistributedDataParallel, we need to divide the batch size
             # ourselves based on the total number of GPUs we have
             model = torch.nn.parallel.DistributedDataParallel(
-                model, device_ids=[args.gpu], output_device=args.gpu, find_unused_parameters=True)
+                model,
+                device_ids=[args.gpu],
+                output_device=args.gpu,
+                find_unused_parameters=True)
         else:
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
@@ -341,6 +344,8 @@ def main(args):
         start_epoch=start_epoch,
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
+        skip_training=args.evaluate,
+        skip_validation=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
         checkpoint_dir=args.output_dir,
         checkpoint_filename=args.checkpoint_filename,
