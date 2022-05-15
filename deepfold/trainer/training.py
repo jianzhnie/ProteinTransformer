@@ -115,7 +115,7 @@ def get_val_step(model, criterion, use_amp=False):
     return _step
 
 
-def validate(model, criterion, val_loader, use_amp, logger, log_interval=10):
+def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -224,6 +224,8 @@ def train_loop(
     start_epoch=0,
     end_epoch=0,
     early_stopping_patience=-1,
+    skip_training=False,
+    skip_validation=False,
     save_checkpoints=True,
     checkpoint_dir='./',
     checkpoint_filename='checkpoint.pth.tar',
@@ -235,26 +237,30 @@ def train_loop(
     best_loss = np.inf
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        train_loss = train(model,
-                           train_loader,
-                           criterion,
-                           optimizer,
-                           lr_scheduler,
-                           scaler,
-                           gradient_accumulation_steps,
-                           use_amp,
-                           epoch,
-                           logger,
-                           log_interval=10)
+        if not skip_training:
+            train_loss = train(model,
+                               train_loader,
+                               criterion,
+                               optimizer,
+                               lr_scheduler,
+                               scaler,
+                               gradient_accumulation_steps,
+                               use_amp,
+                               epoch,
+                               logger,
+                               log_interval=10)
 
-        logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, train_loss))
-        val_loss = validate(model,
-                            val_loader,
-                            criterion,
-                            use_amp,
-                            logger,
-                            log_interval=10)
-        logger.info('[Epoch %d] validation: loss=%f' % (epoch + 1, val_loss))
+            logger.info('[Epoch %d] training: loss=%f' %
+                        (epoch + 1, train_loss))
+        if not skip_validation:
+            val_loss = validate(model,
+                                val_loader,
+                                criterion,
+                                use_amp,
+                                logger,
+                                log_interval=10)
+            logger.info('[Epoch %d] validation: loss=%f' %
+                        (epoch + 1, val_loss))
 
         if train_loss < best_loss:
             is_best = True
