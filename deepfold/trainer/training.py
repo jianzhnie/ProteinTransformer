@@ -143,7 +143,7 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
         if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
             if not torch.distributed.is_initialized(
             ) or torch.distributed.get_rank() == 0:
-                logger_name = 'Test-log'
+                logger_name = 'Val-log'
                 logger.info(
                     '{0}: [{1:>2d}/{2}] '
                     'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
