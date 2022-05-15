@@ -232,14 +232,15 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = ESMDataset(data_path=args.data_path,
-                               split='train',
-                               model_dir='esm1b_t33_650M_UR50S')
+    # train_dataset = ESMDataset(data_path=args.data_path,
+    #                            split='train',
+    #                            model_dir='esm1b_t33_650M_UR50S')
 
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
-
+    
+    train_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
@@ -304,7 +305,7 @@ def main(args):
             # DistributedDataParallel, we need to divide the batch size
             # ourselves based on the total number of GPUs we have
             model = torch.nn.parallel.DistributedDataParallel(
-                model, device_ids=[args.gpu], output_device=args.gpu)
+                model, device_ids=[args.gpu], output_device=args.gpu, find_unused_parameters=True)
         else:
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all

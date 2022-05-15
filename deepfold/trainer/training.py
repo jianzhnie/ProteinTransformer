@@ -236,8 +236,8 @@ def train_loop(
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         train_loss = train(model,
-                           criterion,
                            train_loader,
+                           criterion,
                            optimizer,
                            lr_scheduler,
                            scaler,
@@ -249,8 +249,8 @@ def train_loop(
 
         logger.info('[Epoch %d] training: loss=%f' % (epoch + 1, train_loss))
         val_loss = validate(model,
-                            criterion,
                             val_loader,
+                            criterion,
                             use_amp,
                             logger,
                             log_interval=10)
