@@ -295,7 +295,7 @@ def main(args):
 
     # load mode state
     if model_state is not None:
-        model.load_model_state(model_state)
+        model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
         init_scale=args.static_loss_scale,
