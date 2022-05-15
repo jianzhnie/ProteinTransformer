@@ -59,6 +59,9 @@ class ESMTransformer(nn.Module):
             f"Pooling Mode '{pool_mode}' not recognized. allowed pooling method {POOLING_MODE_LIST}"
         )
 
+        print(
+            f"Using '{pool_mode}' Method to embedding Protein seqence"
+        )
         if pool_mode == 'pool':
             self.pooler = ESMPooler(self.hidden_size)
 

@@ -287,15 +287,13 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode='cls',
+                           pool_mode='mean',
                            num_labels=num_labels)
 
     if args.resume is not None:
-        model_state, optimizer_state = load_model_checkpoint(args)
-
-    # load mode state
-    if model_state is not None:
-        model.load_state_dict(model_state)
+        if args.local_rank == 0:
+            model_state, optimizer_state = load_model_checkpoint(args.resume)
+            model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
         init_scale=args.static_loss_scale,
@@ -366,7 +364,7 @@ def main(args):
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
         skip_training=args.evaluate,
-        skip_validation=True,
+        skip_validation=False,
         skip_test=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
         checkpoint_dir=args.output_dir,
