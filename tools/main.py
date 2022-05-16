@@ -253,9 +253,9 @@ def main(args):
         test_sampler = torch.utils.data.distributed.DistributedSampler(
             test_dataset)
     else:
-        train_sampler = None
-        val_sampler = None
-        test_sampler = None
+        train_sampler = torch.utils.data.RandomSampler(train_dataset)
+        val_sampler = torch.utils.data.RandomSampler(val_dataset)
+        test_sampler = torch.utils.data.RandomSampler(test_dataset)
 
     # dataloders
     train_loader = DataLoader(
@@ -274,6 +274,7 @@ def main(args):
         shuffle=(val_sampler is None),
         num_workers=args.workers,
         collate_fn=train_dataset.collate_fn,
+        sampler=val_sampler,
         pin_memory=True,
     )
 
@@ -283,6 +284,7 @@ def main(args):
         shuffle=(test_sampler is None),
         num_workers=args.workers,
         collate_fn=train_dataset.collate_fn,
+        sampler=test_sampler,
         pin_memory=True,
     )
 
