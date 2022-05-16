@@ -119,7 +119,7 @@ def get_val_step(model, criterion, use_amp=False):
     return _step
 
 
-def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
+def validate(model, loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -127,9 +127,9 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
     step = get_val_step(model, criterion, use_amp)
 
     model.eval()
-    steps_per_epoch = len(val_loader)
+    steps_per_epoch = len(loader)
     end = time.time()
-    for idx, batch in enumerate(val_loader):
+    for idx, batch in enumerate(loader):
         batch = {key: val.cuda() for key, val in batch.items()}
 
         data_time = time.time() - end
@@ -162,17 +162,17 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
     return OrderedDict([('loss', losses_m.avg)])
 
 
-def test(model, test_loader, criterion, use_amp, logger, log_interval=10):
+def test(model, loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
     model.eval()
-    steps_per_epoch = len(test_loader)
+    steps_per_epoch = len(loader)
     end = time.time()
     # Variables to gather full output
     true_labels, pred_labels = [], []
-    for idx, batch in enumerate(test_loader):
+    for idx, batch in enumerate(loader):
         batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
         labels = labels.float()
@@ -237,7 +237,8 @@ def train_loop(model,
                skip_test=False,
                save_checkpoints=True,
                output_dir='./',
-               log_wandb=False):
+               log_wandb=False,
+               log_interval=10):
     is_best = True
     if early_stopping_patience > 0:
         epochs_since_improvement = 0
@@ -246,37 +247,22 @@ def train_loop(model,
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         if not skip_training:
-            train_metrics = train(model,
-                                  train_loader,
-                                  criterion,
-                                  optimizer,
-                                  lr_scheduler,
-                                  scaler,
-                                  gradient_accumulation_steps,
-                                  use_amp,
-                                  epoch,
-                                  logger,
-                                  log_interval=10)
+            train_metrics = train(model, train_loader, criterion, optimizer,
+                                  lr_scheduler, scaler,
+                                  gradient_accumulation_steps, use_amp, epoch,
+                                  logger, log_interval)
 
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
         if not skip_validation:
-            eval_metrics = validate(model,
-                                    val_loader,
-                                    criterion,
-                                    use_amp,
-                                    logger,
-                                    log_interval=10)
+            eval_metrics = validate(model, val_loader, criterion, use_amp,
+                                    logger, log_interval)
 
             logger.info('[Epoch %d] validation: %s' %
                         (epoch + 1, eval_metrics))
 
         if not skip_test:
-            test_metrics = test(model,
-                                test_loader,
-                                criterion,
-                                use_amp,
-                                logger,
-                                log_interval=10)
+            test_metrics = test(model, test_loader, criterion, use_amp, logger,
+                                log_interval)
 
             logger.info('[Epoch %d] Test: %s' % (epoch + 1, test_metrics))
 
