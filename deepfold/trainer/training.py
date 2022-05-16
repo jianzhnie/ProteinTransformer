@@ -285,11 +285,11 @@ def train_loop(model,
             best_metric = test_metrics['loss']
 
         update_summary(epoch,
-                        train_metrics,
-                        test_metrics,
-                        os.path.join(output_dir, 'summary.csv'),
-                        write_header=best_metric is None,
-                        log_wandb=log_wandb)
+                       train_metrics,
+                       test_metrics,
+                       os.path.join(output_dir, 'summary.csv'),
+                       write_header=best_metric is None,
+                       log_wandb=log_wandb)
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
