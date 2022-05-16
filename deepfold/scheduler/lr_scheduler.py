@@ -63,7 +63,7 @@ class StepLRScheduler():
 
 class LinearLRScheduler():
     """Linear learning rate decay scheduler."""
-    def __init__(self, optimizer, base_lr, epochs, warmup_length, logger=None):
+    def __init__(self, optimizer, base_lr, epochs, warmup_length):
         self.optimizer = optimizer
         self.base_lr = base_lr
         self.epochs = epochs
@@ -89,8 +89,7 @@ class ExponentialLRScheduler():
                  warmup_length,
                  final_multiplier=0.001,
                  decay_factor=None,
-                 decay_step=1,
-                 logger=None):
+                 decay_step=1):
         self.optimizer = optimizer
         self.base_lr = base_lr
         self.epochs = epochs
@@ -121,13 +120,7 @@ class ExponentialLRScheduler():
 
 class CosineLRScheduler():
     """Linear learning rate decay scheduler."""
-    def __init__(self,
-                 optimizer,
-                 base_lr,
-                 epochs,
-                 warmup_length,
-                 end_lr=0,
-                 logger=None):
+    def __init__(self, optimizer, base_lr, epochs, warmup_length, end_lr=0):
         self.optimizer = optimizer
         self.base_lr = base_lr
         self.epochs = epochs
