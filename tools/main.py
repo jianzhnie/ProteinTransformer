@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -21,6 +21,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -363,7 +364,7 @@ def main(args):
                end_epoch=args.epochs,
                early_stopping_patience=args.early_stopping_patience,
                skip_training=args.evaluate,
-               skip_validation=True,
+               skip_validation=args.training_only,
                skip_test=args.training_only,
                save_checkpoints=args.save_checkpoints and not args.evaluate,
                output_dir=args.output_dir,
