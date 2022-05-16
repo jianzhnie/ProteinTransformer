@@ -243,6 +243,7 @@ def main(args):
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
+    train_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
@@ -309,8 +310,7 @@ def main(args):
     lr_policy = LinearLRScheduler(optimizer=optimizer,
                                   base_lr=args.lr,
                                   warmup_length=args.warmup,
-                                  epochs=args.epochs,
-                                  logger=logger)
+                                  epochs=args.epochs)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
