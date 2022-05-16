@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 from collections import OrderedDict
@@ -6,16 +5,11 @@ from collections import OrderedDict
 import torch
 from torch import distributed as dist
 
-_logger = logging.getLogger(__name__)
 
-
-def save_checkpoint(state,
-                    epoch,
-                    is_best,
-                    checkpoint_dir):
+def save_checkpoint(state, epoch, is_best, checkpoint_dir):
     if (not torch.distributed.is_initialized()
         ) or torch.distributed.get_rank() == 0:
-        filename =  'checkpoint_' +  str(epoch) + '.pth'
+        filename = 'checkpoint_' + str(epoch) + '.pth'
         file_path = os.path.join(checkpoint_dir, filename)
         torch.save(state, file_path)
         if is_best:
@@ -43,7 +37,9 @@ def adjust_learning_rate(optimizer, epoch, args):
 def load_model_checkpoint(checkpoint_path, args):
     if os.path.isfile(checkpoint_path):
         print("=> loading checkpoint '{}'".format(checkpoint_path))
-        checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage.cuda(args.gpu))
+        checkpoint = torch.load(
+            checkpoint_path,
+            map_location=lambda storage, loc: storage.cuda(args.gpu))
         if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
             model_state = OrderedDict()
             for k, v in checkpoint['state_dict'].items():
