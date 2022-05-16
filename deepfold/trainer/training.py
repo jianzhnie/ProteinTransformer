@@ -162,17 +162,17 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
     return OrderedDict([('loss', losses_m.avg)])
 
 
-def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
+def test(model, test_loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
     model.eval()
-    steps_per_epoch = len(val_loader)
+    steps_per_epoch = len(test_loader)
     end = time.time()
     # Variables to gather full output
     true_labels, pred_labels = [], []
-    for idx, batch in enumerate(val_loader):
+    for idx, batch in enumerate(test_loader):
         batch = {key: val.cuda() for key, val in batch.items()}
         labels = batch['labels']
         labels = labels.float()
