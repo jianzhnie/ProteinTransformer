@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -21,7 +21,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
@@ -187,7 +186,7 @@ parser.add_argument('--output-dir',
                     default='./work_dirs',
                     type=str,
                     help='output directory for model and log')
-parser.add_argument('--log-wandb',
+parser.add_argument('--log_wandb',
                     action='store_true',
                     help='while to use wandb log systerm')
 parser.add_argument('--experiment', default='protein-annotation', type=str)
@@ -196,7 +195,7 @@ parser.add_argument('--experiment', default='protein-annotation', type=str)
 def main(args):
     if args.log_wandb:
         if has_wandb:
-            wandb.init(project='protein-annotation',
+            wandb.init(project=args.experiment,
                        config=args,
                        entity='jianzhnie')
         else:

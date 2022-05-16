@@ -280,9 +280,16 @@ def train_loop(model,
 
             logger.info('[Epoch %d] Test: %s' % (epoch + 1, test_metrics))
 
-        if test_metrics['test_loss'] < best_metric:
+        if test_metrics['loss'] < best_metric:
             is_best = True
-            best_metric = test_metrics['test_loss']
+            best_metric = test_metrics['loss']
+
+        update_summary(epoch,
+                        train_metrics,
+                        test_metrics,
+                        os.path.join(output_dir, 'summary.csv'),
+                        write_header=best_metric is None,
+                        log_wandb=log_wandb)
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
@@ -296,13 +303,6 @@ def train_loop(model,
                             epoch,
                             is_best,
                             checkpoint_dir=output_dir)
-
-            update_summary(epoch,
-                           train_metrics,
-                           test_metrics,
-                           os.path.join(output_dir, 'summary.csv'),
-                           write_header=best_metric is None,
-                           log_wandb=log_wandb)
 
         if early_stopping_patience > 0:
             if not is_best:
