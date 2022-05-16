@@ -14,7 +14,6 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -22,6 +21,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -173,9 +173,6 @@ parser.add_argument(
     dest='save_checkpoints',
     help='do not store any checkpoints, useful for benchmarking',
 )
-parser.add_argument('--checkpoint-filename',
-                    default='checkpoint.pth.tar',
-                    type=str)
 parser.add_argument('--seed',
                     type=int,
                     default=42,
@@ -193,12 +190,15 @@ parser.add_argument('--output-dir',
 parser.add_argument('--log-wandb',
                     action='store_true',
                     help='while to use wandb log systerm')
+parser.add_argument('--experiment', default='protein-annotation', type=str)
 
 
 def main(args):
     if args.log_wandb:
         if has_wandb:
-            wandb.init(project=args.experiment, config=args)
+            wandb.init(project='protein-annotation',
+                       config=args,
+                       entity='jianzhnie')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "
@@ -292,7 +292,8 @@ def main(args):
 
     if args.resume is not None:
         if args.local_rank == 0:
-            model_state, optimizer_state = load_model_checkpoint(args.resume, args)
+            model_state, optimizer_state = load_model_checkpoint(
+                args.resume, args)
             model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
@@ -348,27 +349,26 @@ def main(args):
 
     gradient_accumulation_steps = args.gradient_accumulation_steps
 
-    train_loop(
-        model,
-        optimizer,
-        criterion,
-        lr_policy,
-        scaler,
-        gradient_accumulation_steps,
-        train_loader,
-        val_loader,
-        test_loader,
-        use_amp=args.amp,
-        logger=logger,
-        start_epoch=start_epoch,
-        end_epoch=args.epochs,
-        early_stopping_patience=args.early_stopping_patience,
-        skip_training=args.evaluate,
-        skip_validation=True,
-        skip_test=args.training_only,
-        save_checkpoints=args.save_checkpoints and not args.evaluate,
-        checkpoint_dir=args.output_dir
-    )
+    train_loop(model,
+               optimizer,
+               criterion,
+               lr_policy,
+               scaler,
+               gradient_accumulation_steps,
+               train_loader,
+               val_loader,
+               test_loader,
+               use_amp=args.amp,
+               logger=logger,
+               start_epoch=start_epoch,
+               end_epoch=args.epochs,
+               early_stopping_patience=args.early_stopping_patience,
+               skip_training=args.evaluate,
+               skip_validation=True,
+               skip_test=args.training_only,
+               save_checkpoints=args.save_checkpoints and not args.evaluate,
+               output_dir=args.output_dir,
+               log_wandb=args.log_wandb)
     print('Experiment ended')
 
 
