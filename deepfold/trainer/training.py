@@ -288,14 +288,14 @@ def train_loop(
             checkpoint_state = {
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                'best_loss': val_loss,
+                'best_loss': test_loss,
                 'optimizer': optimizer.state_dict(),
             }
             save_checkpoint(
                 checkpoint_state,
+                epoch,
                 is_best,
-                checkpoint_dir=checkpoint_dir,
-                filename=checkpoint_filename,
+                checkpoint_dir=checkpoint_dir
             )
 
         if early_stopping_patience > 0:

@@ -292,7 +292,7 @@ def main(args):
 
     if args.resume is not None:
         if args.local_rank == 0:
-            model_state, optimizer_state = load_model_checkpoint(args.resume)
+            model_state, optimizer_state = load_model_checkpoint(args.resume, args)
             model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
@@ -364,11 +364,10 @@ def main(args):
         end_epoch=args.epochs,
         early_stopping_patience=args.early_stopping_patience,
         skip_training=args.evaluate,
-        skip_validation=False,
+        skip_validation=True,
         skip_test=args.training_only,
         save_checkpoints=args.save_checkpoints and not args.evaluate,
-        checkpoint_dir=args.output_dir,
-        checkpoint_filename=args.checkpoint_filename,
+        checkpoint_dir=args.output_dir
     )
     print('Experiment ended')
 
