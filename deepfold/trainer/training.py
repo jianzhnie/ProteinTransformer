@@ -209,32 +209,29 @@ def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
     # Flatten outputs
     true_labels = np.concatenate(true_labels, axis=0)
     pred_labels = np.concatenate(pred_labels, axis=0)
-    test_auc = compute_roc(true_labels, pred_labels)  # 训练集准确率
+    test_auc = compute_roc(true_labels, pred_labels)
     return losses_m.avg, test_auc
 
 
-def train_loop(
-    model,
-    optimizer,
-    criterion,
-    lr_scheduler,
-    scaler,
-    gradient_accumulation_steps,
-    train_loader,
-    val_loader,
-    test_loader,
-    use_amp,
-    logger,
-    start_epoch=0,
-    end_epoch=0,
-    early_stopping_patience=-1,
-    skip_training=False,
-    skip_validation=True,
-    skip_test=False,
-    save_checkpoints=True,
-    checkpoint_dir='./',
-    checkpoint_filename='checkpoint.pth.tar',
-):
+def train_loop(model,
+               optimizer,
+               criterion,
+               lr_scheduler,
+               scaler,
+               gradient_accumulation_steps,
+               train_loader,
+               val_loader,
+               test_loader,
+               use_amp,
+               logger,
+               start_epoch=0,
+               end_epoch=0,
+               early_stopping_patience=-1,
+               skip_training=False,
+               skip_validation=True,
+               skip_test=False,
+               save_checkpoints=True,
+               checkpoint_dir='./'):
     is_best = True
     if early_stopping_patience > 0:
         epochs_since_improvement = 0
@@ -291,12 +288,10 @@ def train_loop(
                 'best_loss': test_loss,
                 'optimizer': optimizer.state_dict(),
             }
-            save_checkpoint(
-                checkpoint_state,
-                epoch,
-                is_best,
-                checkpoint_dir=checkpoint_dir
-            )
+            save_checkpoint(checkpoint_state,
+                            epoch,
+                            is_best,
+                            checkpoint_dir=checkpoint_dir)
 
         if early_stopping_patience > 0:
             if not is_best:
