@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -21,6 +21,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -253,6 +254,7 @@ def main(args):
             test_dataset)
     else:
         train_sampler = None
+        val_sampler = None
         test_sampler = None
 
     # dataloders
@@ -367,7 +369,8 @@ def main(args):
                skip_test=args.training_only,
                save_checkpoints=args.save_checkpoints and not args.evaluate,
                output_dir=args.output_dir,
-               log_wandb=args.log_wandb)
+               log_wandb=args.log_wandb,
+               log_interval=args.log_interval)
     print('Experiment ended')
 
 
