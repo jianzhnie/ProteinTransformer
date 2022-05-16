@@ -1,4 +1,6 @@
+import os
 import time
+from collections import OrderedDict
 
 import numpy as np
 import torch
@@ -7,6 +9,7 @@ from torch.cuda.amp import autocast
 from deepfold.loss.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
+from deepfold.utils.summary import update_summary
 
 
 def get_train_step(model, criterion, optimizer, scaler,
@@ -93,7 +96,7 @@ def train(model,
                                              loss=losses_m,
                                              lr=learning_rate))
 
-    return losses_m.avg
+    return OrderedDict([('loss', losses_m.avg)])
 
 
 def get_val_step(model, criterion, use_amp=False):
@@ -155,7 +158,8 @@ def validate(model, val_loader, criterion, use_amp, logger, log_interval=10):
                         data_time=data_time_m,
                         batch_time=batch_time_m,
                         loss=losses_m))
-    return losses_m.avg
+
+    return OrderedDict([('loss', losses_m.avg)])
 
 
 def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
@@ -210,7 +214,8 @@ def test(model, val_loader, criterion, use_amp, logger, log_interval=10):
     true_labels = np.concatenate(true_labels, axis=0)
     pred_labels = np.concatenate(pred_labels, axis=0)
     test_auc = compute_roc(true_labels, pred_labels)
-    return losses_m.avg, test_auc
+    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
+    return metrics
 
 
 def train_loop(model,
@@ -231,67 +236,73 @@ def train_loop(model,
                skip_validation=True,
                skip_test=False,
                save_checkpoints=True,
-               checkpoint_dir='./'):
+               output_dir='./',
+               log_wandb=False):
     is_best = True
     if early_stopping_patience > 0:
         epochs_since_improvement = 0
 
-    best_loss = np.inf
+    best_metric = np.inf
     print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         if not skip_training:
-            train_loss = train(model,
-                               train_loader,
-                               criterion,
-                               optimizer,
-                               lr_scheduler,
-                               scaler,
-                               gradient_accumulation_steps,
-                               use_amp,
-                               epoch,
-                               logger,
-                               log_interval=10)
+            train_metrics = train(model,
+                                  train_loader,
+                                  criterion,
+                                  optimizer,
+                                  lr_scheduler,
+                                  scaler,
+                                  gradient_accumulation_steps,
+                                  use_amp,
+                                  epoch,
+                                  logger,
+                                  log_interval=10)
 
-            logger.info('[Epoch %d] training: loss=%f' %
-                        (epoch + 1, train_loss))
+            logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
         if not skip_validation:
-            val_loss = validate(model,
-                                val_loader,
+            eval_metrics = validate(model,
+                                    val_loader,
+                                    criterion,
+                                    use_amp,
+                                    logger,
+                                    log_interval=10)
+
+            logger.info('[Epoch %d] validation: %s' %
+                        (epoch + 1, eval_metrics))
+
+        if not skip_test:
+            test_metrics = test(model,
+                                test_loader,
                                 criterion,
                                 use_amp,
                                 logger,
                                 log_interval=10)
 
-            logger.info('[Epoch %d] validation: loss=%f' %
-                        (epoch + 1, val_loss))
+            logger.info('[Epoch %d] Test: %s' % (epoch + 1, test_metrics))
 
-        if not skip_test:
-            test_loss, test_auc = test(model,
-                                       test_loader,
-                                       criterion,
-                                       use_amp,
-                                       logger,
-                                       log_interval=10)
-
-            logger.info('[Epoch %d] Test: loss=%f, AUC=%f' %
-                        (epoch + 1, test_loss, test_auc))
-
-        if test_loss < best_loss:
+        if test_metrics['test_loss'] < best_metric:
             is_best = True
-            best_loss = test_loss
+            best_metric = test_metrics['test_loss']
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
             checkpoint_state = {
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                'best_loss': test_loss,
+                'best_metric': test_metrics['loss'],
                 'optimizer': optimizer.state_dict(),
             }
             save_checkpoint(checkpoint_state,
                             epoch,
                             is_best,
-                            checkpoint_dir=checkpoint_dir)
+                            checkpoint_dir=output_dir)
+
+            update_summary(epoch,
+                           train_metrics,
+                           test_metrics,
+                           os.path.join(output_dir, 'summary.csv'),
+                           write_header=best_metric is None,
+                           log_wandb=log_wandb)
 
         if early_stopping_patience > 0:
             if not is_best:
