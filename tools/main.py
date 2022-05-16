@@ -49,6 +49,10 @@ parser.add_argument('--model',
                     metavar='MODEL',
                     default='esm',
                     help='model architecture: (default: esm)')
+parser.add_argument('--pool_mode',
+                    metavar='MODEL',
+                    default='mean',
+                    help='embedding method')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
@@ -291,7 +295,7 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode='mean',
+                           pool_mode=args.pool_mode,
                            num_labels=num_labels)
 
     if args.resume is not None:
