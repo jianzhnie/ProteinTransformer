@@ -13,7 +13,6 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
@@ -22,6 +21,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -50,9 +50,10 @@ parser.add_argument('--model',
                     default='esm',
                     help='model architecture: (default: esm)')
 parser.add_argument('--pool_mode',
-                    metavar='MODEL',
+                    type=str,
                     default='mean',
                     help='embedding method')
+parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
@@ -230,7 +231,7 @@ def main(args):
             'Training in distributed mode with multiple processes, 1 GPU per process. Process %d, total %d.'
             % (args.rank, args.world_size))
     else:
-        logger.info('Training with a single process on %s .' % args.device)
+        logger.info('Training with a single process on %s .' % args.gpu)
     assert args.rank >= 0
 
     random_seed(args.seed, args.rank)
