@@ -13,11 +13,11 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
-
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
@@ -69,6 +69,9 @@ parser.add_argument('--output-dir',
 
 def main(args):
     args.gpu = 0
+
+
+def main(args):
     # Dataset and DataLoader
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',

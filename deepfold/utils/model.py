@@ -34,12 +34,10 @@ def adjust_learning_rate(optimizer, epoch, args):
     return lr
 
 
-def load_model_checkpoint(checkpoint_path, args):
+def load_model_checkpoint(checkpoint_path):
     if os.path.isfile(checkpoint_path):
         print("=> loading checkpoint '{}'".format(checkpoint_path))
-        checkpoint = torch.load(
-            checkpoint_path,
-            map_location=lambda storage, loc: storage.cuda(args.gpu))
+        checkpoint = torch.load(checkpoint_path, map_location='cuda:0')
         if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
             model_state = OrderedDict()
             for k, v in checkpoint['state_dict'].items():

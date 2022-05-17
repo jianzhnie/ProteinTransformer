@@ -181,6 +181,8 @@ def test(model, loader, criterion, use_amp, logger, log_interval=10):
             logits = model(**batch)
             loss = criterion(logits, labels)
 
+        torch.cuda.synchronize()
+
         preds = torch.sigmoid(logits)
         preds = preds.detach().cpu().numpy()
         labels = labels.to('cpu').numpy()
@@ -216,7 +218,6 @@ def test(model, loader, criterion, use_amp, logger, log_interval=10):
     test_auc = compute_roc(true_labels, pred_labels)
     metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
     return metrics
-
 
 
 def Predict(model, loader, criterion, use_amp, logger, log_interval=10):

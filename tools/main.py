@@ -231,7 +231,7 @@ def main(args):
             'Training in distributed mode with multiple processes, 1 GPU per process. Process %d, total %d.'
             % (args.rank, args.world_size))
     else:
-        logger.info('Training with a single process on %s .' % args.device)
+        logger.info('Training with a single process on %s .' % args.gpu)
     assert args.rank >= 0
 
     random_seed(args.seed, args.rank)
@@ -295,7 +295,8 @@ def main(args):
     # model
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode='mean',
+                           pool_mode=args.pool_mode,
+                           fintune=False,
                            num_labels=num_labels)
 
     if args.resume is not None:

@@ -59,10 +59,8 @@ class ESMTransformer(nn.Module):
             f"Pooling Mode '{pool_mode}' not recognized. allowed pooling method {POOLING_MODE_LIST}"
         )
 
-        print(
-            f"Using '{pool_mode}' Method to embedding Protein seqence"
-        )
-        if pool_mode == 'pool':
+        print(f"Using '{pool_mode}' Method to embedding Protein seqence")
+        if pool_mode == 'pooler':
             self.pooler = ESMPooler(self.hidden_size)
 
         if self.pool_mode == 'cnn':
@@ -90,7 +88,7 @@ class ESMTransformer(nn.Module):
 
         self.fintune = fintune
         if not self.fintune:
-            self._freeze_backbone
+            self._freeze_backbone()
 
     def _freeze_backbone(self):
         for p in self._model.parameters():
@@ -141,7 +139,7 @@ class ESMTransformer(nn.Module):
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
                 (mean_pooling_embeddings, max_pooling_embeddings), 1)
-        elif self.pool_mode == 'pool':
+        elif self.pool_mode == 'pooler':
             embeddings = self.pooler(last_hidden_state)
         elif self.pool_mode == 'cnn':
             embeddings = self.pooler(last_hidden_state)
