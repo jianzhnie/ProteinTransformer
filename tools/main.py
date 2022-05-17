@@ -296,7 +296,7 @@ def main(args):
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode=args.pool_mode,
-                           fintune=False,
+                           fintune=args.fintune,
                            num_labels=num_labels)
 
     if args.resume is not None:
