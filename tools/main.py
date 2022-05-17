@@ -13,6 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
+sys.path.append('../')
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
@@ -21,7 +22,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
@@ -49,6 +49,11 @@ parser.add_argument('--model',
                     metavar='MODEL',
                     default='esm',
                     help='model architecture: (default: esm)')
+parser.add_argument('--pool_mode',
+                    type=str,
+                    default='mean',
+                    help='embedding method')
+parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
@@ -244,7 +249,6 @@ def main(args):
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
-    train_dataset = test_dataset
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
