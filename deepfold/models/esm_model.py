@@ -62,7 +62,7 @@ class ESMTransformer(nn.Module):
         print(
             f"Using '{pool_mode}' Method to embedding Protein seqence"
         )
-        if pool_mode == 'pool':
+        if pool_mode == 'pooler':
             self.pooler = ESMPooler(self.hidden_size)
 
         if self.pool_mode == 'cnn':
@@ -141,7 +141,7 @@ class ESMTransformer(nn.Module):
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
                 (mean_pooling_embeddings, max_pooling_embeddings), 1)
-        elif self.pool_mode == 'pool':
+        elif self.pool_mode == 'pooler':
             embeddings = self.pooler(last_hidden_state)
         elif self.pool_mode == 'cnn':
             embeddings = self.pooler(last_hidden_state)

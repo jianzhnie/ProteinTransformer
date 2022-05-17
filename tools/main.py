@@ -13,6 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
+sys.path.append('../')
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
@@ -21,7 +22,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
@@ -296,6 +296,7 @@ def main(args):
     num_labels = train_dataset.num_classes
     model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode=args.pool_mode,
+                           fintune=False,
                            num_labels=num_labels)
 
     if args.resume is not None:
