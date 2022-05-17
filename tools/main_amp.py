@@ -12,13 +12,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
 
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training_amp import train_loop
 
+sys.path.append('../')
 
 try:
     from apex.parallel import DistributedDataParallel as DDP
@@ -223,7 +223,7 @@ def main(args):
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
-        args.local_rank = int(os.environ['LOCAL_RANK'])
+        args.local_rank = os.getenv('LOCAL_RANK', 0)
 
     args.gpu = 0
     args.world_size = 1
@@ -252,11 +252,6 @@ def main(args):
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
-    
-
-    train_size = int(0.5 * len(test_dataset))
-    test_size = len(test_dataset) - train_size
-    train_dataset, test_dataset = torch.utils.data.random_split(train_dataset, [train_size, test_size])
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
