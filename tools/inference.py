@@ -49,6 +49,11 @@ parser.add_argument('--resume',
                     type=str,
                     metavar='PATH',
                     help='path to latest checkpoint (default: none)')
+parser.add_argument(
+    '--amp',
+    action='store_true',
+    default=False,
+    help='use NVIDIA Apex AMP or Native AMP for mixed precision training')
 parser.add_argument('--local_rank', default=0, type=int)
 parser.add_argument('-j',
                     '--workers',
@@ -67,11 +72,9 @@ parser.add_argument('--output-dir',
                     type=str,
                     help='output directory for model and log')
 
+
 def main(args):
     args.gpu = 0
-
-
-def main(args):
     # Dataset and DataLoader
     test_dataset = ESMDataset(data_path=args.data_path,
                               split='test',
@@ -94,7 +97,7 @@ def main(args):
     if args.resume is not None:
         if args.local_rank == 0:
             model_state, optimizer_state = load_model_checkpoint(
-                args.resume, args)
+                args.resume)
             model.load_state_dict(model_state)
 
     # define loss function (criterion) and optimizer
