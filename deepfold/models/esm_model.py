@@ -28,10 +28,12 @@ class ESMPooler(nn.Module):
 
 
 class ESMTransformer(nn.Module):
+    """ESMTransformer."""
     def __init__(self,
                  model_dir: str,
                  num_labels: int = 1000,
                  max_len: int = 1024,
+                 repr_layers: List[int] = None,
                  dropout_ratio: float = 0.0,
                  pool_mode: str = 'cls',
                  fintune: bool = True):
@@ -47,7 +49,16 @@ class ESMTransformer(nn.Module):
             model_dir)
         self.num_layers = self._model.num_layers
         # esm1b: 33 layers
-        self.repr_layers = list(range(self.num_layers + 1))
+        if repr_layers:
+            assert all(-(self.num_layers + 1) <= i <= self.num_layers
+                       for i in repr_layers)
+            self.repr_layers = [
+                (i + self.num_layers + 1) % (self.num_layers + 1)
+                for i in repr_layers
+            ]
+        else:
+            self.repr_layers = list(range(self.num_layers + 1))
+
         self.hidden_size = self._model.args.embed_dim
         self.is_msa = 'msa' in model_dir
 
@@ -165,20 +176,16 @@ class ESMTransformer(nn.Module):
             repr_layers=[self.repr_layers],
         )
 
-        seqence_embeddings = model_outputs['representations'][self.repr_layers]
+        last_hidden_state = model_outputs['representations'][
+            self.repr_layers[-1]]
         # batch_embeddings: batch_size * seq_length * embedding_dim
-        seqence_embeddings_list = [emb for emb in seqence_embeddings]
-
+        seqence_embeddings_list = [emb for emb in last_hidden_state]
         # Remove class token and padding
-        # Use tranpose to filter on the two last dimensions. Doing this, we don't have to manage
-        # the first dimension of the tensor. It works for [dim1, dim2, token_size, emb_size] and
-        # for [dim1, token_size, emb_size]
         length_list = [leng for leng in lengths]
         filtered_embeddings = [
             emb[1:(length + 1), :]
             for emb, length in zip(seqence_embeddings_list, length_list)
         ]
-
         embeddings_dict = {}
         if 'mean' in self.pool_mode:
             embeddings_dict['mean'] = torch.stack(
