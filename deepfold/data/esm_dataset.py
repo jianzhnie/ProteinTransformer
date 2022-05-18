@@ -18,7 +18,9 @@ class ESMDataset(Dataset):
                  data_path: str = 'dataset/',
                  split: str = 'train',
                  model_dir: str = None,
-                 max_length: int = 1024):
+                 max_length: int = 1024,
+                 truncate: bool = True,
+                 random_crop: bool = False):
         super().__init__()
 
         self.datasetFolderPath = data_path
@@ -38,6 +40,8 @@ class ESMDataset(Dataset):
         self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
         self.max_length = max_length
+        self.truncate = truncate
+        self.random_crop = random_crop
 
         if model_dir not in ESM_LIST:
             print(
@@ -101,17 +105,18 @@ class ESMDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        seq_all = self.seqs[idx]
-        seq_crop = crop_sequence(seq_all, crop_length=self.max_length - 2)
+        sequence = self.seqs[idx]
+        if self.random_crop:
+            sequence = crop_sequence(sequence, crop_length=self.max_length - 2)
 
+        length = len(sequence)
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
         for t_id in label_list:
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
-        length = len(seq_crop)
-        return seq_crop, length, multilabel
+        return sequence, length, multilabel
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -131,18 +136,21 @@ class ESMDataset(Dataset):
         multilabel_list = [ex[2] for ex in examples]
 
         if self.is_msa:
-            _, _, all_tokens = self.batch_converter(sequences_list)
+            labels, strs, all_tokens = self.batch_converter(sequences_list)
         else:
-            _, _, all_tokens = self.batch_converter([
+            labels, strs, all_tokens = self.batch_converter([
                 ('', sequence) for sequence in sequences_list
             ])
+
+        if self.truncate:
+            all_tokens = all_tokens[:, :self.max_length - 2]
 
         all_tokens = all_tokens.to('cpu')
         encoded_inputs = {
             'input_ids': all_tokens,
-            'attention_mask':
-            1 * (all_tokens != self.token_to_id(self.pad_token)),
-            'token_type_ids': torch.zeros(all_tokens.shape),
+            # 'attention_mask':
+            # 1 * (all_tokens != self.token_to_id(self.pad_token)),
+            # 'token_type_ids': torch.zeros(all_tokens.shape),
         }
         encoded_inputs['lengths'] = torch.tensor(lengths)
         encoded_inputs['labels'] = torch.tensor(multilabel_list)
