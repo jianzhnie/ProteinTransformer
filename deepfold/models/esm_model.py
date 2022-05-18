@@ -99,9 +99,6 @@ class ESMTransformer(nn.Module):
 
     def forward(self,
                 input_ids,
-                attention_mask=None,
-                token_type_ids=None,
-                position_ids=None,
                 lengths=None,
                 labels=None) -> Tuple[torch.Tensor, torch.Tensor]:
         """Function which computes logits and embeddings based on a list of
@@ -160,9 +157,6 @@ class ESMTransformer(nn.Module):
     def compute_embeddings(
             self,
             input_ids,
-            attention_mask=None,
-            token_type_ids=None,
-            position_ids=None,
             lengths=None,
             labels=None) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
@@ -179,18 +173,11 @@ class ESMTransformer(nn.Module):
         # Use tranpose to filter on the two last dimensions. Doing this, we don't have to manage
         # the first dimension of the tensor. It works for [dim1, dim2, token_size, emb_size] and
         # for [dim1, token_size, emb_size]
-
+        length_list = [leng for leng in lengths]
         filtered_embeddings = [
             emb[1:(length + 1), :]
-            for emb, length in zip(seqence_embeddings_list, lengths)
+            for emb, length in zip(seqence_embeddings_list, length_list)
         ]
-
-        # if self.pool_mode in 'first-last-avg':
-        #     outputs = [
-        #         nn.AdaptiveAvgPool1d(batch_embeddings[0]),
-        #         nn.AdaptiveAvgPool1d(batch_embeddings[-1])
-        #     ]
-        #     embeddings = torch.mean(outputs)
 
         embeddings_dict = {}
         if 'mean' in self.pool_mode:
@@ -200,7 +187,4 @@ class ESMTransformer(nn.Module):
         if 'cls' in self.pool_mode:
             embeddings_dict['cls'] = torch.stack(
                 [emb[0, :] for emb in seqence_embeddings_list])
-        if 'full' in self.pool_mode:
-            embeddings_dict['full'] = filtered_embeddings
-
         return embeddings_dict
