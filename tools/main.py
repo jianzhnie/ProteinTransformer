@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -21,6 +21,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -402,7 +403,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.model + '_'+ args.pool_mode
+    task_name = 'ProtLM' + '_' + args.model + '_' + args.pool_mode
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:
