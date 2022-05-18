@@ -49,7 +49,7 @@ class ESMTransformer(nn.Module):
             model_dir)
         self.num_layers = self._model.num_layers
         # esm1b: 33 layers
-        if repr_layers:
+        if repr_layers is not None:
             assert all(-(self.num_layers + 1) <= i <= self.num_layers
                        for i in repr_layers)
             self.repr_layers = [
@@ -173,9 +173,8 @@ class ESMTransformer(nn.Module):
 
         model_outputs = self._model(
             input_ids,
-            repr_layers=[self.repr_layers],
+            repr_layers=self.repr_layers,
         )
-
         last_hidden_state = model_outputs['representations'][
             self.repr_layers[-1]]
         # batch_embeddings: batch_size * seq_length * embedding_dim

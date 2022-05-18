@@ -8,11 +8,10 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.utils.data
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -20,6 +19,9 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--split',
+                    default='train',
+                    help=' train or test data split')
 parser.add_argument('--model',
                     metavar='MODEL',
                     default='esm',
@@ -127,9 +129,9 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = parser.parse_known_args()
-    args.output_dir = os.path.join(args.work_dir, args.model)
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
+    args = parser.parse_args()
+    args.work_dir = os.path.join(args.output_dir, args.model)
+    if not os.path.exists(args.work_dir):
+        os.makedirs(args.work_dir)
     cudnn.benchmark = True
     main(args)
