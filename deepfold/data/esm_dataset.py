@@ -142,6 +142,8 @@ class ESMDataset(Dataset):
                 ('', sequence) for sequence in sequences_list
             ])
 
+        # The model is trained on truncated sequences and passing longer ones in at
+        # infernce will cause an error. See https://github.com/facebookresearch/esm/issues/21
         if self.truncate:
             all_tokens = all_tokens[:, :self.max_length - 2]
 
