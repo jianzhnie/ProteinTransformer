@@ -135,29 +135,29 @@ class ESMTransformer(nn.Module):
         # batch_embeddings: batch_size * seq_length * embedding_dim
         if self.pool_mode == 'mean':
             embeddings = torch.mean(last_hidden_state, 1)
-            
+
         if self.pool_mode == 'max':
             embeddings = torch.max(last_hidden_state, 1)
-            
+
         elif self.pool_mode == 'cls':
             embeddings = last_hidden_state[:, 0]
-            
+
         elif self.pool_mode == 'mean_max':
             max_pooling_embeddings = torch.max(last_hidden_state, 1)
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
                 (mean_pooling_embeddings, max_pooling_embeddings), 1)
-            
+
         elif self.pool_mode == 'pooler':
             embeddings = self.pooler(last_hidden_state)
-            
+
         elif self.pool_mode == 'cnn':
             embeddings = self.pooler(last_hidden_state)
-            
+
         elif self.pool_mode == 'weighted':
             weighted_pooling_embeddings = self.pooler(all_hidden_states)
             embeddings = weighted_pooling_embeddings[:, 0]
-            
+
         elif self.pool_mode == 'attention':
             embeddings = self.pooler(all_hidden_states)
 
