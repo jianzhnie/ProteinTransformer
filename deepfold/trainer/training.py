@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torch.cuda.amp import autocast
 
-from deepfold.loss.custom_metrics import compute_roc
+from deepfold.loss.custom_metrics import compute_aupr, compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
@@ -14,8 +14,8 @@ from deepfold.utils.summary import update_summary
 
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
-    def _step(**inputs):
-
+    def _step(inputs, optimizer_step=True):
+        # Runs the forward pass with autocasting.
         with autocast(enabled=use_amp):
             labels = inputs['labels']
             labels = labels.float()
@@ -28,12 +28,13 @@ def get_train_step(model, criterion, optimizer, scaler,
                 reduced_loss = loss.data
 
         scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
-        optimizer.zero_grad()
+
+        if optimizer_step:
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad()
 
         torch.cuda.synchronize()
-
         return reduced_loss
 
     return _step
@@ -68,7 +69,8 @@ def train(model,
 
         data_time = time.time() - end
 
-        loss = step(**batch)
+        optimizer_step = ((idx + 1) % gradient_accumulation_steps) == 0
+        loss = step(batch, optimizer_step)
         batch_size = batch['input_ids'].shape[0]
 
         it_time = time.time() - end
@@ -99,70 +101,7 @@ def train(model,
     return OrderedDict([('loss', losses_m.avg)])
 
 
-def get_val_step(model, criterion, use_amp=False):
-    def _step(**inputs):
-
-        with torch.no_grad(), autocast(enabled=use_amp):
-            labels = inputs['labels']
-            labels = labels.float()
-            logits = model(**inputs)
-            loss = criterion(logits, labels)
-            if torch.distributed.is_initialized():
-                reduced_loss = reduce_tensor(loss.data)
-            else:
-                reduced_loss = loss.data
-
-        torch.cuda.synchronize()
-
-        return reduced_loss
-
-    return _step
-
-
-def validate(model, loader, criterion, use_amp, logger, log_interval=10):
-    batch_time_m = AverageMeter('Time', ':6.3f')
-    data_time_m = AverageMeter('Data', ':6.3f')
-    losses_m = AverageMeter('Loss', ':.4e')
-
-    step = get_val_step(model, criterion, use_amp)
-
-    model.eval()
-    steps_per_epoch = len(loader)
-    end = time.time()
-    for idx, batch in enumerate(loader):
-        batch = {key: val.cuda() for key, val in batch.items()}
-
-        data_time = time.time() - end
-
-        loss = step(**batch)
-        batch_size = batch['input_ids'].shape[0]
-
-        it_time = time.time() - end
-        end = time.time()
-
-        batch_time_m.update(it_time)
-        data_time_m.update(data_time)
-        losses_m.update(loss.item(), batch_size)
-        if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
-            if not torch.distributed.is_initialized(
-            ) or torch.distributed.get_rank() == 0:
-                logger_name = 'Val-log'
-                logger.info(
-                    '{0}: [{1:>2d}/{2}] '
-                    'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
-                    'Time: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
-                    'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '.format(
-                        logger_name,
-                        idx,
-                        steps_per_epoch,
-                        data_time=data_time_m,
-                        batch_time=batch_time_m,
-                        loss=losses_m))
-
-    return OrderedDict([('loss', losses_m.avg)])
-
-
-def test(model, loader, criterion, use_amp, logger, log_interval=10):
+def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -216,7 +155,9 @@ def test(model, loader, criterion, use_amp, logger, log_interval=10):
     true_labels = np.concatenate(true_labels, axis=0)
     pred_labels = np.concatenate(pred_labels, axis=0)
     test_auc = compute_roc(true_labels, pred_labels)
-    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
+    test_aupr = compute_aupr(true_labels, pred_labels)
+    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc),
+                           ('aupr', test_aupr)])
     return metrics
 
 
@@ -323,7 +264,6 @@ def train_loop(model,
                gradient_accumulation_steps,
                train_loader,
                val_loader,
-               test_loader,
                use_amp,
                logger,
                start_epoch=0,
@@ -331,7 +271,6 @@ def train_loop(model,
                early_stopping_patience=-1,
                skip_training=False,
                skip_validation=True,
-               skip_test=False,
                save_checkpoints=True,
                output_dir='./',
                log_wandb=False,
@@ -351,27 +290,20 @@ def train_loop(model,
 
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
         if not skip_validation:
-            eval_metrics = validate(model, val_loader, criterion, use_amp,
+            eval_metrics = evaluate(model, val_loader, criterion, use_amp,
                                     logger, log_interval)
 
-            logger.info('[Epoch %d] validation: %s' %
-                        (epoch + 1, eval_metrics))
+            logger.info('[Epoch %d] Test: %s' % (epoch + 1, eval_metrics))
 
-        if not skip_test:
-            test_metrics = test(model, test_loader, criterion, use_amp, logger,
-                                log_interval)
-
-            logger.info('[Epoch %d] Test: %s' % (epoch + 1, test_metrics))
-
-        if test_metrics['loss'] < best_metric:
+        if eval_metrics['loss'] < best_metric:
             is_best = True
-            best_metric = test_metrics['loss']
+            best_metric = eval_metrics['loss']
 
         if log_wandb and (not torch.distributed.is_initialized()
                           or torch.distributed.get_rank() == 0):
             update_summary(epoch,
                            train_metrics,
-                           test_metrics,
+                           eval_metrics,
                            os.path.join(output_dir, 'summary.csv'),
                            write_header=best_metric is None,
                            log_wandb=log_wandb)
@@ -381,7 +313,7 @@ def train_loop(model,
             checkpoint_state = {
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                'best_metric': test_metrics['loss'],
+                'best_metric': eval_metrics['loss'],
                 'optimizer': optimizer.state_dict(),
             }
             save_checkpoint(checkpoint_state,
