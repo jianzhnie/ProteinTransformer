@@ -12,6 +12,26 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
                                               WeightedLayerPooling)
 
 
+class EsmEmbeddingModel(nn.Module):
+    def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
+        super().__init__()
+
+        self.hidden_size = input_size * 2
+        self.fc1 = nn.Linear(input_size, self.hidden_size)
+        self.norm = nn.BatchNorm1d(self.hidden_size)
+        self.relu = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout(dropout_ratio)
+        self.classifier = nn.Linear(self.hidden_size, num_labels)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.norm(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+        logits = self.classifier(x)
+        return logits
+
+
 class ESMPooler(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
@@ -27,7 +47,7 @@ class ESMPooler(nn.Module):
         return pooled_output
 
 
-class ESMTransformer(nn.Module):
+class EsmTransformer(nn.Module):
     """ESMTransformer."""
     def __init__(self,
                  model_dir: str,
