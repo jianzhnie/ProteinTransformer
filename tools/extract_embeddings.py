@@ -4,15 +4,14 @@ import sys
 
 import numpy as np
 import pandas as pd
-import torch
 import torch.backends.cudnn as cudnn
-import torch.utils.data
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.trainer.training import extract_embeddings
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -57,6 +56,7 @@ def compute_kernel_bias(vecs):
     W = np.dot(u, np.diag(1 / np.sqrt(s)))
     return W, -mu
 
+
 def main(args):
     model_name = 'esm1b_t33_650M_UR50S'
     if args.split == 'train':
@@ -66,8 +66,8 @@ def main(args):
 
     assert os.path.exists(data_file)
     save_path = os.path.join(
-        args.data_path,
-        model_name + '_embeddings_' + args.pool_mode + '_' + args.split  + '.pkl')
+        args.data_path, model_name + '_embeddings_' + args.pool_mode + '_' +
+        args.split + '.pkl')
     print(
         'Pretrained model %s, pool_mode: %s,  data split: %s , file path: %s' %
         (model_name, args.pool_mode, args.split, data_file))
@@ -92,14 +92,15 @@ def main(args):
     model = model.cuda()
     # run predict
     embeddings, true_labels = extract_embeddings(model,
-                                                data_loader,
-                                                pool_mode=args.pool_mode)
+                                                 data_loader,
+                                                 pool_mode=args.pool_mode)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
     df['labels'] = true_labels.tolist()
     df.to_pickle(save_path)
-    print("Embeddings saved to :", save_path)
+    print('Embeddings saved to :', save_path)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
