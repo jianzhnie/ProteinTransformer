@@ -53,7 +53,7 @@ class ESMDataset(Dataset):
         esm_model, self.alphabet = esm.pretrained.load_model_and_alphabet(
             model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
-        self.free_memory()
+        self.free_memory(esm_model)
 
     @property
     def vocab_size(self) -> int:
