@@ -4,11 +4,46 @@ import random
 from typing import Dict
 
 import esm
+import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
+
+
+class EsmEmbeddingDataset(Dataset):
+    def __init__(
+        self,
+        data_path: str = 'dataset/',
+        split: str = 'train',
+    ):
+        self.datasetFolderPath = data_path
+        self.trainFilePath = os.path.join(
+            self.datasetFolderPath,
+            'esm1b_t33_650M_UR50S_embeddings_mean_train.pkl')
+        self.testFilePath = os.path.join(
+            self.datasetFolderPath,
+            'esm1b_t33_650M_UR50S_embeddings_mean_test.pkl')
+
+        if split == 'train':
+            self.data_df = self.load_dataset(self.trainFilePath)
+        else:
+            self.data_df = self.load_dataset(self.testFilePath)
+
+    def __len__(self):
+        return len(self.data_df)
+
+    def __getitem__(self, idx):
+        data = self.data_df.iloc[idx, 4]
+        label = self.data_df.iloc[idx, 5]
+        data = torch.from_numpy(np.array(data, dtype=np.float32))
+        label = torch.from_numpy(np.array(label))
+        return data, label
+
+    def load_dataset(self, data_path):
+        df = pd.read_pickle(data_path)
+        return df
 
 
 class ESMDataset(Dataset):
