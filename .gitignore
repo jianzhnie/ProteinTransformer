@@ -132,5 +132,3 @@ work_dirs/
 .DS_Store
 logs/
 wandb/
-*.ipynb
-*.ipynb
