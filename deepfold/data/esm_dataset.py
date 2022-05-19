@@ -1,7 +1,7 @@
 import os
 import random
 import sys
-from typing import Dict, List
+from typing import Dict
 
 import esm
 import pandas as pd
@@ -14,6 +14,7 @@ sys.path.append('../../')
 
 
 class ESMDataset(Dataset):
+    """ESMDataset."""
     def __init__(self,
                  data_path: str = 'dataset/',
                  split: str = 'train',
@@ -51,8 +52,7 @@ class ESMDataset(Dataset):
 
         self.is_msa = 'msa' in model_dir
 
-        _, self.alphabet = esm.pretrained.load_model_and_alphabet(
-            model_dir)
+        _, self.alphabet = esm.pretrained.load_model_and_alphabet(model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
 
     @property
@@ -144,8 +144,9 @@ class ESMDataset(Dataset):
             # 1 * (all_tokens != self.token_to_id(self.pad_token)),
             # 'token_type_ids': torch.zeros(all_tokens.shape),
         }
-        encoded_inputs['lengths'] = torch.tensor(lengths)
-        encoded_inputs['labels'] = torch.tensor(multilabel_list)
+        encoded_inputs['lengths'] = torch.tensor(lengths, dtype=torch.int)
+        encoded_inputs['labels'] = torch.tensor(multilabel_list,
+                                                dtype=torch.int)
         return encoded_inputs
 
 
