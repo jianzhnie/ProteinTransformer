@@ -1,6 +1,6 @@
+import gc
 import os
 import random
-import sys
 from typing import Dict
 
 import esm
@@ -9,8 +9,6 @@ import torch
 from torch.utils.data import Dataset
 
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
-
-sys.path.append('../../')
 
 
 class ESMDataset(Dataset):
@@ -52,8 +50,10 @@ class ESMDataset(Dataset):
 
         self.is_msa = 'msa' in model_dir
 
-        _, self.alphabet = esm.pretrained.load_model_and_alphabet(model_dir)
+        esm_model, self.alphabet = esm.pretrained.load_model_and_alphabet(
+            model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
+        self.free_memory()
 
     @property
     def vocab_size(self) -> int:
@@ -89,6 +89,12 @@ class ESMDataset(Dataset):
     def token_to_id(self):
         """Returns a function which maps tokens to IDs."""
         return lambda x: self.alphabet.tok_to_idx[x]
+
+    @property
+    def free_memory(self, esm_model):
+        del esm_model
+        gc.collect()
+        print('Delete the esm model, free memory!')
 
     def __len__(self):
         return len(self.labels)
