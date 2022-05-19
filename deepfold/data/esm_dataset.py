@@ -51,19 +51,9 @@ class ESMDataset(Dataset):
 
         self.is_msa = 'msa' in model_dir
 
-        self._model, self.alphabet = esm.pretrained.load_model_and_alphabet(
+        _, self.alphabet = esm.pretrained.load_model_and_alphabet(
             model_dir)
         self.batch_converter = self.alphabet.get_batch_converter()
-
-    @property
-    def model(self) -> torch.nn.Module:
-        """Return torch model."""
-        return self._model
-
-    @property
-    def model_vocabulary(self) -> List[str]:
-        """Returns the whole vocabulary list."""
-        return list(self.alphabet.tok_to_idx.keys())
 
     @property
     def vocab_size(self) -> int:

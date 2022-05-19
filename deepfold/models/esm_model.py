@@ -105,9 +105,6 @@ class ESMTransformer(nn.Module):
         for p in self._model.parameters():
             p.requires_grad = False
 
-    # we decorate the *forward()* method with *autocast()* to enable
-    # mixed-precision training in a distributed manner
-
     def forward(self,
                 input_ids,
                 lengths=None,
@@ -138,23 +135,29 @@ class ESMTransformer(nn.Module):
         # batch_embeddings: batch_size * seq_length * embedding_dim
         if self.pool_mode == 'mean':
             embeddings = torch.mean(last_hidden_state, 1)
+            
         if self.pool_mode == 'max':
             embeddings = torch.max(last_hidden_state, 1)
+            
         elif self.pool_mode == 'cls':
             embeddings = last_hidden_state[:, 0]
+            
         elif self.pool_mode == 'mean_max':
             max_pooling_embeddings = torch.max(last_hidden_state, 1)
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
                 (mean_pooling_embeddings, max_pooling_embeddings), 1)
+            
         elif self.pool_mode == 'pooler':
             embeddings = self.pooler(last_hidden_state)
+            
         elif self.pool_mode == 'cnn':
             embeddings = self.pooler(last_hidden_state)
+            
         elif self.pool_mode == 'weighted':
             weighted_pooling_embeddings = self.pooler(all_hidden_states)
             embeddings = weighted_pooling_embeddings[:, 0]
-
+            
         elif self.pool_mode == 'attention':
             embeddings = self.pooler(all_hidden_states)
 
@@ -180,10 +183,10 @@ class ESMTransformer(nn.Module):
         # batch_embeddings: batch_size * seq_length * embedding_dim
         seqence_embeddings_list = [emb for emb in last_hidden_state]
         # Remove class token and padding
-        length_list = [leng for leng in lengths]
+        seq_len_list = [ll for ll in lengths]
         filtered_embeddings = [
             emb[1:(length + 1), :]
-            for emb, length in zip(seqence_embeddings_list, length_list)
+            for emb, length in zip(seqence_embeddings_list, seq_len_list)
         ]
         embeddings_dict = {}
         if 'mean' in self.pool_mode:
