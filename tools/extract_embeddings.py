@@ -32,7 +32,6 @@ parser.add_argument('--pool_mode',
                     default='mean',
                     help='embedding method')
 parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
-parser.add_argument('--local_rank', default=0, type=int)
 parser.add_argument('-j',
                     '--workers',
                     type=int,
@@ -45,10 +44,6 @@ parser.add_argument('-b',
                     type=int,
                     metavar='N',
                     help='mini-batch size (default: 256) per gpu')
-parser.add_argument('--output-dir',
-                    default='./work_dirs',
-                    type=str,
-                    help='output directory for model and log')
 
 
 def compute_kernel_bias(vecs):
@@ -97,9 +92,13 @@ def main(args):
         data_file = os.path.join(args.data_path, 'test_data.pkl')
 
     assert os.path.exists(data_file)
+    save_path = os.path.join(
+        args.data_path,
+        model_name + '_embeddings_' + args.pool_mode + args.split + '.pkl')
     print(
         'Pretrained model %s, pool_mode: %s,  data split: %s , file path: %s' %
         (model_name, args.pool_mode, args.split, data_file))
+    print('Embeddings save path:  %s', save_path)
     # Dataset and DataLoader
     dataset = ESMDataset(data_path=args.data_path,
                          split=args.split,
@@ -123,22 +122,13 @@ def main(args):
                                                 data_loader,
                                                 pool_mode=args.pool_mode)
     print(embeddings.shape, true_labels.shape)
-
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
     df['labels'] = true_labels.tolist()
-    save_path = os.path.join(
-        args.data_path,
-        model_name + '_last_mean_embedding_' + args.split + '.pkl')
-    print(save_path)
     df.to_pickle(save_path)
 
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    args.work_dir = os.path.join(args.output_dir, args.model)
-    if not os.path.exists(args.work_dir):
-        os.makedirs(args.work_dir)
     cudnn.benchmark = True
-
     main(args)
