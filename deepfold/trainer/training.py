@@ -278,6 +278,40 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
+def extract_embeddings(model, data_loader, pool_mode):
+    embeddings = []
+    true_labels = []
+    with torch.no_grad():
+        end = time.time()
+        start = time.time()
+        for batch_idx, batch in enumerate(data_loader):
+
+            if torch.cuda.is_available():
+                batch = {
+                    key: val.to(device='cuda')
+                    for key, val in batch.items()
+                }
+            labels = batch['labels']
+            embeddings_dict = model.compute_embeddings(**batch)
+            batch_embeddings = embeddings_dict[pool_mode].to(
+                device='cpu').numpy()
+            labels = labels.to('cpu').numpy()
+            true_labels.append(labels)
+            embeddings.append(batch_embeddings)
+            it_time = time.time() - end
+            total_time = time.time() - start
+            end  = time.time()
+            print(
+                f"Processing {batch_idx + 1} of {len(data_loader)} batches ({batch['input_ids'].size(0)} sequences), batch time : {it_time:2f}, total time : {total_time:2f} "
+            )
+    embeddings = np.concatenate(embeddings, axis=0)
+    true_labels = np.concatenate(true_labels, axis=0)
+    return embeddings, true_labels
+
+
+
+
+
 def train_loop(model,
                optimizer,
                criterion,
