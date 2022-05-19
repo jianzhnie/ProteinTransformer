@@ -8,11 +8,10 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.utils.data
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -94,11 +93,11 @@ def main(args):
     assert os.path.exists(data_file)
     save_path = os.path.join(
         args.data_path,
-        model_name + '_embeddings_' + args.pool_mode + args.split + '.pkl')
+        model_name + '_embeddings_' + args.pool_mode + '_' + args.split  + '.pkl')
     print(
         'Pretrained model %s, pool_mode: %s,  data split: %s , file path: %s' %
         (model_name, args.pool_mode, args.split, data_file))
-    print('Embeddings save path:  %s', save_path)
+    print('Embeddings save path: ', save_path)
     # Dataset and DataLoader
     dataset = ESMDataset(data_path=args.data_path,
                          split=args.split,

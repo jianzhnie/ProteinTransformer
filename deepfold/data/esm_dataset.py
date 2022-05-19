@@ -90,7 +90,6 @@ class ESMDataset(Dataset):
         """Returns a function which maps tokens to IDs."""
         return lambda x: self.alphabet.tok_to_idx[x]
 
-    @property
     def free_memory(self, esm_model):
         del esm_model
         gc.collect()
