@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import os
 import time
 from collections import OrderedDict
@@ -5,12 +6,14 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from torch.cuda.amp import autocast
-
+import logging
 from deepfold.loss.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
 
+
+loger = logging.getLogger('lorentz')
 
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
@@ -281,6 +284,7 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
 def extract_embeddings(model, data_loader, pool_mode):
     embeddings = []
     true_labels = []
+    steps = len(data_loader)
     with torch.no_grad():
         end = time.time()
         start = time.time()
@@ -298,17 +302,21 @@ def extract_embeddings(model, data_loader, pool_mode):
             labels = labels.to('cpu').numpy()
             true_labels.append(labels)
             embeddings.append(batch_embeddings)
-            it_time = time.time() - end
+            batch_time = time.time() - end
             total_time = time.time() - start
             end  = time.time()
-            print(
-                f"Processing {batch_idx + 1} of {len(data_loader)} batches ({batch['input_ids'].size(0)} sequences), batch time : {it_time:2f}, total time : {total_time:2f} "
-            )
+            logger.info(
+                '[{1:>2d}/{2}] '
+                'Batch Time: {batch_time:.3f}'
+                'Total Time: {batch_time:.3f}' .format(
+                    batch_idx +1, 
+                    steps+1, 
+                    batch_time=batch_time, 
+                    total_time=total_time)
+                )
     embeddings = np.concatenate(embeddings, axis=0)
     true_labels = np.concatenate(true_labels, axis=0)
     return embeddings, true_labels
-
-
 
 
 
