@@ -1,4 +1,4 @@
-from asyncio.log import logger
+import logging
 import os
 import time
 from collections import OrderedDict
@@ -6,14 +6,14 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from torch.cuda.amp import autocast
-import logging
+
 from deepfold.loss.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
 
+logger = logging.getLogger('jianzhnie@126.com')
 
-loger = logging.getLogger('lorentz')
 
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
@@ -304,20 +304,18 @@ def extract_embeddings(model, data_loader, pool_mode):
             embeddings.append(batch_embeddings)
             batch_time = time.time() - end
             total_time = time.time() - start
-            end  = time.time()
-            logger.info(
-                '[{1:>2d}/{2}] '
-                'Batch Time: {batch_time:.3f}'
-                'Total Time: {batch_time:.3f}' .format(
-                    batch_idx +1, 
-                    steps+1, 
-                    batch_time=batch_time, 
-                    total_time=total_time)
-                )
+            end = time.time()
+            logger.info('{0}: [{1:>2d}/{2}] '
+                        'Batch Time: {batch_time:.3f}'
+                        'Total Time: {total_time:.3f}'.format(
+                            'Extract embeddings',
+                            batch_idx + 1,
+                            steps + 1,
+                            batch_time=batch_time,
+                            total_time=total_time))
     embeddings = np.concatenate(embeddings, axis=0)
     true_labels = np.concatenate(true_labels, axis=0)
     return embeddings, true_labels
-
 
 
 def train_loop(model,
