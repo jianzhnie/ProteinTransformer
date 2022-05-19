@@ -86,7 +86,7 @@ class ExponentialLRScheduler():
                  optimizer,
                  base_lr,
                  epochs,
-                 warmup_length,
+                 warmup_length=0,
                  final_multiplier=0.001,
                  decay_factor=None,
                  decay_step=1):
