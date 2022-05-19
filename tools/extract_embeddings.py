@@ -8,10 +8,11 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.utils.data
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -90,6 +91,11 @@ def GetModelEmbedding(model, data_loader, pool_mode):
 
 def main(args):
     model_name = 'esm1b_t33_650M_UR50S'
+    if args.split == 'train':
+        data_file = os.path.join(args.data_path, 'train_data.pkl')
+    else:
+        data_file = os.path.join(args.data_path, 'test_data.pkl')
+
     # Dataset and DataLoader
     dataset = ESMDataset(data_path=args.data_path,
                          split=args.split,
@@ -113,17 +119,13 @@ def main(args):
                                                 data_loader,
                                                 pool_mode=args.pool_mode)
     print(embeddings.shape, true_labels.shape)
-    if args.split == 'train':
-        data_path = os.path.join(args.data_path, 'test_data.pkl')
-    else:
-        data_path = os.path.join(args.data_path, 'test_data.pkl')
 
-    df = pd.read_pickle(data_path)
+    df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
     df['labels'] = true_labels.tolist()
     save_path = os.path.join(
         args.data_path,
-        model_name + '_last_white_embedding_' + args.split + '.pkl')
+        model_name + '_last_mean_embedding_' + args.split + '.pkl')
     print(save_path)
     df.to_pickle(save_path)
 
@@ -134,4 +136,5 @@ if __name__ == '__main__':
     if not os.path.exists(args.work_dir):
         os.makedirs(args.work_dir)
     cudnn.benchmark = True
+
     main(args)
