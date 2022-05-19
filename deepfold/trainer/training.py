@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from collections import OrderedDict
@@ -12,7 +11,6 @@ from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
 
-logger = logging.getLogger('jianzhnie@126.com')
 
 
 def get_train_step(model, criterion, optimizer, scaler,
@@ -281,7 +279,7 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
-def extract_embeddings(model, data_loader, pool_mode):
+def extract_embeddings(model, data_loader, pool_mode ,logger):
     embeddings = []
     true_labels = []
     steps = len(data_loader)
@@ -306,8 +304,8 @@ def extract_embeddings(model, data_loader, pool_mode):
             total_time = time.time() - start
             end = time.time()
             logger.info('{0}: [{1:>2d}/{2}] '
-                        'Batch Time: {batch_time:.3f}'
-                        'Total Time: {total_time:.3f}'.format(
+                        'Batch Time: {batch_time:.3f} '
+                        'Total Time: {total_time:.3f} '.format(
                             'Extract embeddings',
                             batch_idx + 1,
                             steps + 1,

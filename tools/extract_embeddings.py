@@ -1,17 +1,16 @@
 import argparse
 import os
 import sys
-
+import logging
 import numpy as np
 import pandas as pd
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import ESMTransformer
 from deepfold.trainer.training import extract_embeddings
 
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -93,7 +92,7 @@ def main(args):
     # run predict
     embeddings, true_labels = extract_embeddings(model,
                                                  data_loader,
-                                                 pool_mode=args.pool_mode)
+                                                 pool_mode=args.pool_mode, logger=logger)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
@@ -103,6 +102,10 @@ def main(args):
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger('')
+    streamhandler = logging.StreamHandler()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(streamhandler)
     args = parser.parse_args()
     cudnn.benchmark = True
     main(args)
