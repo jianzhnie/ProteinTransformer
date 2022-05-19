@@ -96,6 +96,9 @@ def main(args):
     else:
         data_file = os.path.join(args.data_path, 'test_data.pkl')
 
+    assert os.path.exists(data_file)
+    print('Pretrained model %s , data split: %s , file path: %s' %
+          (model_name, args.split, data_file))
     # Dataset and DataLoader
     dataset = ESMDataset(data_path=args.data_path,
                          split=args.split,
