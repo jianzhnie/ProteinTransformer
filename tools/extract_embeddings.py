@@ -80,9 +80,9 @@ def GetModelEmbedding(model, data_loader, pool_mode):
             labels = labels.to('cpu').numpy()
             true_labels.append(labels)
             embeddings.append(batch_embeddings)
-        print(
-            f"Processing {batch_idx + 1} of {len(data_loader)} batches ({batch['input_ids'].size(0)} sequences)"
-        )
+            print(
+                f"Processing {batch_idx + 1} of {len(data_loader)} batches ({batch['input_ids'].size(0)} sequences)"
+            )
     embeddings = np.concatenate(embeddings, axis=0)
     true_labels = np.concatenate(true_labels, axis=0)
     return embeddings, true_labels
