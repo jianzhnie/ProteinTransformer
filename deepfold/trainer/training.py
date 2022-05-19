@@ -12,7 +12,6 @@ from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
 
 
-
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
     def _step(**inputs):
@@ -279,7 +278,7 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
-def extract_embeddings(model, data_loader, pool_mode ,logger):
+def extract_embeddings(model, data_loader, pool_mode, logger):
     embeddings = []
     true_labels = []
     steps = len(data_loader)
