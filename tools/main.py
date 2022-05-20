@@ -15,7 +15,7 @@ import yaml
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import ESMDataset
-from deepfold.models.esm_model import ESMTransformer
+from deepfold.models.esm_model import EsmTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
@@ -130,10 +130,6 @@ parser.add_argument(
     action='store_true',
     default=False,
     help='use NVIDIA Apex AMP or Native AMP for mixed precision training')
-parser.add_argument('--apex-amp',
-                    action='store_true',
-                    default=False,
-                    help='Use NVIDIA Apex AMP mixed precision')
 parser.add_argument('--native-amp',
                     action='store_true',
                     default=False,
@@ -246,20 +242,14 @@ def main(args):
                              split='test',
                              model_dir='esm1b_t33_650M_UR50S')
 
-    test_dataset = ESMDataset(data_path=args.data_path,
-                              split='test',
-                              model_dir='esm1b_t33_650M_UR50S')
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
         val_sampler = torch.utils.data.distributed.DistributedSampler(
-            test_dataset)
-        test_sampler = torch.utils.data.distributed.DistributedSampler(
-            test_dataset)
+            val_dataset)
     else:
         train_sampler = torch.utils.data.RandomSampler(train_dataset)
         val_sampler = torch.utils.data.RandomSampler(val_dataset)
-        test_sampler = torch.utils.data.RandomSampler(test_dataset)
 
     # dataloders
     train_loader = DataLoader(
@@ -282,19 +272,9 @@ def main(args):
         pin_memory=True,
     )
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=args.batch_size,
-        shuffle=(test_sampler is None),
-        num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
-        sampler=test_sampler,
-        pin_memory=True,
-    )
-
     # model
     num_labels = train_dataset.num_classes
-    model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode=args.pool_mode,
                            fintune=args.fintune,
                            num_labels=num_labels)
@@ -365,7 +345,6 @@ def main(args):
                gradient_accumulation_steps,
                train_loader,
                val_loader,
-               test_loader,
                use_amp=args.amp,
                logger=logger,
                start_epoch=start_epoch,
@@ -373,7 +352,6 @@ def main(args):
                early_stopping_patience=args.early_stopping_patience,
                skip_training=args.evaluate,
                skip_validation=args.training_only,
-               skip_test=args.training_only,
                save_checkpoints=args.save_checkpoints and not args.evaluate,
                output_dir=args.output_dir,
                log_wandb=args.log_wandb,
