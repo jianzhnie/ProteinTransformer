@@ -6,12 +6,12 @@ import torch
 from torch import distributed as dist
 
 
-def save_checkpoint(state, epoch, is_best, checkpoint_dir):
+def save_checkpoint(checkpoint_state, epoch, is_best, checkpoint_dir):
     if (not torch.distributed.is_initialized()
         ) or torch.distributed.get_rank() == 0:
         filename = 'checkpoint_' + str(epoch) + '.pth'
         file_path = os.path.join(checkpoint_dir, filename)
-        torch.save(state, file_path)
+        torch.save(checkpoint_state, file_path)
         if is_best:
             shutil.copyfile(file_path,
                             os.path.join(checkpoint_dir, 'model_best.pth.tar'))
