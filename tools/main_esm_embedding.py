@@ -129,10 +129,6 @@ parser.add_argument(
     action='store_true',
     default=False,
     help='use NVIDIA Apex AMP or Native AMP for mixed precision training')
-parser.add_argument('--apex-amp',
-                    action='store_true',
-                    default=False,
-                    help='Use NVIDIA Apex AMP mixed precision')
 parser.add_argument('--native-amp',
                     action='store_true',
                     default=False,
@@ -241,19 +237,14 @@ def main(args):
                                         split='train')
     val_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
 
-    test_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
-
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
             train_dataset)
         val_sampler = torch.utils.data.distributed.DistributedSampler(
-            test_dataset)
-        test_sampler = torch.utils.data.distributed.DistributedSampler(
-            test_dataset)
+            val_dataset)
     else:
         train_sampler = torch.utils.data.RandomSampler(train_dataset)
         val_sampler = torch.utils.data.RandomSampler(val_dataset)
-        test_sampler = torch.utils.data.RandomSampler(test_dataset)
 
     # dataloders
     train_loader = DataLoader(
@@ -273,16 +264,6 @@ def main(args):
         num_workers=args.workers,
         collate_fn=train_dataset.collate_fn,
         sampler=val_sampler,
-        pin_memory=True,
-    )
-
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=args.batch_size,
-        shuffle=(test_sampler is None),
-        num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
-        sampler=test_sampler,
         pin_memory=True,
     )
 
@@ -356,7 +337,6 @@ def main(args):
                gradient_accumulation_steps,
                train_loader,
                val_loader,
-               test_loader,
                use_amp=args.amp,
                logger=logger,
                start_epoch=start_epoch,
