@@ -13,14 +13,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
@@ -252,7 +251,6 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=(train_sampler is None),
         num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
         sampler=train_sampler,
         pin_memory=True,
     )
@@ -262,13 +260,12 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=(val_sampler is None),
         num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
         sampler=val_sampler,
         pin_memory=True,
     )
 
     # model
-    num_labels = train_dataset.num_classes
+    num_labels = 5874
     model = EsmEmbeddingModel(input_size=1280, num_labels=num_labels)
 
     if args.resume is not None:

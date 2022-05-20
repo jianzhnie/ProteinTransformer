@@ -35,12 +35,11 @@ nohup  python main.py  \
 --workers 4
 
 ###  108 node
-nohup main_esm_embedding.py  \
---data_path /home/af2/xbiome/data/protein_classification \
---output-dir /home/af2/xbiome/DeepFold/work_dir \
---model esm \
---pool_mode pooler \
+python main_esm_embedding.py  \
+--data_path /home/niejianzheng/xbiome/datasets/protein \
+--output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
+--model esm_embedding \
 --lr 0.001 \
 --epochs 20 \
---batch-size 4 \
+--batch-size 64 \
 --workers 4
