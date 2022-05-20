@@ -31,15 +31,19 @@ class EsmEmbeddingDataset(Dataset):
         else:
             self.data_df = self.load_dataset(self.testFilePath)
 
+        self.embeddings = list(self.data_df['esm_embeddings'])
+        self.labels = list(self.data_df['labels'])
+
     def __len__(self):
         return len(self.data_df)
 
     def __getitem__(self, idx):
-        data = self.data_df.iloc[idx, 4]
-        label = self.data_df.iloc[idx, 5]
-        data = torch.from_numpy(np.array(data, dtype=np.float32))
-        label = torch.from_numpy(np.array(label))
-        return data, label
+        embedding = self.embeddings[idx]
+        labels = self.labels[idx]
+        embeddings = torch.from_numpy(np.array(embedding, dtype=np.float32))
+        labels = torch.from_numpy(np.array(labels))
+        encoded_inputs = {'embeddings': embeddings, 'labels': labels}
+        return encoded_inputs
 
     def load_dataset(self, data_path):
         df = pd.read_pickle(data_path)

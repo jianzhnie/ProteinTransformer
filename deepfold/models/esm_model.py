@@ -23,12 +23,12 @@ class EsmEmbeddingModel(nn.Module):
         self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.hidden_size, num_labels)
 
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.norm(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        logits = self.classifier(x)
+    def forward(self, embeddings, labels=None):
+        out = self.fc1(embeddings)
+        out = self.norm(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+        logits = self.classifier(out)
         return logits
 
 

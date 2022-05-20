@@ -71,7 +71,7 @@ def train(model,
 
         optimizer_step = ((idx + 1) % gradient_accumulation_steps) == 0
         loss = step(batch, optimizer_step)
-        batch_size = batch['input_ids'].shape[0]
+        batch_size = batch['labels'].shape[0]
 
         it_time = time.time() - end
         batch_time_m.update(it_time)
@@ -155,9 +155,9 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     true_labels = np.concatenate(true_labels, axis=0)
     pred_labels = np.concatenate(pred_labels, axis=0)
     test_auc = compute_roc(true_labels, pred_labels)
-    test_aupr = compute_aupr(true_labels, pred_labels)
-    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc),
-                           ('aupr', test_aupr)])
+    # test_aupr = compute_aupr(true_labels, pred_labels)
+    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
+                        #    ('aupr', test_aupr)])
     return metrics
 
 
