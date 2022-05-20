@@ -7,5 +7,10 @@ python extract_embeddings.py  \
 ## 
 python extract_embeddings.py  \
 --data_path /home/niejianzheng/xbiome/datasets/protein \
---split "train" \
+--split "test" \
 --batch-size 32
+
+python extract_embeddings.py  \
+--data_path /home/niejianzheng/xbiome/datasets/protein \
+--split "train" \
+--batch-size 64
