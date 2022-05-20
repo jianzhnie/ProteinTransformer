@@ -14,7 +14,7 @@ import yaml
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import ESMDataset
-from deepfold.models.esm_model import ESMTransformer
+from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
@@ -90,7 +90,7 @@ def main(args):
 
     # model
     num_labels = test_dataset.num_classes
-    model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode=args.pool_mode,
                            fintune=args.fintune,
                            num_labels=num_labels)
