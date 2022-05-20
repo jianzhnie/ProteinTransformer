@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torch.cuda.amp import autocast
 
-from deepfold.loss.custom_metrics import compute_aupr, compute_roc
+from deepfold.loss.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
@@ -44,7 +44,6 @@ def train(model,
           loader,
           criterion,
           optimizer,
-          lr_scheduler,
           scaler,
           gradient_accumulation_steps,
           use_amp,
@@ -63,7 +62,6 @@ def train(model,
     steps_per_epoch = len(loader)
     end = time.time()
     for idx, batch in enumerate(loader):
-        lr_scheduler.step(epoch)
         # Add batch to GPU
         batch = {key: val.cuda() for key, val in batch.items()}
 
@@ -157,7 +155,7 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     test_auc = compute_roc(true_labels, pred_labels)
     # test_aupr = compute_aupr(true_labels, pred_labels)
     metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
-                        #    ('aupr', test_aupr)])
+    #    ('aupr', test_aupr)])
     return metrics
 
 
@@ -284,9 +282,8 @@ def train_loop(model,
     for epoch in range(start_epoch, end_epoch):
         if not skip_training:
             train_metrics = train(model, train_loader, criterion, optimizer,
-                                  lr_scheduler, scaler,
-                                  gradient_accumulation_steps, use_amp, epoch,
-                                  logger, log_interval)
+                                  scaler, gradient_accumulation_steps, use_amp,
+                                  epoch, logger, log_interval)
 
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
         if not skip_validation:
@@ -328,3 +325,5 @@ def train_loop(model,
                 epochs_since_improvement = 0
             if epochs_since_improvement >= early_stopping_patience:
                 break
+
+        lr_scheduler.step()
