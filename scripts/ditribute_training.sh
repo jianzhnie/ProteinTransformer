@@ -11,7 +11,7 @@ nohup python -m torch.distributed.run --nnodes=2 --nproc_per_node=4  main.py  \
 --pool_mode pooler \
 --workers 4 > results.log 2>&1 &
 
-
+#####  af2 node
 ## run
 python -m torch.distributed.run --nnodes=2 --nproc_per_node=4  --master_port 29501 main.py  \
 --data_path /home/af2/xbiome/data/protein_classification \
@@ -32,11 +32,10 @@ nohup  python main.py  \
 --lr 0.001 \
 --epochs 20 \
 --batch-size 4 \
---pool_mode pooler \
 --workers 4
 
-## pooler
-python main.py  \
+###  108 node
+nohup main_esm_embedding.py  \
 --data_path /home/af2/xbiome/data/protein_classification \
 --output-dir /home/af2/xbiome/DeepFold/work_dir \
 --model esm \
@@ -44,4 +43,4 @@ python main.py  \
 --lr 0.001 \
 --epochs 20 \
 --batch-size 4 \
---workers 4 > results_pooler.log 2>&1 &
+--workers 4
