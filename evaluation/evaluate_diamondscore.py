@@ -35,10 +35,7 @@ parser.add_argument('--ontology-obo-file',
                     '-obo',
                     default='data/go.obo',
                     help='Ontology file')
-parser.add_argument('--ont',
-                    '-o',
-                    default='mf',
-                    help='GO subontology (bp, mf, cc)')
+parser.add_argument('--output_dir', '-o', default='./', help='output dir')
 
 
 def get_diamond_scores(diamond_scores_file):
@@ -206,4 +203,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.train_data_file, args.test_data_file, args.diamond_scores_file,
-         args.go_obo_file, args.output_dir)
+         args.ontology_obo_file, args.output_dir)
