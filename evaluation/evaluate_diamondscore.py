@@ -50,22 +50,29 @@ def get_diamond_scores(diamond_scores_file):
     return diamond_scores
 
 
-def get_blast_preds(train_df, test_df, diamond_scores):
+def get_diamond_preds(train_df, test_df, diamond_scores):
     """index     proteins       accessions 63995  454399  ST1S3_DANRE Q7T2V2;
     36226  229770  LYAM1_MOUSE          P18337; 73638  523000 XYNB_PRUPE
     P83344; 3003    14698   ALKH_ECOLI  P0A955; P10177; 25019  151684
-    GEPH_MOUSE  Q8BUV3; E9QKJ1;"""
+    GEPH_MOUSE  Q8BUV3; E9QKJ1;
+
+    Return:
+        [
+            {'GO1': 0.3, GO2': 0.3},
+            {'GO3': 0.3, GO4': 0.3},
+        ]
+    """
 
     # protein name to index
-    prot_index = {}
+    protein_index = {}
     for i, row in enumerate(train_df.itertuples()):
-        prot_index[row.proteins] = i
+        protein_index[row.proteins] = i
 
     # annotations
     annotations = train_df['prop_annotations'].values
     annotations = list(map(lambda x: set(x), annotations))
     # compute diamond predictions
-    blast_preds = []
+    diamond_preds = []
     for i, row in enumerate(test_df.itertuples()):
         annots = {}
         prot_id = row.proteins
@@ -74,22 +81,25 @@ def get_blast_preds(train_df, test_df, diamond_scores):
             sim_prots = diamond_scores[prot_id]
             allgos = set()
             total_score = 0.0
+            # 根据比对结果将相似序列的功能作为预测结果
             for p_id, score in sim_prots.items():
-                allgos |= annotations[prot_index[p_id]]
+                allgos |= annotations[protein_index[p_id]]
                 total_score += score
             allgos = list(sorted(allgos))
+            # 得到所有注释的功能并集
             sim = np.zeros(len(allgos), dtype=np.float32)
+            # 计算每个功能注释的得分
             for j, go_id in enumerate(allgos):
                 s = 0.0
                 for p_id, score in sim_prots.items():
-                    if go_id in annotations[prot_index[p_id]]:
+                    if go_id in annotations[protein_index[p_id]]:
                         s += score
                 sim[j] = s / total_score
             for go_id, score in zip(allgos, sim):
                 annots[go_id] = score
-
-        blast_preds.append(annots)
-    return blast_preds
+        # 返回的 diamond_preds 是一个列表，
+        diamond_preds.append(annots)
+    return diamond_preds
 
 
 def evaluate_diamond(test_df, blast_preds, go_rels, ont):
@@ -187,8 +197,9 @@ def main(train_data_file,
     go_rels.calculate_ic(annotations + test_annotations)
 
     diamond_scores = get_diamond_scores(diamond_scores_file)
-    blast_preds = get_blast_preds(train_df, test_df, diamond_scores)
+    blast_preds = get_diamond_preds(train_df, test_df, diamond_scores)
     for ont in onts:
+        logger.info(f'evaluate the {ont} protein family')
         go_set = go_rels.get_namespace_terms(NAMESPACES[ont])
         go_set.remove(FUNC_DICT[ont])
 
