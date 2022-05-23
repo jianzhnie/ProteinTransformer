@@ -130,7 +130,8 @@ def evaluate_diamond(test_df, blast_preds, go_rels, ont):
         preds = list(
             map(lambda x: set(filter(lambda y: y in go_set, x)), preds))
 
-        fscore, prec, rec, s = evaluate_annotations(go_rels, labels, preds)
+        fscore, prec, rec, s, _, _, _, _ = evaluate_annotations(
+            go_rels, labels, preds)
         precisions.append(prec)
         recalls.append(rec)
         logger.info(f'Fscore: {fscore}, S: {s}, threshold: {threshold}')
@@ -197,9 +198,10 @@ def main(train_data_file,
 
 
 if __name__ == '__main__':
-    logger = logging.basicConfig(format='%(levelname)s:%(message)s',
-                                 level=logging.INFO)
-
+    logger = logging.getLogger('')
+    streamhandler = logging.StreamHandler()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(streamhandler)
     args = parser.parse_args()
 
     main(args.train_data_file, args.test_data_file, args.diamond_scores_file,
