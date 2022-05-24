@@ -59,7 +59,7 @@ def get_model_preds(test_df, terms):
     return model_preds
 
 
-def evaluate_model_prediction(test_df, model_preds, go_rels, ont, logger=None):
+def evaluate_model_prediction(test_df, model_preds, go_rels, ont, logger):
     fmax = 0.0
     tmax = 0.0
     smin = 1000.0
