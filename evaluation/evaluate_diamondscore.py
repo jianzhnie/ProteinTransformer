@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-sys.path.append('../')
-
 from deepfold.data.utils.data_utils import FUNC_DICT, NAMESPACES
 from deepfold.data.utils.ontology import Ontology
 from deepfold.loss.custom_metrics import evaluate_annotations
+
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
