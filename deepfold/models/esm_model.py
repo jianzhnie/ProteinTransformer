@@ -13,6 +13,7 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
 
 
 class EsmEmbeddingModel(nn.Module):
+
     def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
         super().__init__()
 
@@ -33,6 +34,7 @@ class EsmEmbeddingModel(nn.Module):
 
 
 class ESMPooler(nn.Module):
+
     def __init__(self, hidden_size):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -49,6 +51,7 @@ class ESMPooler(nn.Module):
 
 class EsmTransformer(nn.Module):
     """ESMTransformer."""
+
     def __init__(self,
                  model_dir: str,
                  num_labels: int = 1000,
@@ -98,10 +101,9 @@ class EsmTransformer(nn.Module):
             self.pooler = CNNPooler(self.hidden_size)
 
         if pool_mode == 'weighted':
-            self.pooler = WeightedLayerPooling(
-                num_hidden_layers=self.num_layers,
-                layer_start=1,
-                layer_weights=None)
+            self.pooler = WeightedLayerPooling(num_layers=self.num_layers,
+                                               layer_start=1,
+                                               layer_weights=None)
 
         if pool_mode == 'attention':
             self.pooler = AttentionPooling(num_layers=self.num_layers,
@@ -166,7 +168,7 @@ class EsmTransformer(nn.Module):
             max_pooling_embeddings = torch.max(last_hidden_state, 1)
             mean_pooling_embeddings = torch.mean(last_hidden_state, 1)
             embeddings = torch.cat(
-                (mean_pooling_embeddings, max_pooling_embeddings), 1)
+                [mean_pooling_embeddings, max_pooling_embeddings], 1)
 
         elif self.pool_mode == 'pooler':
             embeddings = self.pooler(last_hidden_state)
@@ -189,10 +191,8 @@ class EsmTransformer(nn.Module):
         return logits
 
     def compute_embeddings(
-            self,
-            input_ids,
-            lengths=None,
-            labels=None) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
+            self, input_ids, lengths,
+            labels) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
         model_outputs = self._model(
             input_ids,
