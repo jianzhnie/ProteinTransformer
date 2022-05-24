@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torch.cuda.amp import autocast
 
-from deepfold.loss.custom_metrics import compute_roc
+from deepfold.core.metrics.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary

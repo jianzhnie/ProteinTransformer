@@ -105,7 +105,7 @@ class CustomProteinSequences(Dataset):
         self.max_length = max_length
 
     def __len__(self):
-        return len(self.data_df)
+        return len(self.labels)
 
     def __getitem__(self, idx):
         seqence = self.seqs[idx]

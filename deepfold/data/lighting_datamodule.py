@@ -52,7 +52,7 @@ class LightingESMDataModule(pl.LightningDataModule):
     """pytorch_lighting seqence Dataset Model."""
     def __init__(self,
                  data_path: str = 'dataset/',
-                 model_name: str = None,
+                 model_name: str = '',
                  batch_size: int = 16,
                  max_length: int = 1024):
         super().__init__()

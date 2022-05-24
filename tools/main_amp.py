@@ -13,9 +13,9 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
+from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.data.esm_dataset import ESMDataset
-from deepfold.models.esm_model import ESMTransformer
-from deepfold.scheduler.lr_scheduler import LinearLRScheduler
+from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training_amp import train_loop
 
 sys.path.append('../')
@@ -285,7 +285,7 @@ def main(args):
 
     # model
     num_labels = train_dataset.num_classes
-    model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
                            pool_mode='cls',
                            num_labels=num_labels)
     # define loss function (criterion) and optimizer
