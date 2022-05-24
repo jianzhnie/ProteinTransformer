@@ -14,9 +14,9 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
+from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import EsmTransformer
-from deepfold.scheduler.lr_scheduler import LinearLRScheduler
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
@@ -281,8 +281,7 @@ def main(args):
 
     if args.resume is not None:
         if args.local_rank == 0:
-            model_state, optimizer_state = load_model_checkpoint(
-                args.resume, args)
+            model_state, optimizer_state = load_model_checkpoint(args.resume)
             model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(

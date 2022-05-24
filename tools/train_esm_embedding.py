@@ -13,13 +13,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -270,8 +271,7 @@ def main(args):
 
     if args.resume is not None:
         if args.local_rank == 0:
-            model_state, optimizer_state = load_model_checkpoint(
-                args.resume, args)
+            model_state, optimizer_state = load_model_checkpoint(args.resume)
             model.load_state_dict(model_state)
 
     scaler = torch.cuda.amp.GradScaler(
