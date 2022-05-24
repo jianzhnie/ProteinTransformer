@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import EsmTransformer
 from deepfold.scheduler.lr_scheduler import LinearLRScheduler
@@ -21,7 +21,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
