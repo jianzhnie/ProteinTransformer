@@ -7,7 +7,6 @@ from .protein_dataset import ProtBertDataset
 
 class LightingProtBertDataModule(pl.LightningDataModule):
     """pytorch_lighting seqence Dataset Model."""
-
     def __init__(self,
                  data_path='dataset/',
                  tokenizer_name='Rostlab/prot_bert_bfd',
@@ -51,7 +50,6 @@ class LightingProtBertDataModule(pl.LightningDataModule):
 
 class LightingESMDataModule(pl.LightningDataModule):
     """pytorch_lighting seqence Dataset Model."""
-
     def __init__(self,
                  data_path: str = 'dataset/',
                  model_name: str = '',
