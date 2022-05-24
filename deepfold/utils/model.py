@@ -1,4 +1,5 @@
 import os
+from pickle import NONE
 import shutil
 from collections import OrderedDict
 
@@ -44,7 +45,9 @@ def load_model_checkpoint(checkpoint_path):
                 name = k[7:] if k.startswith('module') else k
                 model_state[name] = v
 
-        optimizer_state = checkpoint['optimizer']
+            optimizer_state = checkpoint['optimizer']
+        else:
+            return None, None
         return model_state, optimizer_state
     else:
         raise FileNotFoundError()
