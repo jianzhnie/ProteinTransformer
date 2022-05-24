@@ -6,14 +6,12 @@ import sys
 
 import numpy as np
 import pandas as pd
-
+from matplotlib import pyplot as plt
+sys.path.append('../')
 from deepfold.core.metrics.custom_metrics import evaluate_annotations
 from deepfold.data.utils.data_utils import FUNC_DICT, NAMESPACES
 from deepfold.data.utils.ontology import Ontology
 
-from .evaluate_diamondscore import plot_diamond_aupr
-
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -118,21 +116,38 @@ def evaluate_model_prediction(test_df, model_preds, go_rels, ont):
     return precisions, recalls, aupr
 
 
+def plot_diamond_aupr(precisions, recalls, aupr, ont, save_path):
+    plt.figure()
+    plt.plot(recalls,
+             precisions,
+             color='darkorange',
+             lw=2,
+             label=f'AUPR curve (area = {aupr:0.3f})')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Area Under the Precision-Recall curve')
+    plt.legend(loc='lower right')
+    plt.savefig(save_path + ont + '_aupr.png')
+
+
 def main(train_data_file,
          test_data_file,
          terms_file,
+         go_obo_file,
          output_dir=None,
          onts=('bp', 'mf', 'cc')):
 
-    go_rels = Ontology('data/go.obo', with_rels=True)
+    go_rels = Ontology(go_obo_file, with_rels=True)
     terms_df = pd.read_pickle(terms_file)
     terms = terms_df['terms'].values.flatten()
 
     train_df = pd.read_pickle(train_data_file)
-    test_df = pd.read_pickle(test_data_file)
-
     annotations = train_df['prop_annotations'].values
     annotations = list(map(lambda x: set(x), annotations))
+
+    test_df = pd.read_pickle(test_data_file)
     test_annotations = test_df['prop_annotations'].values
     test_annotations = list(map(lambda x: set(x), test_annotations))
     go_rels.calculate_ic(annotations + test_annotations)
@@ -160,5 +175,5 @@ if __name__ == '__main__':
     logger.addHandler(streamhandler)
     args = parser.parse_args()
 
-    main(args.train_data_file, args.test_data_file, args.diamond_scores_file,
+    main(args.train_data_file, args.test_data_file, args.terms_file,
          args.ontology_obo_file, args.output_dir)
