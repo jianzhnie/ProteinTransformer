@@ -1,0 +1,963 @@
+wandb: Currently logged in as: jianzhnie. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.12.16
+wandb: Run data is saved locally in /share/home/niejianzheng/xbiome/DeepFold/tools/wandb/run-20220520_085830-1oma3dzi
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run skilled-cosmos-34
+wandb: ⭐️ View project at https://wandb.ai/jianzhnie/protein-annotation
+wandb: 🚀 View run at https://wandb.ai/jianzhnie/protein-annotation/runs/1oma3dzi
+Training with a single process on 0 .
+Scheduled epochs: 20
+RUNNING EPOCHS FROM 0 TO 20
+Train-log: [epoch: 1] [ 0/288] DataTime: 1.256 (1.256) BatchTime: 1.325 (1.325) Loss:  0.7144 (0.7144) lr: 0.001000 
+Train-log: [epoch: 1] [10/288] DataTime: 0.005 (0.134) BatchTime: 0.010 (0.145) Loss:  0.0488 (0.1489) lr: 0.001000 
+Train-log: [epoch: 1] [20/288] DataTime: 0.032 (0.083) BatchTime: 0.042 (0.091) Loss:  0.0384 (0.0985) lr: 0.001000 
+Train-log: [epoch: 1] [30/288] DataTime: 0.004 (0.067) BatchTime: 0.009 (0.075) Loss:  0.0444 (0.0797) lr: 0.001000 
+Train-log: [epoch: 1] [40/288] DataTime: 0.071 (0.058) BatchTime: 0.079 (0.065) Loss:  0.0384 (0.0697) lr: 0.001000 
+Train-log: [epoch: 1] [50/288] DataTime: 0.002 (0.052) BatchTime: 0.006 (0.059) Loss:  0.0367 (0.0634) lr: 0.001000 
+Train-log: [epoch: 1] [60/288] DataTime: 0.123 (0.050) BatchTime: 0.129 (0.057) Loss:  0.0326 (0.0589) lr: 0.001000 
+Train-log: [epoch: 1] [70/288] DataTime: 0.002 (0.047) BatchTime: 0.008 (0.053) Loss:  0.0380 (0.0557) lr: 0.001000 
+Train-log: [epoch: 1] [80/288] DataTime: 0.143 (0.046) BatchTime: 0.151 (0.053) Loss:  0.0395 (0.0531) lr: 0.001000 
+Train-log: [epoch: 1] [90/288] DataTime: 0.004 (0.044) BatchTime: 0.008 (0.051) Loss:  0.0330 (0.0511) lr: 0.001000 
+Train-log: [epoch: 1] [100/288] DataTime: 0.139 (0.044) BatchTime: 0.145 (0.051) Loss:  0.0348 (0.0494) lr: 0.001000 
+Train-log: [epoch: 1] [110/288] DataTime: 0.009 (0.043) BatchTime: 0.017 (0.049) Loss:  0.0330 (0.0480) lr: 0.001000 
+Train-log: [epoch: 1] [120/288] DataTime: 0.057 (0.042) BatchTime: 0.068 (0.048) Loss:  0.0341 (0.0467) lr: 0.001000 
+Train-log: [epoch: 1] [130/288] DataTime: 0.002 (0.041) BatchTime: 0.006 (0.047) Loss:  0.0350 (0.0456) lr: 0.001000 
+Train-log: [epoch: 1] [140/288] DataTime: 0.005 (0.040) BatchTime: 0.015 (0.047) Loss:  0.0356 (0.0447) lr: 0.001000 
+Train-log: [epoch: 1] [150/288] DataTime: 0.002 (0.040) BatchTime: 0.006 (0.046) Loss:  0.0302 (0.0439) lr: 0.001000 
+Train-log: [epoch: 1] [160/288] DataTime: 0.002 (0.040) BatchTime: 0.009 (0.046) Loss:  0.0303 (0.0431) lr: 0.001000 
+Train-log: [epoch: 1] [170/288] DataTime: 0.002 (0.039) BatchTime: 0.006 (0.046) Loss:  0.0297 (0.0424) lr: 0.001000 
+Train-log: [epoch: 1] [180/288] DataTime: 0.002 (0.039) BatchTime: 0.007 (0.046) Loss:  0.0338 (0.0418) lr: 0.001000 
+Train-log: [epoch: 1] [190/288] DataTime: 0.002 (0.039) BatchTime: 0.006 (0.045) Loss:  0.0319 (0.0413) lr: 0.001000 
+Train-log: [epoch: 1] [200/288] DataTime: 0.005 (0.039) BatchTime: 0.012 (0.045) Loss:  0.0290 (0.0408) lr: 0.001000 
+Train-log: [epoch: 1] [210/288] DataTime: 0.001 (0.038) BatchTime: 0.006 (0.045) Loss:  0.0288 (0.0403) lr: 0.001000 
+Train-log: [epoch: 1] [220/288] DataTime: 0.002 (0.038) BatchTime: 0.007 (0.045) Loss:  0.0342 (0.0399) lr: 0.001000 
+Train-log: [epoch: 1] [230/288] DataTime: 0.002 (0.038) BatchTime: 0.006 (0.044) Loss:  0.0301 (0.0395) lr: 0.001000 
+Train-log: [epoch: 1] [240/288] DataTime: 0.038 (0.038) BatchTime: 0.048 (0.045) Loss:  0.0332 (0.0391) lr: 0.001000 
+Train-log: [epoch: 1] [250/288] DataTime: 0.002 (0.038) BatchTime: 0.006 (0.044) Loss:  0.0269 (0.0388) lr: 0.001000 
+Train-log: [epoch: 1] [260/288] DataTime: 0.005 (0.038) BatchTime: 0.010 (0.044) Loss:  0.0309 (0.0385) lr: 0.001000 
+Train-log: [epoch: 1] [270/288] DataTime: 0.001 (0.037) BatchTime: 0.006 (0.044) Loss:  0.0303 (0.0382) lr: 0.001000 
+Train-log: [epoch: 1] [280/288] DataTime: 0.003 (0.038) BatchTime: 0.008 (0.044) Loss:  0.0281 (0.0379) lr: 0.001000 
+Train-log: [epoch: 1] [287/288] DataTime: 0.001 (0.037) BatchTime: 0.005 (0.043) Loss:  0.0275 (0.0378) lr: 0.001000 
+[Epoch 1] training: OrderedDict([('loss', 0.037756081642782456)])
+Test-log: [ 0/16] DataTime: 1.146 (1.146) Time: 1.146 (1.146) Loss:  0.0343 (0.0343) 
+Test-log: [10/16] DataTime: 0.011 (0.134) Time: 0.011 (0.134) Loss:  0.0315 (0.0301) 
+Test-log: [15/16] DataTime: 0.009 (0.096) Time: 0.009 (0.096) Loss:  0.0283 (0.0302) 
+[Epoch 1] Test: OrderedDict([('loss', 0.030171504008613053), ('auc', 0.9552189772744976)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 2] [ 0/288] DataTime: 1.093 (1.093) BatchTime: 1.112 (1.112) Loss:  0.0304 (0.0304) lr: 0.000900 
+Train-log: [epoch: 2] [10/288] DataTime: 0.005 (0.124) BatchTime: 0.010 (0.130) Loss:  0.0305 (0.0304) lr: 0.000900 
+Train-log: [epoch: 2] [20/288] DataTime: 0.096 (0.083) BatchTime: 0.101 (0.089) Loss:  0.0293 (0.0298) lr: 0.000900 
+Train-log: [epoch: 2] [30/288] DataTime: 0.005 (0.065) BatchTime: 0.010 (0.070) Loss:  0.0282 (0.0295) lr: 0.000900 
+Train-log: [epoch: 2] [40/288] DataTime: 0.062 (0.057) BatchTime: 0.068 (0.063) Loss:  0.0276 (0.0294) lr: 0.000900 
+Train-log: [epoch: 2] [50/288] DataTime: 0.043 (0.052) BatchTime: 0.051 (0.058) Loss:  0.0321 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [60/288] DataTime: 0.005 (0.047) BatchTime: 0.009 (0.053) Loss:  0.0336 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [70/288] DataTime: 0.002 (0.045) BatchTime: 0.007 (0.051) Loss:  0.0334 (0.0296) lr: 0.000900 
+Train-log: [epoch: 2] [80/288] DataTime: 0.007 (0.043) BatchTime: 0.012 (0.049) Loss:  0.0291 (0.0296) lr: 0.000900 
+Train-log: [epoch: 2] [90/288] DataTime: 0.005 (0.042) BatchTime: 0.010 (0.048) Loss:  0.0290 (0.0296) lr: 0.000900 
+Train-log: [epoch: 2] [100/288] DataTime: 0.006 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0343 (0.0296) lr: 0.000900 
+Train-log: [epoch: 2] [110/288] DataTime: 0.004 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0305 (0.0295) lr: 0.000900 
+Train-log: [epoch: 2] [120/288] DataTime: 0.008 (0.039) BatchTime: 0.012 (0.045) Loss:  0.0290 (0.0295) lr: 0.000900 
+Train-log: [epoch: 2] [130/288] DataTime: 0.005 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0324 (0.0295) lr: 0.000900 
+Train-log: [epoch: 2] [140/288] DataTime: 0.008 (0.037) BatchTime: 0.012 (0.043) Loss:  0.0312 (0.0294) lr: 0.000900 
+Train-log: [epoch: 2] [150/288] DataTime: 0.002 (0.037) BatchTime: 0.007 (0.043) Loss:  0.0311 (0.0295) lr: 0.000900 
+Train-log: [epoch: 2] [160/288] DataTime: 0.004 (0.036) BatchTime: 0.008 (0.042) Loss:  0.0274 (0.0294) lr: 0.000900 
+Train-log: [epoch: 2] [170/288] DataTime: 0.002 (0.036) BatchTime: 0.009 (0.042) Loss:  0.0288 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [180/288] DataTime: 0.005 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0312 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [190/288] DataTime: 0.002 (0.035) BatchTime: 0.007 (0.041) Loss:  0.0297 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [200/288] DataTime: 0.002 (0.035) BatchTime: 0.007 (0.041) Loss:  0.0263 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [210/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0284 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [220/288] DataTime: 0.002 (0.035) BatchTime: 0.006 (0.041) Loss:  0.0296 (0.0293) lr: 0.000900 
+Train-log: [epoch: 2] [230/288] DataTime: 0.002 (0.035) BatchTime: 0.007 (0.041) Loss:  0.0267 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [240/288] DataTime: 0.005 (0.034) BatchTime: 0.009 (0.040) Loss:  0.0308 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [250/288] DataTime: 0.002 (0.035) BatchTime: 0.013 (0.041) Loss:  0.0293 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [260/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0322 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [270/288] DataTime: 0.002 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0304 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [280/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.040) Loss:  0.0303 (0.0292) lr: 0.000900 
+Train-log: [epoch: 2] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.040) Loss:  0.0266 (0.0292) lr: 0.000900 
+[Epoch 2] training: OrderedDict([('loss', 0.029163344124282866)])
+Test-log: [ 0/16] DataTime: 1.083 (1.083) Time: 1.083 (1.083) Loss:  0.0296 (0.0296) 
+Test-log: [10/16] DataTime: 0.025 (0.129) Time: 0.025 (0.129) Loss:  0.0283 (0.0303) 
+Test-log: [15/16] DataTime: 0.003 (0.091) Time: 0.003 (0.091) Loss:  0.0479 (0.0301) 
+[Epoch 2] Test: OrderedDict([('loss', 0.03006109926286098), ('auc', 0.9602892038949228)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 3] [ 0/288] DataTime: 1.199 (1.199) BatchTime: 1.217 (1.217) Loss:  0.0293 (0.0293) lr: 0.000810 
+Train-log: [epoch: 3] [10/288] DataTime: 0.026 (0.135) BatchTime: 0.034 (0.142) Loss:  0.0289 (0.0279) lr: 0.000810 
+Train-log: [epoch: 3] [20/288] DataTime: 0.030 (0.086) BatchTime: 0.040 (0.093) Loss:  0.0271 (0.0274) lr: 0.000810 
+Train-log: [epoch: 3] [30/288] DataTime: 0.098 (0.068) BatchTime: 0.110 (0.075) Loss:  0.0262 (0.0274) lr: 0.000810 
+Train-log: [epoch: 3] [40/288] DataTime: 0.006 (0.057) BatchTime: 0.011 (0.064) Loss:  0.0285 (0.0274) lr: 0.000810 
+Train-log: [epoch: 3] [50/288] DataTime: 0.103 (0.053) BatchTime: 0.114 (0.060) Loss:  0.0304 (0.0275) lr: 0.000810 
+Train-log: [epoch: 3] [60/288] DataTime: 0.006 (0.048) BatchTime: 0.011 (0.055) Loss:  0.0288 (0.0275) lr: 0.000810 
+Train-log: [epoch: 3] [70/288] DataTime: 0.066 (0.046) BatchTime: 0.076 (0.052) Loss:  0.0281 (0.0276) lr: 0.000810 
+Train-log: [epoch: 3] [80/288] DataTime: 0.081 (0.044) BatchTime: 0.091 (0.051) Loss:  0.0271 (0.0276) lr: 0.000810 
+Train-log: [epoch: 3] [90/288] DataTime: 0.036 (0.042) BatchTime: 0.045 (0.049) Loss:  0.0280 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [100/288] DataTime: 0.086 (0.041) BatchTime: 0.096 (0.048) Loss:  0.0300 (0.0277) lr: 0.000810 
+Train-log: [epoch: 3] [110/288] DataTime: 0.008 (0.039) BatchTime: 0.013 (0.046) Loss:  0.0273 (0.0276) lr: 0.000810 
+Train-log: [epoch: 3] [120/288] DataTime: 0.118 (0.039) BatchTime: 0.128 (0.046) Loss:  0.0294 (0.0277) lr: 0.000810 
+Train-log: [epoch: 3] [130/288] DataTime: 0.002 (0.038) BatchTime: 0.006 (0.045) Loss:  0.0259 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [140/288] DataTime: 0.092 (0.038) BatchTime: 0.099 (0.045) Loss:  0.0290 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [150/288] DataTime: 0.005 (0.037) BatchTime: 0.010 (0.044) Loss:  0.0282 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [160/288] DataTime: 0.112 (0.037) BatchTime: 0.119 (0.044) Loss:  0.0266 (0.0277) lr: 0.000810 
+Train-log: [epoch: 3] [170/288] DataTime: 0.005 (0.036) BatchTime: 0.009 (0.043) Loss:  0.0271 (0.0277) lr: 0.000810 
+Train-log: [epoch: 3] [180/288] DataTime: 0.107 (0.036) BatchTime: 0.112 (0.043) Loss:  0.0279 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [190/288] DataTime: 0.002 (0.036) BatchTime: 0.007 (0.042) Loss:  0.0262 (0.0277) lr: 0.000810 
+Train-log: [epoch: 3] [200/288] DataTime: 0.107 (0.036) BatchTime: 0.118 (0.042) Loss:  0.0290 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [210/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.042) Loss:  0.0275 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [220/288] DataTime: 0.112 (0.035) BatchTime: 0.122 (0.042) Loss:  0.0287 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [230/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0267 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [240/288] DataTime: 0.114 (0.035) BatchTime: 0.124 (0.041) Loss:  0.0283 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [250/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0252 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [260/288] DataTime: 0.137 (0.035) BatchTime: 0.143 (0.041) Loss:  0.0263 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [270/288] DataTime: 0.002 (0.034) BatchTime: 0.006 (0.041) Loss:  0.0275 (0.0278) lr: 0.000810 
+Train-log: [epoch: 3] [280/288] DataTime: 0.089 (0.035) BatchTime: 0.093 (0.041) Loss:  0.0285 (0.0279) lr: 0.000810 
+Train-log: [epoch: 3] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0253 (0.0278) lr: 0.000810 
+[Epoch 3] training: OrderedDict([('loss', 0.027821991815984878)])
+Test-log: [ 0/16] DataTime: 1.124 (1.124) Time: 1.124 (1.124) Loss:  0.0296 (0.0296) 
+Test-log: [10/16] DataTime: 0.013 (0.133) Time: 0.013 (0.133) Loss:  0.0245 (0.0286) 
+Test-log: [15/16] DataTime: 0.003 (0.094) Time: 0.003 (0.094) Loss:  0.0322 (0.0287) 
+[Epoch 3] Test: OrderedDict([('loss', 0.028662266949202268), ('auc', 0.9637024868032599)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 4] [ 0/288] DataTime: 1.094 (1.094) BatchTime: 1.113 (1.113) Loss:  0.0263 (0.0263) lr: 0.000729 
+Train-log: [epoch: 4] [10/288] DataTime: 0.010 (0.128) BatchTime: 0.015 (0.135) Loss:  0.0275 (0.0265) lr: 0.000729 
+Train-log: [epoch: 4] [20/288] DataTime: 0.095 (0.082) BatchTime: 0.104 (0.090) Loss:  0.0269 (0.0265) lr: 0.000729 
+Train-log: [epoch: 4] [30/288] DataTime: 0.008 (0.064) BatchTime: 0.012 (0.071) Loss:  0.0256 (0.0266) lr: 0.000729 
+Train-log: [epoch: 4] [40/288] DataTime: 0.104 (0.057) BatchTime: 0.113 (0.064) Loss:  0.0279 (0.0269) lr: 0.000729 
+Train-log: [epoch: 4] [50/288] DataTime: 0.006 (0.051) BatchTime: 0.011 (0.057) Loss:  0.0250 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [60/288] DataTime: 0.111 (0.048) BatchTime: 0.120 (0.055) Loss:  0.0255 (0.0266) lr: 0.000729 
+Train-log: [epoch: 4] [70/288] DataTime: 0.004 (0.045) BatchTime: 0.010 (0.052) Loss:  0.0302 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [80/288] DataTime: 0.102 (0.044) BatchTime: 0.112 (0.050) Loss:  0.0298 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [90/288] DataTime: 0.005 (0.042) BatchTime: 0.011 (0.048) Loss:  0.0274 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [100/288] DataTime: 0.123 (0.042) BatchTime: 0.128 (0.048) Loss:  0.0272 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [110/288] DataTime: 0.010 (0.040) BatchTime: 0.015 (0.047) Loss:  0.0289 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [120/288] DataTime: 0.050 (0.040) BatchTime: 0.055 (0.046) Loss:  0.0264 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [130/288] DataTime: 0.005 (0.039) BatchTime: 0.011 (0.046) Loss:  0.0274 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [140/288] DataTime: 0.007 (0.038) BatchTime: 0.011 (0.045) Loss:  0.0263 (0.0267) lr: 0.000729 
+Train-log: [epoch: 4] [150/288] DataTime: 0.002 (0.038) BatchTime: 0.008 (0.045) Loss:  0.0260 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [160/288] DataTime: 0.007 (0.037) BatchTime: 0.017 (0.044) Loss:  0.0268 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [170/288] DataTime: 0.005 (0.037) BatchTime: 0.010 (0.044) Loss:  0.0283 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [180/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0274 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [190/288] DataTime: 0.015 (0.037) BatchTime: 0.023 (0.043) Loss:  0.0260 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [200/288] DataTime: 0.007 (0.036) BatchTime: 0.011 (0.042) Loss:  0.0292 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [210/288] DataTime: 0.002 (0.036) BatchTime: 0.011 (0.042) Loss:  0.0264 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [220/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.042) Loss:  0.0239 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [230/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.042) Loss:  0.0264 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [240/288] DataTime: 0.004 (0.035) BatchTime: 0.011 (0.041) Loss:  0.0264 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [250/288] DataTime: 0.004 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0260 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [260/288] DataTime: 0.007 (0.035) BatchTime: 0.012 (0.041) Loss:  0.0275 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [270/288] DataTime: 0.002 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0296 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [280/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.041) Loss:  0.0249 (0.0268) lr: 0.000729 
+Train-log: [epoch: 4] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.040) Loss:  0.0262 (0.0268) lr: 0.000729 
+[Epoch 4] training: OrderedDict([('loss', 0.02678450584838456)])
+Test-log: [ 0/16] DataTime: 1.114 (1.114) Time: 1.114 (1.114) Loss:  0.0262 (0.0262) 
+Test-log: [10/16] DataTime: 0.013 (0.131) Time: 0.013 (0.131) Loss:  0.0290 (0.0282) 
+Test-log: [15/16] DataTime: 0.003 (0.093) Time: 0.003 (0.093) Loss:  0.0302 (0.0288) 
+[Epoch 4] Test: OrderedDict([('loss', 0.02877893255110955), ('auc', 0.9651696503317198)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 5] [ 0/288] DataTime: 1.105 (1.105) BatchTime: 1.130 (1.130) Loss:  0.0235 (0.0235) lr: 0.000656 
+Train-log: [epoch: 5] [10/288] DataTime: 0.005 (0.129) BatchTime: 0.010 (0.137) Loss:  0.0230 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [20/288] DataTime: 0.103 (0.085) BatchTime: 0.110 (0.093) Loss:  0.0246 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [30/288] DataTime: 0.007 (0.066) BatchTime: 0.012 (0.073) Loss:  0.0234 (0.0253) lr: 0.000656 
+Train-log: [epoch: 5] [40/288] DataTime: 0.042 (0.058) BatchTime: 0.051 (0.065) Loss:  0.0264 (0.0254) lr: 0.000656 
+Train-log: [epoch: 5] [50/288] DataTime: 0.017 (0.054) BatchTime: 0.022 (0.061) Loss:  0.0289 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [60/288] DataTime: 0.006 (0.050) BatchTime: 0.010 (0.056) Loss:  0.0256 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [70/288] DataTime: 0.004 (0.049) BatchTime: 0.009 (0.055) Loss:  0.0254 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [80/288] DataTime: 0.001 (0.046) BatchTime: 0.006 (0.053) Loss:  0.0255 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [90/288] DataTime: 0.007 (0.045) BatchTime: 0.011 (0.051) Loss:  0.0238 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [100/288] DataTime: 0.002 (0.043) BatchTime: 0.006 (0.050) Loss:  0.0236 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [110/288] DataTime: 0.036 (0.043) BatchTime: 0.048 (0.049) Loss:  0.0254 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [120/288] DataTime: 0.005 (0.042) BatchTime: 0.010 (0.048) Loss:  0.0247 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [130/288] DataTime: 0.078 (0.041) BatchTime: 0.087 (0.048) Loss:  0.0271 (0.0256) lr: 0.000656 
+Train-log: [epoch: 5] [140/288] DataTime: 0.004 (0.040) BatchTime: 0.009 (0.046) Loss:  0.0260 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [150/288] DataTime: 0.110 (0.040) BatchTime: 0.115 (0.046) Loss:  0.0281 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [160/288] DataTime: 0.003 (0.039) BatchTime: 0.008 (0.045) Loss:  0.0257 (0.0257) lr: 0.000656 
+Train-log: [epoch: 5] [170/288] DataTime: 0.133 (0.039) BatchTime: 0.144 (0.045) Loss:  0.0270 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [180/288] DataTime: 0.004 (0.038) BatchTime: 0.009 (0.045) Loss:  0.0264 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [190/288] DataTime: 0.091 (0.038) BatchTime: 0.099 (0.044) Loss:  0.0275 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [200/288] DataTime: 0.019 (0.037) BatchTime: 0.025 (0.044) Loss:  0.0264 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [210/288] DataTime: 0.037 (0.037) BatchTime: 0.043 (0.043) Loss:  0.0231 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [220/288] DataTime: 0.059 (0.037) BatchTime: 0.067 (0.043) Loss:  0.0268 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [230/288] DataTime: 0.055 (0.036) BatchTime: 0.064 (0.043) Loss:  0.0266 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [240/288] DataTime: 0.053 (0.036) BatchTime: 0.061 (0.042) Loss:  0.0276 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [250/288] DataTime: 0.118 (0.036) BatchTime: 0.128 (0.042) Loss:  0.0240 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [260/288] DataTime: 0.002 (0.036) BatchTime: 0.006 (0.042) Loss:  0.0231 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [270/288] DataTime: 0.101 (0.036) BatchTime: 0.113 (0.042) Loss:  0.0247 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [280/288] DataTime: 0.002 (0.035) BatchTime: 0.011 (0.042) Loss:  0.0233 (0.0258) lr: 0.000656 
+Train-log: [epoch: 5] [287/288] DataTime: 0.001 (0.035) BatchTime: 0.005 (0.041) Loss:  0.0285 (0.0259) lr: 0.000656 
+[Epoch 5] training: OrderedDict([('loss', 0.025870207632560874)])
+Test-log: [ 0/16] DataTime: 1.208 (1.208) Time: 1.208 (1.208) Loss:  0.0262 (0.0262) 
+Test-log: [10/16] DataTime: 0.010 (0.144) Time: 0.010 (0.144) Loss:  0.0285 (0.0277) 
+Test-log: [15/16] DataTime: 0.004 (0.103) Time: 0.004 (0.103) Loss:  0.0237 (0.0277) 
+[Epoch 5] Test: OrderedDict([('loss', 0.02765239052816833), ('auc', 0.9666671445100412)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 6] [ 0/288] DataTime: 1.097 (1.097) BatchTime: 1.115 (1.115) Loss:  0.0227 (0.0227) lr: 0.000590 
+Train-log: [epoch: 6] [10/288] DataTime: 0.002 (0.127) BatchTime: 0.007 (0.134) Loss:  0.0254 (0.0245) lr: 0.000590 
+Train-log: [epoch: 6] [20/288] DataTime: 0.002 (0.079) BatchTime: 0.007 (0.086) Loss:  0.0282 (0.0246) lr: 0.000590 
+Train-log: [epoch: 6] [30/288] DataTime: 0.007 (0.066) BatchTime: 0.011 (0.073) Loss:  0.0246 (0.0247) lr: 0.000590 
+Train-log: [epoch: 6] [40/288] DataTime: 0.006 (0.056) BatchTime: 0.011 (0.063) Loss:  0.0258 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [50/288] DataTime: 0.002 (0.052) BatchTime: 0.009 (0.058) Loss:  0.0269 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [60/288] DataTime: 0.007 (0.047) BatchTime: 0.011 (0.054) Loss:  0.0254 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [70/288] DataTime: 0.002 (0.046) BatchTime: 0.007 (0.052) Loss:  0.0256 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [80/288] DataTime: 0.012 (0.043) BatchTime: 0.017 (0.049) Loss:  0.0244 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [90/288] DataTime: 0.018 (0.042) BatchTime: 0.024 (0.049) Loss:  0.0239 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [100/288] DataTime: 0.005 (0.040) BatchTime: 0.010 (0.047) Loss:  0.0243 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [110/288] DataTime: 0.005 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0238 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [120/288] DataTime: 0.008 (0.039) BatchTime: 0.013 (0.045) Loss:  0.0256 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [130/288] DataTime: 0.007 (0.039) BatchTime: 0.011 (0.045) Loss:  0.0230 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [140/288] DataTime: 0.006 (0.038) BatchTime: 0.010 (0.044) Loss:  0.0254 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [150/288] DataTime: 0.010 (0.038) BatchTime: 0.015 (0.044) Loss:  0.0243 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [160/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0234 (0.0249) lr: 0.000590 
+Train-log: [epoch: 6] [170/288] DataTime: 0.002 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0270 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [180/288] DataTime: 0.006 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0243 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [190/288] DataTime: 0.053 (0.036) BatchTime: 0.064 (0.042) Loss:  0.0237 (0.0250) lr: 0.000590 
+Train-log: [epoch: 6] [200/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0240 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [210/288] DataTime: 0.106 (0.035) BatchTime: 0.117 (0.041) Loss:  0.0301 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [220/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0256 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [230/288] DataTime: 0.085 (0.035) BatchTime: 0.091 (0.041) Loss:  0.0276 (0.0252) lr: 0.000590 
+Train-log: [epoch: 6] [240/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.040) Loss:  0.0244 (0.0252) lr: 0.000590 
+Train-log: [epoch: 6] [250/288] DataTime: 0.104 (0.035) BatchTime: 0.109 (0.040) Loss:  0.0248 (0.0252) lr: 0.000590 
+Train-log: [epoch: 6] [260/288] DataTime: 0.002 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0233 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [270/288] DataTime: 0.116 (0.034) BatchTime: 0.126 (0.040) Loss:  0.0242 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [280/288] DataTime: 0.001 (0.034) BatchTime: 0.007 (0.040) Loss:  0.0227 (0.0251) lr: 0.000590 
+Train-log: [epoch: 6] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.039) Loss:  0.0228 (0.0251) lr: 0.000590 
+[Epoch 6] training: OrderedDict([('loss', 0.02511986836540769)])
+Test-log: [ 0/16] DataTime: 1.088 (1.088) Time: 1.088 (1.088) Loss:  0.0274 (0.0274) 
+Test-log: [10/16] DataTime: 0.009 (0.132) Time: 0.009 (0.132) Loss:  0.0289 (0.0276) 
+Test-log: [15/16] DataTime: 0.003 (0.094) Time: 0.003 (0.094) Loss:  0.0295 (0.0275) 
+[Epoch 6] Test: OrderedDict([('loss', 0.02754304575924721), ('auc', 0.9672755164500604)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 7] [ 0/288] DataTime: 1.051 (1.051) BatchTime: 1.067 (1.067) Loss:  0.0229 (0.0229) lr: 0.000531 
+Train-log: [epoch: 7] [10/288] DataTime: 0.017 (0.120) BatchTime: 0.024 (0.126) Loss:  0.0273 (0.0238) lr: 0.000531 
+Train-log: [epoch: 7] [20/288] DataTime: 0.096 (0.078) BatchTime: 0.106 (0.085) Loss:  0.0254 (0.0237) lr: 0.000531 
+Train-log: [epoch: 7] [30/288] DataTime: 0.002 (0.062) BatchTime: 0.007 (0.068) Loss:  0.0221 (0.0236) lr: 0.000531 
+Train-log: [epoch: 7] [40/288] DataTime: 0.084 (0.054) BatchTime: 0.091 (0.061) Loss:  0.0252 (0.0237) lr: 0.000531 
+Train-log: [epoch: 7] [50/288] DataTime: 0.016 (0.049) BatchTime: 0.021 (0.055) Loss:  0.0226 (0.0239) lr: 0.000531 
+Train-log: [epoch: 7] [60/288] DataTime: 0.020 (0.046) BatchTime: 0.025 (0.052) Loss:  0.0257 (0.0240) lr: 0.000531 
+Train-log: [epoch: 7] [70/288] DataTime: 0.113 (0.045) BatchTime: 0.117 (0.051) Loss:  0.0231 (0.0240) lr: 0.000531 
+Train-log: [epoch: 7] [80/288] DataTime: 0.002 (0.043) BatchTime: 0.007 (0.048) Loss:  0.0266 (0.0242) lr: 0.000531 
+Train-log: [epoch: 7] [90/288] DataTime: 0.061 (0.041) BatchTime: 0.067 (0.047) Loss:  0.0234 (0.0242) lr: 0.000531 
+Train-log: [epoch: 7] [100/288] DataTime: 0.002 (0.040) BatchTime: 0.006 (0.046) Loss:  0.0251 (0.0242) lr: 0.000531 
+Train-log: [epoch: 7] [110/288] DataTime: 0.001 (0.039) BatchTime: 0.005 (0.045) Loss:  0.0279 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [120/288] DataTime: 0.002 (0.039) BatchTime: 0.006 (0.045) Loss:  0.0239 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [130/288] DataTime: 0.002 (0.038) BatchTime: 0.006 (0.044) Loss:  0.0228 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [140/288] DataTime: 0.004 (0.038) BatchTime: 0.009 (0.043) Loss:  0.0216 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [150/288] DataTime: 0.007 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0245 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [160/288] DataTime: 0.002 (0.037) BatchTime: 0.005 (0.042) Loss:  0.0235 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [170/288] DataTime: 0.024 (0.037) BatchTime: 0.030 (0.042) Loss:  0.0255 (0.0243) lr: 0.000531 
+Train-log: [epoch: 7] [180/288] DataTime: 0.002 (0.036) BatchTime: 0.006 (0.042) Loss:  0.0250 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [190/288] DataTime: 0.030 (0.036) BatchTime: 0.039 (0.042) Loss:  0.0238 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [200/288] DataTime: 0.002 (0.036) BatchTime: 0.007 (0.041) Loss:  0.0259 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [210/288] DataTime: 0.002 (0.036) BatchTime: 0.007 (0.041) Loss:  0.0247 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [220/288] DataTime: 0.004 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0266 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [230/288] DataTime: 0.011 (0.035) BatchTime: 0.017 (0.041) Loss:  0.0266 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [240/288] DataTime: 0.012 (0.035) BatchTime: 0.016 (0.040) Loss:  0.0260 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [250/288] DataTime: 0.036 (0.035) BatchTime: 0.045 (0.041) Loss:  0.0232 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [260/288] DataTime: 0.010 (0.034) BatchTime: 0.014 (0.040) Loss:  0.0254 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [270/288] DataTime: 0.002 (0.034) BatchTime: 0.008 (0.040) Loss:  0.0273 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [280/288] DataTime: 0.006 (0.034) BatchTime: 0.010 (0.040) Loss:  0.0238 (0.0244) lr: 0.000531 
+Train-log: [epoch: 7] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.039) Loss:  0.0203 (0.0244) lr: 0.000531 
+[Epoch 7] training: OrderedDict([('loss', 0.024422620166692867)])
+Test-log: [ 0/16] DataTime: 1.109 (1.109) Time: 1.109 (1.109) Loss:  0.0280 (0.0280) 
+Test-log: [10/16] DataTime: 0.015 (0.134) Time: 0.015 (0.134) Loss:  0.0264 (0.0276) 
+Test-log: [15/16] DataTime: 0.002 (0.095) Time: 0.002 (0.095) Loss:  0.0179 (0.0275) 
+[Epoch 7] Test: OrderedDict([('loss', 0.02746334234536248), ('auc', 0.9677206277193436)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 8] [ 0/288] DataTime: 1.082 (1.082) BatchTime: 1.100 (1.100) Loss:  0.0239 (0.0239) lr: 0.000478 
+Train-log: [epoch: 8] [10/288] DataTime: 0.002 (0.127) BatchTime: 0.007 (0.134) Loss:  0.0232 (0.0229) lr: 0.000478 
+Train-log: [epoch: 8] [20/288] DataTime: 0.004 (0.079) BatchTime: 0.008 (0.085) Loss:  0.0233 (0.0231) lr: 0.000478 
+Train-log: [epoch: 8] [30/288] DataTime: 0.007 (0.066) BatchTime: 0.013 (0.072) Loss:  0.0222 (0.0233) lr: 0.000478 
+Train-log: [epoch: 8] [40/288] DataTime: 0.009 (0.056) BatchTime: 0.013 (0.062) Loss:  0.0235 (0.0234) lr: 0.000478 
+Train-log: [epoch: 8] [50/288] DataTime: 0.006 (0.053) BatchTime: 0.011 (0.059) Loss:  0.0213 (0.0233) lr: 0.000478 
+Train-log: [epoch: 8] [60/288] DataTime: 0.001 (0.049) BatchTime: 0.006 (0.055) Loss:  0.0241 (0.0232) lr: 0.000478 
+Train-log: [epoch: 8] [70/288] DataTime: 0.006 (0.047) BatchTime: 0.010 (0.053) Loss:  0.0240 (0.0232) lr: 0.000478 
+Train-log: [epoch: 8] [80/288] DataTime: 0.006 (0.044) BatchTime: 0.010 (0.050) Loss:  0.0239 (0.0232) lr: 0.000478 
+Train-log: [epoch: 8] [90/288] DataTime: 0.004 (0.043) BatchTime: 0.009 (0.049) Loss:  0.0243 (0.0233) lr: 0.000478 
+Train-log: [epoch: 8] [100/288] DataTime: 0.005 (0.041) BatchTime: 0.010 (0.047) Loss:  0.0233 (0.0234) lr: 0.000478 
+Train-log: [epoch: 8] [110/288] DataTime: 0.002 (0.041) BatchTime: 0.010 (0.047) Loss:  0.0229 (0.0233) lr: 0.000478 
+Train-log: [epoch: 8] [120/288] DataTime: 0.002 (0.040) BatchTime: 0.007 (0.046) Loss:  0.0245 (0.0234) lr: 0.000478 
+Train-log: [epoch: 8] [130/288] DataTime: 0.005 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0234 (0.0234) lr: 0.000478 
+Train-log: [epoch: 8] [140/288] DataTime: 0.004 (0.039) BatchTime: 0.010 (0.045) Loss:  0.0250 (0.0234) lr: 0.000478 
+Train-log: [epoch: 8] [150/288] DataTime: 0.002 (0.039) BatchTime: 0.010 (0.045) Loss:  0.0256 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [160/288] DataTime: 0.004 (0.038) BatchTime: 0.008 (0.044) Loss:  0.0249 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [170/288] DataTime: 0.005 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0257 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [180/288] DataTime: 0.006 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0290 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [190/288] DataTime: 0.007 (0.037) BatchTime: 0.012 (0.043) Loss:  0.0236 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [200/288] DataTime: 0.001 (0.036) BatchTime: 0.006 (0.042) Loss:  0.0219 (0.0235) lr: 0.000478 
+Train-log: [epoch: 8] [210/288] DataTime: 0.002 (0.036) BatchTime: 0.007 (0.042) Loss:  0.0248 (0.0236) lr: 0.000478 
+Train-log: [epoch: 8] [220/288] DataTime: 0.006 (0.036) BatchTime: 0.011 (0.042) Loss:  0.0239 (0.0236) lr: 0.000478 
+Train-log: [epoch: 8] [230/288] DataTime: 0.005 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0247 (0.0236) lr: 0.000478 
+Train-log: [epoch: 8] [240/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0247 (0.0236) lr: 0.000478 
+Train-log: [epoch: 8] [250/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0266 (0.0236) lr: 0.000478 
+Train-log: [epoch: 8] [260/288] DataTime: 0.008 (0.035) BatchTime: 0.012 (0.041) Loss:  0.0251 (0.0237) lr: 0.000478 
+Train-log: [epoch: 8] [270/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0249 (0.0237) lr: 0.000478 
+Train-log: [epoch: 8] [280/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0215 (0.0237) lr: 0.000478 
+Train-log: [epoch: 8] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0251 (0.0238) lr: 0.000478 
+[Epoch 8] training: OrderedDict([('loss', 0.023753892765597605)])
+Test-log: [ 0/16] DataTime: 1.117 (1.117) Time: 1.117 (1.117) Loss:  0.0274 (0.0274) 
+Test-log: [10/16] DataTime: 0.012 (0.132) Time: 0.012 (0.132) Loss:  0.0282 (0.0277) 
+Test-log: [15/16] DataTime: 0.002 (0.094) Time: 0.002 (0.094) Loss:  0.0318 (0.0275) 
+[Epoch 8] Test: OrderedDict([('loss', 0.027498008609279628), ('auc', 0.9682523288122487)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 9] [ 0/288] DataTime: 1.107 (1.107) BatchTime: 1.125 (1.125) Loss:  0.0238 (0.0238) lr: 0.000430 
+Train-log: [epoch: 9] [10/288] DataTime: 0.006 (0.123) BatchTime: 0.010 (0.130) Loss:  0.0229 (0.0226) lr: 0.000430 
+Train-log: [epoch: 9] [20/288] DataTime: 0.101 (0.081) BatchTime: 0.107 (0.088) Loss:  0.0239 (0.0226) lr: 0.000430 
+Train-log: [epoch: 9] [30/288] DataTime: 0.002 (0.063) BatchTime: 0.007 (0.069) Loss:  0.0249 (0.0227) lr: 0.000430 
+Train-log: [epoch: 9] [40/288] DataTime: 0.109 (0.056) BatchTime: 0.120 (0.063) Loss:  0.0219 (0.0228) lr: 0.000430 
+Train-log: [epoch: 9] [50/288] DataTime: 0.010 (0.051) BatchTime: 0.015 (0.057) Loss:  0.0219 (0.0227) lr: 0.000430 
+Train-log: [epoch: 9] [60/288] DataTime: 0.098 (0.048) BatchTime: 0.104 (0.054) Loss:  0.0213 (0.0228) lr: 0.000430 
+Train-log: [epoch: 9] [70/288] DataTime: 0.002 (0.045) BatchTime: 0.008 (0.051) Loss:  0.0238 (0.0228) lr: 0.000430 
+Train-log: [epoch: 9] [80/288] DataTime: 0.035 (0.043) BatchTime: 0.042 (0.049) Loss:  0.0251 (0.0228) lr: 0.000430 
+Train-log: [epoch: 9] [90/288] DataTime: 0.007 (0.042) BatchTime: 0.012 (0.048) Loss:  0.0232 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [100/288] DataTime: 0.005 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0224 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [110/288] DataTime: 0.002 (0.039) BatchTime: 0.007 (0.046) Loss:  0.0230 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [120/288] DataTime: 0.006 (0.039) BatchTime: 0.011 (0.045) Loss:  0.0240 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [130/288] DataTime: 0.002 (0.038) BatchTime: 0.007 (0.044) Loss:  0.0241 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [140/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0238 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [150/288] DataTime: 0.005 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0223 (0.0229) lr: 0.000430 
+Train-log: [epoch: 9] [160/288] DataTime: 0.005 (0.037) BatchTime: 0.009 (0.043) Loss:  0.0233 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [170/288] DataTime: 0.006 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0199 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [180/288] DataTime: 0.007 (0.036) BatchTime: 0.011 (0.042) Loss:  0.0236 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [190/288] DataTime: 0.006 (0.036) BatchTime: 0.011 (0.042) Loss:  0.0231 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [200/288] DataTime: 0.005 (0.036) BatchTime: 0.009 (0.041) Loss:  0.0265 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [210/288] DataTime: 0.008 (0.036) BatchTime: 0.016 (0.041) Loss:  0.0224 (0.0230) lr: 0.000430 
+Train-log: [epoch: 9] [220/288] DataTime: 0.007 (0.035) BatchTime: 0.011 (0.041) Loss:  0.0241 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [230/288] DataTime: 0.005 (0.035) BatchTime: 0.011 (0.041) Loss:  0.0241 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [240/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0234 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [250/288] DataTime: 0.006 (0.035) BatchTime: 0.012 (0.041) Loss:  0.0255 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [260/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.040) Loss:  0.0249 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [270/288] DataTime: 0.002 (0.035) BatchTime: 0.006 (0.040) Loss:  0.0213 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [280/288] DataTime: 0.001 (0.034) BatchTime: 0.005 (0.040) Loss:  0.0248 (0.0231) lr: 0.000430 
+Train-log: [epoch: 9] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0236 (0.0231) lr: 0.000430 
+[Epoch 9] training: OrderedDict([('loss', 0.023125386115433678)])
+Test-log: [ 0/16] DataTime: 1.144 (1.144) Time: 1.144 (1.144) Loss:  0.0253 (0.0253) 
+Test-log: [10/16] DataTime: 0.015 (0.135) Time: 0.015 (0.135) Loss:  0.0286 (0.0269) 
+Test-log: [15/16] DataTime: 0.003 (0.095) Time: 0.003 (0.095) Loss:  0.0295 (0.0273) 
+[Epoch 9] Test: OrderedDict([('loss', 0.027277124883144495), ('auc', 0.9685498894434859)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:10] [ 0/288] DataTime: 1.142 (1.142) BatchTime: 1.158 (1.158) Loss:  0.0198 (0.0198) lr: 0.000387 
+Train-log: [epoch:10] [10/288] DataTime: 0.002 (0.132) BatchTime: 0.006 (0.139) Loss:  0.0219 (0.0209) lr: 0.000387 
+Train-log: [epoch:10] [20/288] DataTime: 0.096 (0.088) BatchTime: 0.102 (0.094) Loss:  0.0223 (0.0216) lr: 0.000387 
+Train-log: [epoch:10] [30/288] DataTime: 0.002 (0.068) BatchTime: 0.008 (0.075) Loss:  0.0199 (0.0218) lr: 0.000387 
+Train-log: [epoch:10] [40/288] DataTime: 0.105 (0.060) BatchTime: 0.112 (0.067) Loss:  0.0261 (0.0220) lr: 0.000387 
+Train-log: [epoch:10] [50/288] DataTime: 0.002 (0.053) BatchTime: 0.007 (0.060) Loss:  0.0224 (0.0221) lr: 0.000387 
+Train-log: [epoch:10] [60/288] DataTime: 0.093 (0.050) BatchTime: 0.101 (0.056) Loss:  0.0235 (0.0222) lr: 0.000387 
+Train-log: [epoch:10] [70/288] DataTime: 0.030 (0.047) BatchTime: 0.037 (0.053) Loss:  0.0206 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [80/288] DataTime: 0.065 (0.045) BatchTime: 0.073 (0.052) Loss:  0.0205 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [90/288] DataTime: 0.014 (0.043) BatchTime: 0.020 (0.050) Loss:  0.0230 (0.0222) lr: 0.000387 
+Train-log: [epoch:10] [100/288] DataTime: 0.086 (0.042) BatchTime: 0.093 (0.049) Loss:  0.0213 (0.0222) lr: 0.000387 
+Train-log: [epoch:10] [110/288] DataTime: 0.002 (0.041) BatchTime: 0.007 (0.047) Loss:  0.0214 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [120/288] DataTime: 0.037 (0.040) BatchTime: 0.045 (0.047) Loss:  0.0225 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [130/288] DataTime: 0.006 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0234 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [140/288] DataTime: 0.008 (0.039) BatchTime: 0.012 (0.045) Loss:  0.0244 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [150/288] DataTime: 0.093 (0.039) BatchTime: 0.100 (0.045) Loss:  0.0213 (0.0223) lr: 0.000387 
+Train-log: [epoch:10] [160/288] DataTime: 0.006 (0.038) BatchTime: 0.010 (0.044) Loss:  0.0211 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [170/288] DataTime: 0.097 (0.038) BatchTime: 0.107 (0.044) Loss:  0.0222 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [180/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0225 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [190/288] DataTime: 0.105 (0.037) BatchTime: 0.113 (0.043) Loss:  0.0236 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [200/288] DataTime: 0.005 (0.036) BatchTime: 0.011 (0.043) Loss:  0.0237 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [210/288] DataTime: 0.105 (0.036) BatchTime: 0.122 (0.043) Loss:  0.0208 (0.0224) lr: 0.000387 
+Train-log: [epoch:10] [220/288] DataTime: 0.005 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0267 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [230/288] DataTime: 0.102 (0.036) BatchTime: 0.112 (0.042) Loss:  0.0209 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [240/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0233 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [250/288] DataTime: 0.104 (0.035) BatchTime: 0.115 (0.042) Loss:  0.0228 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [260/288] DataTime: 0.060 (0.035) BatchTime: 0.069 (0.041) Loss:  0.0233 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [270/288] DataTime: 0.056 (0.035) BatchTime: 0.064 (0.041) Loss:  0.0222 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [280/288] DataTime: 0.032 (0.035) BatchTime: 0.038 (0.041) Loss:  0.0244 (0.0225) lr: 0.000387 
+Train-log: [epoch:10] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.007 (0.040) Loss:  0.0238 (0.0225) lr: 0.000387 
+[Epoch 10] training: OrderedDict([('loss', 0.022532528440851414)])
+Test-log: [ 0/16] DataTime: 1.148 (1.148) Time: 1.148 (1.148) Loss:  0.0273 (0.0273) 
+Test-log: [10/16] DataTime: 0.012 (0.137) Time: 0.012 (0.137) Loss:  0.0258 (0.0271) 
+Test-log: [15/16] DataTime: 0.002 (0.097) Time: 0.002 (0.097) Loss:  0.0271 (0.0273) 
+[Epoch 10] Test: OrderedDict([('loss', 0.02727850232509897), ('auc', 0.9688435518627669)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:11] [ 0/288] DataTime: 1.113 (1.113) BatchTime: 1.132 (1.132) Loss:  0.0199 (0.0199) lr: 0.000349 
+Train-log: [epoch:11] [10/288] DataTime: 0.016 (0.128) BatchTime: 0.022 (0.135) Loss:  0.0220 (0.0211) lr: 0.000349 
+Train-log: [epoch:11] [20/288] DataTime: 0.061 (0.081) BatchTime: 0.068 (0.087) Loss:  0.0210 (0.0211) lr: 0.000349 
+Train-log: [epoch:11] [30/288] DataTime: 0.064 (0.064) BatchTime: 0.072 (0.071) Loss:  0.0220 (0.0213) lr: 0.000349 
+Train-log: [epoch:11] [40/288] DataTime: 0.022 (0.055) BatchTime: 0.029 (0.062) Loss:  0.0210 (0.0213) lr: 0.000349 
+Train-log: [epoch:11] [50/288] DataTime: 0.128 (0.052) BatchTime: 0.134 (0.058) Loss:  0.0208 (0.0214) lr: 0.000349 
+Train-log: [epoch:11] [60/288] DataTime: 0.002 (0.048) BatchTime: 0.006 (0.054) Loss:  0.0211 (0.0214) lr: 0.000349 
+Train-log: [epoch:11] [70/288] DataTime: 0.110 (0.047) BatchTime: 0.121 (0.053) Loss:  0.0217 (0.0214) lr: 0.000349 
+Train-log: [epoch:11] [80/288] DataTime: 0.006 (0.045) BatchTime: 0.010 (0.051) Loss:  0.0201 (0.0216) lr: 0.000349 
+Train-log: [epoch:11] [90/288] DataTime: 0.151 (0.132) BatchTime: 0.162 (0.138) Loss:  0.0234 (0.0217) lr: 0.000349 
+Train-log: [epoch:11] [100/288] DataTime: 0.014 (0.121) BatchTime: 0.019 (0.127) Loss:  0.0234 (0.0217) lr: 0.000349 
+Train-log: [epoch:11] [110/288] DataTime: 0.085 (0.113) BatchTime: 0.093 (0.119) Loss:  0.0228 (0.0217) lr: 0.000349 
+Train-log: [epoch:11] [120/288] DataTime: 0.019 (0.106) BatchTime: 0.029 (0.112) Loss:  0.0230 (0.0217) lr: 0.000349 
+Train-log: [epoch:11] [130/288] DataTime: 0.062 (0.100) BatchTime: 0.069 (0.106) Loss:  0.0228 (0.0217) lr: 0.000349 
+Train-log: [epoch:11] [140/288] DataTime: 0.189 (0.154) BatchTime: 0.197 (0.160) Loss:  0.0216 (0.0218) lr: 0.000349 
+Train-log: [epoch:11] [150/288] DataTime: 0.038 (0.146) BatchTime: 0.045 (0.152) Loss:  0.0210 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [160/288] DataTime: 0.095 (0.139) BatchTime: 0.102 (0.145) Loss:  0.0199 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [170/288] DataTime: 0.008 (0.132) BatchTime: 0.013 (0.139) Loss:  0.0239 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [180/288] DataTime: 0.103 (0.127) BatchTime: 0.110 (0.133) Loss:  0.0216 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [190/288] DataTime: 0.002 (0.122) BatchTime: 0.008 (0.128) Loss:  0.0225 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [200/288] DataTime: 0.117 (0.118) BatchTime: 0.122 (0.124) Loss:  0.0219 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [210/288] DataTime: 0.006 (0.114) BatchTime: 0.010 (0.120) Loss:  0.0239 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [220/288] DataTime: 0.160 (0.111) BatchTime: 0.167 (0.117) Loss:  0.0219 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [230/288] DataTime: 0.002 (0.108) BatchTime: 0.006 (0.114) Loss:  0.0226 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [240/288] DataTime: 0.087 (0.105) BatchTime: 0.094 (0.111) Loss:  0.0219 (0.0219) lr: 0.000349 
+Train-log: [epoch:11] [250/288] DataTime: 0.002 (0.102) BatchTime: 0.006 (0.108) Loss:  0.0232 (0.0220) lr: 0.000349 
+Train-log: [epoch:11] [260/288] DataTime: 0.001 (0.099) BatchTime: 0.006 (0.105) Loss:  0.0201 (0.0220) lr: 0.000349 
+Train-log: [epoch:11] [270/288] DataTime: 0.019 (0.097) BatchTime: 0.029 (0.103) Loss:  0.0219 (0.0220) lr: 0.000349 
+Train-log: [epoch:11] [280/288] DataTime: 0.044 (0.094) BatchTime: 0.048 (0.100) Loss:  0.0265 (0.0220) lr: 0.000349 
+Train-log: [epoch:11] [287/288] DataTime: 0.001 (0.092) BatchTime: 0.006 (0.098) Loss:  0.0215 (0.0220) lr: 0.000349 
+[Epoch 11] training: OrderedDict([('loss', 0.022023252444670814)])
+Test-log: [ 0/16] DataTime: 1.144 (1.144) Time: 1.144 (1.144) Loss:  0.0258 (0.0258) 
+Test-log: [10/16] DataTime: 0.040 (0.134) Time: 0.040 (0.134) Loss:  0.0313 (0.0273) 
+Test-log: [15/16] DataTime: 0.003 (0.095) Time: 0.003 (0.095) Loss:  0.0264 (0.0274) 
+[Epoch 11] Test: OrderedDict([('loss', 0.027377420296881946), ('auc', 0.9684997344350263)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:12] [ 0/288] DataTime: 1.596 (1.596) BatchTime: 1.617 (1.617) Loss:  0.0201 (0.0201) lr: 0.000314 
+Train-log: [epoch:12] [10/288] DataTime: 0.005 (0.172) BatchTime: 0.009 (0.179) Loss:  0.0208 (0.0209) lr: 0.000314 
+Train-log: [epoch:12] [20/288] DataTime: 0.101 (0.107) BatchTime: 0.109 (0.114) Loss:  0.0209 (0.0211) lr: 0.000314 
+Train-log: [epoch:12] [30/288] DataTime: 0.002 (0.665) BatchTime: 0.007 (0.672) Loss:  0.0209 (0.0211) lr: 0.000314 
+Train-log: [epoch:12] [40/288] DataTime: 0.014 (0.512) BatchTime: 0.019 (0.519) Loss:  0.0207 (0.0212) lr: 0.000314 
+Train-log: [epoch:12] [50/288] DataTime: 0.091 (0.418) BatchTime: 0.097 (0.425) Loss:  0.0199 (0.0213) lr: 0.000314 
+Train-log: [epoch:12] [60/288] DataTime: 0.025 (0.354) BatchTime: 0.032 (0.360) Loss:  0.0212 (0.0212) lr: 0.000314 
+Train-log: [epoch:12] [70/288] DataTime: 0.068 (0.308) BatchTime: 0.078 (0.315) Loss:  0.0196 (0.0212) lr: 0.000314 
+Train-log: [epoch:12] [80/288] DataTime: 0.025 (0.273) BatchTime: 0.032 (0.280) Loss:  0.0205 (0.0212) lr: 0.000314 
+Train-log: [epoch:12] [90/288] DataTime: 0.108 (0.247) BatchTime: 0.119 (0.254) Loss:  0.0214 (0.0211) lr: 0.000314 
+Train-log: [epoch:12] [100/288] DataTime: 0.003 (0.225) BatchTime: 0.008 (0.232) Loss:  0.0204 (0.0212) lr: 0.000314 
+Train-log: [epoch:12] [110/288] DataTime: 0.098 (0.208) BatchTime: 0.104 (0.215) Loss:  0.0224 (0.0213) lr: 0.000314 
+Train-log: [epoch:12] [120/288] DataTime: 0.003 (0.193) BatchTime: 0.007 (0.200) Loss:  0.0223 (0.0213) lr: 0.000314 
+Train-log: [epoch:12] [130/288] DataTime: 0.102 (0.181) BatchTime: 0.109 (0.187) Loss:  0.0239 (0.0214) lr: 0.000314 
+Train-log: [epoch:12] [140/288] DataTime: 0.002 (0.170) BatchTime: 0.006 (0.177) Loss:  0.0233 (0.0214) lr: 0.000314 
+Train-log: [epoch:12] [150/288] DataTime: 0.113 (0.162) BatchTime: 0.123 (0.168) Loss:  0.0217 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [160/288] DataTime: 0.002 (0.153) BatchTime: 0.006 (0.159) Loss:  0.0214 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [170/288] DataTime: 0.112 (0.146) BatchTime: 0.118 (0.153) Loss:  0.0210 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [180/288] DataTime: 0.005 (0.140) BatchTime: 0.010 (0.146) Loss:  0.0211 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [190/288] DataTime: 0.088 (0.134) BatchTime: 0.096 (0.140) Loss:  0.0210 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [200/288] DataTime: 0.007 (0.129) BatchTime: 0.012 (0.135) Loss:  0.0206 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [210/288] DataTime: 0.120 (0.124) BatchTime: 0.130 (0.130) Loss:  0.0217 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [220/288] DataTime: 0.005 (0.120) BatchTime: 0.009 (0.126) Loss:  0.0220 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [230/288] DataTime: 0.100 (0.116) BatchTime: 0.109 (0.122) Loss:  0.0235 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [240/288] DataTime: 0.005 (0.112) BatchTime: 0.010 (0.118) Loss:  0.0197 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [250/288] DataTime: 0.103 (0.109) BatchTime: 0.112 (0.115) Loss:  0.0202 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [260/288] DataTime: 0.004 (0.106) BatchTime: 0.009 (0.112) Loss:  0.0204 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [270/288] DataTime: 0.098 (0.103) BatchTime: 0.106 (0.109) Loss:  0.0219 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [280/288] DataTime: 0.003 (0.100) BatchTime: 0.007 (0.106) Loss:  0.0184 (0.0215) lr: 0.000314 
+Train-log: [epoch:12] [287/288] DataTime: 0.001 (0.098) BatchTime: 0.005 (0.104) Loss:  0.0191 (0.0215) lr: 0.000314 
+[Epoch 12] training: OrderedDict([('loss', 0.021511977166504378)])
+Test-log: [ 0/16] DataTime: 1.054 (1.054) Time: 1.054 (1.054) Loss:  0.0263 (0.0263) 
+Test-log: [10/16] DataTime: 0.014 (0.123) Time: 0.014 (0.123) Loss:  0.0258 (0.0271) 
+Test-log: [15/16] DataTime: 0.003 (0.088) Time: 0.003 (0.088) Loss:  0.0221 (0.0272) 
+[Epoch 12] Test: OrderedDict([('loss', 0.02723500421621717), ('auc', 0.9689537982774818)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:13] [ 0/288] DataTime: 1.102 (1.102) BatchTime: 1.120 (1.120) Loss:  0.0192 (0.0192) lr: 0.000282 
+Train-log: [epoch:13] [10/288] DataTime: 0.017 (0.124) BatchTime: 0.022 (0.130) Loss:  0.0200 (0.0202) lr: 0.000282 
+Train-log: [epoch:13] [20/288] DataTime: 0.002 (0.399) BatchTime: 0.006 (0.406) Loss:  0.0200 (0.0204) lr: 0.000282 
+Train-log: [epoch:13] [30/288] DataTime: 0.004 (0.286) BatchTime: 0.010 (0.292) Loss:  0.0206 (0.0202) lr: 0.000282 
+Train-log: [epoch:13] [40/288] DataTime: 0.002 (0.223) BatchTime: 0.006 (0.229) Loss:  0.0220 (0.0204) lr: 0.000282 
+Train-log: [epoch:13] [50/288] DataTime: 0.042 (0.186) BatchTime: 0.052 (0.193) Loss:  0.0201 (0.0205) lr: 0.000282 
+Train-log: [epoch:13] [60/288] DataTime: 0.004 (0.160) BatchTime: 0.009 (0.166) Loss:  0.0189 (0.0204) lr: 0.000282 
+Train-log: [epoch:13] [70/288] DataTime: 0.111 (0.142) BatchTime: 0.121 (0.149) Loss:  0.0204 (0.0205) lr: 0.000282 
+Train-log: [epoch:13] [80/288] DataTime: 0.004 (0.128) BatchTime: 0.010 (0.134) Loss:  0.0233 (0.0205) lr: 0.000282 
+Train-log: [epoch:13] [90/288] DataTime: 0.105 (0.118) BatchTime: 0.111 (0.124) Loss:  0.0185 (0.0206) lr: 0.000282 
+Train-log: [epoch:13] [100/288] DataTime: 0.007 (0.109) BatchTime: 0.011 (0.115) Loss:  0.0203 (0.0206) lr: 0.000282 
+Train-log: [epoch:13] [110/288] DataTime: 0.145 (0.103) BatchTime: 0.155 (0.109) Loss:  0.0224 (0.0206) lr: 0.000282 
+Train-log: [epoch:13] [120/288] DataTime: 0.002 (0.096) BatchTime: 0.009 (0.102) Loss:  0.0182 (0.0206) lr: 0.000282 
+Train-log: [epoch:13] [130/288] DataTime: 0.091 (0.092) BatchTime: 0.098 (0.098) Loss:  0.0234 (0.0207) lr: 0.000282 
+Train-log: [epoch:13] [140/288] DataTime: 0.008 (0.087) BatchTime: 0.013 (0.093) Loss:  0.0186 (0.0207) lr: 0.000282 
+Train-log: [epoch:13] [150/288] DataTime: 0.101 (0.083) BatchTime: 0.112 (0.089) Loss:  0.0216 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [160/288] DataTime: 0.005 (0.080) BatchTime: 0.010 (0.086) Loss:  0.0195 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [170/288] DataTime: 0.126 (0.077) BatchTime: 0.136 (0.083) Loss:  0.0206 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [180/288] DataTime: 0.006 (0.075) BatchTime: 0.011 (0.081) Loss:  0.0193 (0.0207) lr: 0.000282 
+Train-log: [epoch:13] [190/288] DataTime: 0.109 (0.073) BatchTime: 0.114 (0.079) Loss:  0.0237 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [200/288] DataTime: 0.005 (0.070) BatchTime: 0.010 (0.076) Loss:  0.0227 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [210/288] DataTime: 0.099 (0.069) BatchTime: 0.112 (0.075) Loss:  0.0214 (0.0208) lr: 0.000282 
+Train-log: [epoch:13] [220/288] DataTime: 0.007 (0.067) BatchTime: 0.012 (0.073) Loss:  0.0209 (0.0209) lr: 0.000282 
+Train-log: [epoch:13] [230/288] DataTime: 0.107 (0.065) BatchTime: 0.117 (0.071) Loss:  0.0199 (0.0209) lr: 0.000282 
+Train-log: [epoch:13] [240/288] DataTime: 0.005 (0.107) BatchTime: 0.011 (0.113) Loss:  0.0206 (0.0209) lr: 0.000282 
+Train-log: [epoch:13] [250/288] DataTime: 0.092 (0.104) BatchTime: 0.099 (0.110) Loss:  0.0207 (0.0210) lr: 0.000282 
+Train-log: [epoch:13] [260/288] DataTime: 0.006 (0.101) BatchTime: 0.011 (0.107) Loss:  0.0209 (0.0210) lr: 0.000282 
+Train-log: [epoch:13] [270/288] DataTime: 0.093 (0.098) BatchTime: 0.099 (0.104) Loss:  0.0220 (0.0210) lr: 0.000282 
+Train-log: [epoch:13] [280/288] DataTime: 0.001 (0.096) BatchTime: 0.008 (0.101) Loss:  0.0222 (0.0210) lr: 0.000282 
+Train-log: [epoch:13] [287/288] DataTime: 0.001 (0.094) BatchTime: 0.006 (0.100) Loss:  0.0183 (0.0210) lr: 0.000282 
+[Epoch 13] training: OrderedDict([('loss', 0.02102614009570837)])
+Test-log: [ 0/16] DataTime: 1.190 (1.190) Time: 1.190 (1.190) Loss:  0.0245 (0.0245) 
+Test-log: [10/16] DataTime: 0.016 (0.140) Time: 0.016 (0.140) Loss:  0.0252 (0.0273) 
+Test-log: [15/16] DataTime: 0.003 (0.099) Time: 0.003 (0.099) Loss:  0.0291 (0.0272) 
+[Epoch 13] Test: OrderedDict([('loss', 0.027245396543361503), ('auc', 0.9688741787215994)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:14] [ 0/288] DataTime: 1.213 (1.213) BatchTime: 1.232 (1.232) Loss:  0.0189 (0.0189) lr: 0.000254 
+Train-log: [epoch:14] [10/288] DataTime: 0.002 (0.135) BatchTime: 0.007 (0.141) Loss:  0.0217 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [20/288] DataTime: 0.080 (0.086) BatchTime: 0.087 (0.092) Loss:  0.0183 (0.0203) lr: 0.000254 
+Train-log: [epoch:14] [30/288] DataTime: 0.004 (0.066) BatchTime: 0.009 (0.072) Loss:  0.0228 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [40/288] DataTime: 0.099 (0.059) BatchTime: 0.110 (0.065) Loss:  0.0186 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [50/288] DataTime: 0.002 (0.052) BatchTime: 0.007 (0.058) Loss:  0.0198 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [60/288] DataTime: 0.038 (0.050) BatchTime: 0.043 (0.055) Loss:  0.0218 (0.0206) lr: 0.000254 
+Train-log: [epoch:14] [70/288] DataTime: 0.051 (0.048) BatchTime: 0.057 (0.054) Loss:  0.0210 (0.0206) lr: 0.000254 
+Train-log: [epoch:14] [80/288] DataTime: 0.008 (0.045) BatchTime: 0.013 (0.051) Loss:  0.0195 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [90/288] DataTime: 0.034 (0.044) BatchTime: 0.045 (0.050) Loss:  0.0184 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [100/288] DataTime: 0.007 (0.042) BatchTime: 0.012 (0.049) Loss:  0.0187 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [110/288] DataTime: 0.087 (0.042) BatchTime: 0.097 (0.048) Loss:  0.0200 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [120/288] DataTime: 0.002 (0.041) BatchTime: 0.006 (0.047) Loss:  0.0199 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [130/288] DataTime: 0.109 (0.041) BatchTime: 0.116 (0.047) Loss:  0.0206 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [140/288] DataTime: 0.004 (0.039) BatchTime: 0.010 (0.046) Loss:  0.0196 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [150/288] DataTime: 0.109 (0.039) BatchTime: 0.116 (0.045) Loss:  0.0194 (0.0204) lr: 0.000254 
+Train-log: [epoch:14] [160/288] DataTime: 0.006 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0199 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [170/288] DataTime: 0.104 (0.038) BatchTime: 0.111 (0.044) Loss:  0.0223 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [180/288] DataTime: 0.006 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0201 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [190/288] DataTime: 0.107 (0.037) BatchTime: 0.112 (0.043) Loss:  0.0223 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [200/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0199 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [210/288] DataTime: 0.107 (0.037) BatchTime: 0.112 (0.043) Loss:  0.0207 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [220/288] DataTime: 0.007 (0.036) BatchTime: 0.012 (0.042) Loss:  0.0203 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [230/288] DataTime: 0.072 (0.036) BatchTime: 0.077 (0.042) Loss:  0.0200 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [240/288] DataTime: 0.004 (0.036) BatchTime: 0.008 (0.042) Loss:  0.0203 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [250/288] DataTime: 0.064 (0.036) BatchTime: 0.069 (0.042) Loss:  0.0215 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [260/288] DataTime: 0.062 (0.036) BatchTime: 0.070 (0.042) Loss:  0.0234 (0.0205) lr: 0.000254 
+Train-log: [epoch:14] [270/288] DataTime: 0.006 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0211 (0.0206) lr: 0.000254 
+Train-log: [epoch:14] [280/288] DataTime: 0.090 (0.036) BatchTime: 0.097 (0.041) Loss:  0.0208 (0.0206) lr: 0.000254 
+Train-log: [epoch:14] [287/288] DataTime: 0.001 (0.035) BatchTime: 0.006 (0.041) Loss:  0.0228 (0.0206) lr: 0.000254 
+[Epoch 14] training: OrderedDict([('loss', 0.020602620734141396)])
+Test-log: [ 0/16] DataTime: 1.206 (1.206) Time: 1.206 (1.206) Loss:  0.0271 (0.0271) 
+Test-log: [10/16] DataTime: 0.009 (0.140) Time: 0.009 (0.140) Loss:  0.0255 (0.0275) 
+Test-log: [15/16] DataTime: 0.002 (0.099) Time: 0.002 (0.099) Loss:  0.0196 (0.0274) 
+[Epoch 14] Test: OrderedDict([('loss', 0.027411567586703465), ('auc', 0.9683673424613024)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:15] [ 0/288] DataTime: 1.224 (1.224) BatchTime: 1.242 (1.242) Loss:  0.0190 (0.0190) lr: 0.000229 
+Train-log: [epoch:15] [10/288] DataTime: 0.002 (0.138) BatchTime: 0.007 (0.145) Loss:  0.0206 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [20/288] DataTime: 0.008 (0.085) BatchTime: 0.012 (0.092) Loss:  0.0212 (0.0201) lr: 0.000229 
+Train-log: [epoch:15] [30/288] DataTime: 0.002 (0.069) BatchTime: 0.007 (0.075) Loss:  0.0199 (0.0198) lr: 0.000229 
+Train-log: [epoch:15] [40/288] DataTime: 0.002 (0.060) BatchTime: 0.007 (0.067) Loss:  0.0193 (0.0197) lr: 0.000229 
+Train-log: [epoch:15] [50/288] DataTime: 0.024 (0.054) BatchTime: 0.031 (0.061) Loss:  0.0204 (0.0197) lr: 0.000229 
+Train-log: [epoch:15] [60/288] DataTime: 0.006 (0.051) BatchTime: 0.012 (0.058) Loss:  0.0191 (0.0197) lr: 0.000229 
+Train-log: [epoch:15] [70/288] DataTime: 0.010 (0.047) BatchTime: 0.015 (0.054) Loss:  0.0178 (0.0198) lr: 0.000229 
+Train-log: [epoch:15] [80/288] DataTime: 0.075 (0.047) BatchTime: 0.083 (0.054) Loss:  0.0198 (0.0198) lr: 0.000229 
+Train-log: [epoch:15] [90/288] DataTime: 0.008 (0.045) BatchTime: 0.013 (0.051) Loss:  0.0205 (0.0199) lr: 0.000229 
+Train-log: [epoch:15] [100/288] DataTime: 0.054 (0.044) BatchTime: 0.065 (0.050) Loss:  0.0199 (0.0199) lr: 0.000229 
+Train-log: [epoch:15] [110/288] DataTime: 0.005 (0.042) BatchTime: 0.009 (0.049) Loss:  0.0195 (0.0199) lr: 0.000229 
+Train-log: [epoch:15] [120/288] DataTime: 0.073 (0.042) BatchTime: 0.080 (0.048) Loss:  0.0227 (0.0199) lr: 0.000229 
+Train-log: [epoch:15] [130/288] DataTime: 0.005 (0.041) BatchTime: 0.009 (0.047) Loss:  0.0197 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [140/288] DataTime: 0.092 (0.040) BatchTime: 0.098 (0.047) Loss:  0.0218 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [150/288] DataTime: 0.002 (0.040) BatchTime: 0.010 (0.046) Loss:  0.0189 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [160/288] DataTime: 0.066 (0.040) BatchTime: 0.074 (0.046) Loss:  0.0187 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [170/288] DataTime: 0.058 (0.039) BatchTime: 0.063 (0.045) Loss:  0.0184 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [180/288] DataTime: 0.102 (0.039) BatchTime: 0.107 (0.045) Loss:  0.0208 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [190/288] DataTime: 0.006 (0.039) BatchTime: 0.010 (0.045) Loss:  0.0218 (0.0200) lr: 0.000229 
+Train-log: [epoch:15] [200/288] DataTime: 0.125 (0.039) BatchTime: 0.130 (0.045) Loss:  0.0182 (0.0201) lr: 0.000229 
+Train-log: [epoch:15] [210/288] DataTime: 0.002 (0.038) BatchTime: 0.008 (0.044) Loss:  0.0214 (0.0201) lr: 0.000229 
+Train-log: [epoch:15] [220/288] DataTime: 0.125 (0.039) BatchTime: 0.130 (0.045) Loss:  0.0211 (0.0201) lr: 0.000229 
+Train-log: [epoch:15] [230/288] DataTime: 0.006 (0.038) BatchTime: 0.010 (0.044) Loss:  0.0203 (0.0201) lr: 0.000229 
+Train-log: [epoch:15] [240/288] DataTime: 0.105 (0.038) BatchTime: 0.115 (0.044) Loss:  0.0224 (0.0202) lr: 0.000229 
+Train-log: [epoch:15] [250/288] DataTime: 0.020 (0.038) BatchTime: 0.026 (0.044) Loss:  0.0218 (0.0202) lr: 0.000229 
+Train-log: [epoch:15] [260/288] DataTime: 0.090 (0.037) BatchTime: 0.098 (0.044) Loss:  0.0205 (0.0202) lr: 0.000229 
+Train-log: [epoch:15] [270/288] DataTime: 0.005 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0207 (0.0202) lr: 0.000229 
+Train-log: [epoch:15] [280/288] DataTime: 0.135 (0.037) BatchTime: 0.146 (0.043) Loss:  0.0194 (0.0202) lr: 0.000229 
+Train-log: [epoch:15] [287/288] DataTime: 0.001 (0.036) BatchTime: 0.005 (0.042) Loss:  0.0232 (0.0202) lr: 0.000229 
+[Epoch 15] training: OrderedDict([('loss', 0.02021051244491312)])
+Test-log: [ 0/16] DataTime: 1.177 (1.177) Time: 1.177 (1.177) Loss:  0.0302 (0.0302) 
+Test-log: [10/16] DataTime: 0.022 (0.138) Time: 0.022 (0.138) Loss:  0.0225 (0.0270) 
+Test-log: [15/16] DataTime: 0.002 (0.098) Time: 0.002 (0.098) Loss:  0.0265 (0.0274) 
+[Epoch 15] Test: OrderedDict([('loss', 0.027376386934624977), ('auc', 0.9687309297296035)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:16] [ 0/288] DataTime: 1.163 (1.163) BatchTime: 1.184 (1.184) Loss:  0.0194 (0.0194) lr: 0.000206 
+Train-log: [epoch:16] [10/288] DataTime: 0.019 (0.137) BatchTime: 0.025 (0.143) Loss:  0.0184 (0.0190) lr: 0.000206 
+Train-log: [epoch:16] [20/288] DataTime: 0.092 (0.088) BatchTime: 0.102 (0.095) Loss:  0.0198 (0.0193) lr: 0.000206 
+Train-log: [epoch:16] [30/288] DataTime: 0.002 (0.068) BatchTime: 0.006 (0.074) Loss:  0.0190 (0.0191) lr: 0.000206 
+Train-log: [epoch:16] [40/288] DataTime: 0.105 (0.060) BatchTime: 0.116 (0.067) Loss:  0.0179 (0.0192) lr: 0.000206 
+Train-log: [epoch:16] [50/288] DataTime: 0.026 (0.054) BatchTime: 0.033 (0.060) Loss:  0.0198 (0.0193) lr: 0.000206 
+Train-log: [epoch:16] [60/288] DataTime: 0.103 (0.050) BatchTime: 0.109 (0.057) Loss:  0.0191 (0.0194) lr: 0.000206 
+Train-log: [epoch:16] [70/288] DataTime: 0.005 (0.047) BatchTime: 0.009 (0.053) Loss:  0.0216 (0.0194) lr: 0.000206 
+Train-log: [epoch:16] [80/288] DataTime: 0.102 (0.046) BatchTime: 0.108 (0.052) Loss:  0.0184 (0.0194) lr: 0.000206 
+Train-log: [epoch:16] [90/288] DataTime: 0.002 (0.043) BatchTime: 0.006 (0.049) Loss:  0.0188 (0.0195) lr: 0.000206 
+Train-log: [epoch:16] [100/288] DataTime: 0.107 (0.043) BatchTime: 0.113 (0.049) Loss:  0.0168 (0.0194) lr: 0.000206 
+Train-log: [epoch:16] [110/288] DataTime: 0.020 (0.041) BatchTime: 0.026 (0.047) Loss:  0.0208 (0.0195) lr: 0.000206 
+Train-log: [epoch:16] [120/288] DataTime: 0.097 (0.041) BatchTime: 0.107 (0.047) Loss:  0.0201 (0.0196) lr: 0.000206 
+Train-log: [epoch:16] [130/288] DataTime: 0.008 (0.040) BatchTime: 0.012 (0.046) Loss:  0.0189 (0.0196) lr: 0.000206 
+Train-log: [epoch:16] [140/288] DataTime: 0.110 (0.039) BatchTime: 0.119 (0.045) Loss:  0.0190 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [150/288] DataTime: 0.007 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0211 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [160/288] DataTime: 0.140 (0.038) BatchTime: 0.149 (0.044) Loss:  0.0216 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [170/288] DataTime: 0.007 (0.038) BatchTime: 0.012 (0.044) Loss:  0.0214 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [180/288] DataTime: 0.081 (0.038) BatchTime: 0.088 (0.044) Loss:  0.0194 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [190/288] DataTime: 0.007 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0207 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [200/288] DataTime: 0.080 (0.037) BatchTime: 0.086 (0.043) Loss:  0.0207 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [210/288] DataTime: 0.077 (0.037) BatchTime: 0.086 (0.043) Loss:  0.0189 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [220/288] DataTime: 0.006 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0190 (0.0197) lr: 0.000206 
+Train-log: [epoch:16] [230/288] DataTime: 0.110 (0.036) BatchTime: 0.119 (0.042) Loss:  0.0209 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [240/288] DataTime: 0.044 (0.036) BatchTime: 0.050 (0.042) Loss:  0.0197 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [250/288] DataTime: 0.078 (0.036) BatchTime: 0.086 (0.042) Loss:  0.0209 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [260/288] DataTime: 0.005 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0207 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [270/288] DataTime: 0.094 (0.035) BatchTime: 0.098 (0.041) Loss:  0.0197 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [280/288] DataTime: 0.001 (0.035) BatchTime: 0.006 (0.041) Loss:  0.0185 (0.0198) lr: 0.000206 
+Train-log: [epoch:16] [287/288] DataTime: 0.001 (0.035) BatchTime: 0.006 (0.041) Loss:  0.0239 (0.0198) lr: 0.000206 
+[Epoch 16] training: OrderedDict([('loss', 0.0198379514125595)])
+Test-log: [ 0/16] DataTime: 1.167 (1.167) Time: 1.167 (1.167) Loss:  0.0270 (0.0270) 
+Test-log: [10/16] DataTime: 0.014 (0.139) Time: 0.014 (0.139) Loss:  0.0254 (0.0268) 
+Test-log: [15/16] DataTime: 0.003 (0.099) Time: 0.003 (0.099) Loss:  0.0229 (0.0273) 
+[Epoch 16] Test: OrderedDict([('loss', 0.027277640437742886), ('auc', 0.969151431434456)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:17] [ 0/288] DataTime: 1.158 (1.158) BatchTime: 1.176 (1.176) Loss:  0.0186 (0.0186) lr: 0.000185 
+Train-log: [epoch:17] [10/288] DataTime: 0.002 (0.131) BatchTime: 0.009 (0.138) Loss:  0.0190 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [20/288] DataTime: 0.015 (0.081) BatchTime: 0.021 (0.088) Loss:  0.0185 (0.0190) lr: 0.000185 
+Train-log: [epoch:17] [30/288] DataTime: 0.005 (0.066) BatchTime: 0.011 (0.073) Loss:  0.0188 (0.0189) lr: 0.000185 
+Train-log: [epoch:17] [40/288] DataTime: 0.001 (0.057) BatchTime: 0.005 (0.063) Loss:  0.0196 (0.0191) lr: 0.000185 
+Train-log: [epoch:17] [50/288] DataTime: 0.002 (0.054) BatchTime: 0.008 (0.061) Loss:  0.0190 (0.0191) lr: 0.000185 
+Train-log: [epoch:17] [60/288] DataTime: 0.002 (0.050) BatchTime: 0.006 (0.056) Loss:  0.0178 (0.0191) lr: 0.000185 
+Train-log: [epoch:17] [70/288] DataTime: 0.038 (0.049) BatchTime: 0.047 (0.055) Loss:  0.0188 (0.0191) lr: 0.000185 
+Train-log: [epoch:17] [80/288] DataTime: 0.002 (0.046) BatchTime: 0.006 (0.053) Loss:  0.0184 (0.0192) lr: 0.000185 
+Train-log: [epoch:17] [90/288] DataTime: 0.099 (0.045) BatchTime: 0.105 (0.051) Loss:  0.0202 (0.0192) lr: 0.000185 
+Train-log: [epoch:17] [100/288] DataTime: 0.005 (0.043) BatchTime: 0.010 (0.049) Loss:  0.0206 (0.0192) lr: 0.000185 
+Train-log: [epoch:17] [110/288] DataTime: 0.100 (0.042) BatchTime: 0.111 (0.048) Loss:  0.0192 (0.0193) lr: 0.000185 
+Train-log: [epoch:17] [120/288] DataTime: 0.008 (0.041) BatchTime: 0.013 (0.047) Loss:  0.0208 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [130/288] DataTime: 0.111 (0.040) BatchTime: 0.117 (0.047) Loss:  0.0214 (0.0193) lr: 0.000185 
+Train-log: [epoch:17] [140/288] DataTime: 0.002 (0.039) BatchTime: 0.006 (0.045) Loss:  0.0217 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [150/288] DataTime: 0.106 (0.039) BatchTime: 0.114 (0.045) Loss:  0.0197 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [160/288] DataTime: 0.005 (0.038) BatchTime: 0.010 (0.044) Loss:  0.0191 (0.0193) lr: 0.000185 
+Train-log: [epoch:17] [170/288] DataTime: 0.135 (0.038) BatchTime: 0.146 (0.044) Loss:  0.0209 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [180/288] DataTime: 0.017 (0.038) BatchTime: 0.024 (0.044) Loss:  0.0196 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [190/288] DataTime: 0.073 (0.037) BatchTime: 0.081 (0.043) Loss:  0.0231 (0.0194) lr: 0.000185 
+Train-log: [epoch:17] [200/288] DataTime: 0.006 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0184 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [210/288] DataTime: 0.101 (0.037) BatchTime: 0.111 (0.043) Loss:  0.0199 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [220/288] DataTime: 0.007 (0.036) BatchTime: 0.012 (0.042) Loss:  0.0191 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [230/288] DataTime: 0.105 (0.036) BatchTime: 0.115 (0.042) Loss:  0.0194 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [240/288] DataTime: 0.006 (0.035) BatchTime: 0.011 (0.042) Loss:  0.0202 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [250/288] DataTime: 0.099 (0.035) BatchTime: 0.109 (0.042) Loss:  0.0193 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [260/288] DataTime: 0.004 (0.035) BatchTime: 0.009 (0.041) Loss:  0.0189 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [270/288] DataTime: 0.122 (0.035) BatchTime: 0.128 (0.041) Loss:  0.0195 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [280/288] DataTime: 0.001 (0.035) BatchTime: 0.008 (0.041) Loss:  0.0204 (0.0195) lr: 0.000185 
+Train-log: [epoch:17] [287/288] DataTime: 0.001 (0.035) BatchTime: 0.005 (0.041) Loss:  0.0209 (0.0195) lr: 0.000185 
+[Epoch 17] training: OrderedDict([('loss', 0.019503924518812284)])
+Test-log: [ 0/16] DataTime: 1.151 (1.151) Time: 1.151 (1.151) Loss:  0.0291 (0.0291) 
+Test-log: [10/16] DataTime: 0.013 (0.134) Time: 0.013 (0.134) Loss:  0.0258 (0.0274) 
+Test-log: [15/16] DataTime: 0.003 (0.095) Time: 0.003 (0.095) Loss:  0.0231 (0.0273) 
+[Epoch 17] Test: OrderedDict([('loss', 0.027342984576891795), ('auc', 0.9688864186514886)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:18] [ 0/288] DataTime: 1.129 (1.129) BatchTime: 1.146 (1.146) Loss:  0.0198 (0.0198) lr: 0.000167 
+Train-log: [epoch:18] [10/288] DataTime: 0.017 (0.126) BatchTime: 0.023 (0.133) Loss:  0.0184 (0.0193) lr: 0.000167 
+Train-log: [epoch:18] [20/288] DataTime: 0.101 (0.082) BatchTime: 0.107 (0.088) Loss:  0.0174 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [30/288] DataTime: 0.006 (0.064) BatchTime: 0.010 (0.070) Loss:  0.0192 (0.0192) lr: 0.000167 
+Train-log: [epoch:18] [40/288] DataTime: 0.102 (0.057) BatchTime: 0.113 (0.063) Loss:  0.0176 (0.0190) lr: 0.000167 
+Train-log: [epoch:18] [50/288] DataTime: 0.007 (0.051) BatchTime: 0.011 (0.056) Loss:  0.0174 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [60/288] DataTime: 0.104 (0.048) BatchTime: 0.110 (0.054) Loss:  0.0171 (0.0188) lr: 0.000167 
+Train-log: [epoch:18] [70/288] DataTime: 0.008 (0.045) BatchTime: 0.013 (0.050) Loss:  0.0191 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [80/288] DataTime: 0.102 (0.044) BatchTime: 0.107 (0.049) Loss:  0.0216 (0.0188) lr: 0.000167 
+Train-log: [epoch:18] [90/288] DataTime: 0.002 (0.042) BatchTime: 0.008 (0.047) Loss:  0.0186 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [100/288] DataTime: 0.095 (0.041) BatchTime: 0.103 (0.047) Loss:  0.0195 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [110/288] DataTime: 0.005 (0.040) BatchTime: 0.010 (0.045) Loss:  0.0190 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [120/288] DataTime: 0.110 (0.039) BatchTime: 0.117 (0.045) Loss:  0.0192 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [130/288] DataTime: 0.014 (0.038) BatchTime: 0.019 (0.044) Loss:  0.0197 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [140/288] DataTime: 0.097 (0.038) BatchTime: 0.107 (0.043) Loss:  0.0204 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [150/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0175 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [160/288] DataTime: 0.105 (0.037) BatchTime: 0.115 (0.042) Loss:  0.0188 (0.0189) lr: 0.000167 
+Train-log: [epoch:18] [170/288] DataTime: 0.005 (0.036) BatchTime: 0.010 (0.042) Loss:  0.0205 (0.0190) lr: 0.000167 
+Train-log: [epoch:18] [180/288] DataTime: 0.101 (0.036) BatchTime: 0.109 (0.042) Loss:  0.0185 (0.0190) lr: 0.000167 
+Train-log: [epoch:18] [190/288] DataTime: 0.007 (0.036) BatchTime: 0.013 (0.041) Loss:  0.0206 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [200/288] DataTime: 0.096 (0.036) BatchTime: 0.102 (0.041) Loss:  0.0191 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [210/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.040) Loss:  0.0187 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [220/288] DataTime: 0.102 (0.035) BatchTime: 0.108 (0.040) Loss:  0.0203 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [230/288] DataTime: 0.005 (0.034) BatchTime: 0.009 (0.040) Loss:  0.0221 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [240/288] DataTime: 0.103 (0.034) BatchTime: 0.113 (0.040) Loss:  0.0177 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [250/288] DataTime: 0.002 (0.034) BatchTime: 0.006 (0.039) Loss:  0.0178 (0.0191) lr: 0.000167 
+Train-log: [epoch:18] [260/288] DataTime: 0.100 (0.034) BatchTime: 0.105 (0.039) Loss:  0.0180 (0.0192) lr: 0.000167 
+Train-log: [epoch:18] [270/288] DataTime: 0.005 (0.034) BatchTime: 0.010 (0.039) Loss:  0.0203 (0.0192) lr: 0.000167 
+Train-log: [epoch:18] [280/288] DataTime: 0.094 (0.034) BatchTime: 0.099 (0.039) Loss:  0.0190 (0.0192) lr: 0.000167 
+Train-log: [epoch:18] [287/288] DataTime: 0.001 (0.033) BatchTime: 0.005 (0.038) Loss:  0.0195 (0.0192) lr: 0.000167 
+[Epoch 18] training: OrderedDict([('loss', 0.019200707960224682)])
+Test-log: [ 0/16] DataTime: 1.227 (1.227) Time: 1.227 (1.227) Loss:  0.0275 (0.0275) 
+Test-log: [10/16] DataTime: 0.018 (0.143) Time: 0.018 (0.143) Loss:  0.0283 (0.0280) 
+Test-log: [15/16] DataTime: 0.002 (0.101) Time: 0.002 (0.101) Loss:  0.0337 (0.0275) 
+[Epoch 18] Test: OrderedDict([('loss', 0.027453344007574165), ('auc', 0.9687943778731651)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:19] [ 0/288] DataTime: 1.108 (1.108) BatchTime: 1.126 (1.126) Loss:  0.0167 (0.0167) lr: 0.000150 
+Train-log: [epoch:19] [10/288] DataTime: 0.006 (0.128) BatchTime: 0.010 (0.135) Loss:  0.0186 (0.0182) lr: 0.000150 
+Train-log: [epoch:19] [20/288] DataTime: 0.082 (0.084) BatchTime: 0.088 (0.090) Loss:  0.0165 (0.0182) lr: 0.000150 
+Train-log: [epoch:19] [30/288] DataTime: 0.026 (0.067) BatchTime: 0.034 (0.074) Loss:  0.0181 (0.0185) lr: 0.000150 
+Train-log: [epoch:19] [40/288] DataTime: 0.151 (0.061) BatchTime: 0.161 (0.067) Loss:  0.0175 (0.0184) lr: 0.000150 
+Train-log: [epoch:19] [50/288] DataTime: 0.002 (0.054) BatchTime: 0.010 (0.060) Loss:  0.0172 (0.0184) lr: 0.000150 
+Train-log: [epoch:19] [60/288] DataTime: 0.093 (0.051) BatchTime: 0.100 (0.057) Loss:  0.0176 (0.0185) lr: 0.000150 
+Train-log: [epoch:19] [70/288] DataTime: 0.005 (0.047) BatchTime: 0.010 (0.054) Loss:  0.0181 (0.0186) lr: 0.000150 
+Train-log: [epoch:19] [80/288] DataTime: 0.102 (0.046) BatchTime: 0.108 (0.052) Loss:  0.0191 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [90/288] DataTime: 0.006 (0.043) BatchTime: 0.011 (0.050) Loss:  0.0194 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [100/288] DataTime: 0.099 (0.043) BatchTime: 0.106 (0.049) Loss:  0.0201 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [110/288] DataTime: 0.002 (0.041) BatchTime: 0.007 (0.047) Loss:  0.0206 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [120/288] DataTime: 0.107 (0.041) BatchTime: 0.117 (0.047) Loss:  0.0183 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [130/288] DataTime: 0.027 (0.040) BatchTime: 0.035 (0.046) Loss:  0.0181 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [140/288] DataTime: 0.119 (0.039) BatchTime: 0.124 (0.046) Loss:  0.0172 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [150/288] DataTime: 0.006 (0.039) BatchTime: 0.011 (0.045) Loss:  0.0189 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [160/288] DataTime: 0.117 (0.039) BatchTime: 0.122 (0.045) Loss:  0.0183 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [170/288] DataTime: 0.006 (0.038) BatchTime: 0.011 (0.044) Loss:  0.0198 (0.0187) lr: 0.000150 
+Train-log: [epoch:19] [180/288] DataTime: 0.114 (0.038) BatchTime: 0.125 (0.044) Loss:  0.0188 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [190/288] DataTime: 0.006 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0214 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [200/288] DataTime: 0.108 (0.037) BatchTime: 0.115 (0.043) Loss:  0.0187 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [210/288] DataTime: 0.016 (0.037) BatchTime: 0.026 (0.043) Loss:  0.0190 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [220/288] DataTime: 0.091 (0.036) BatchTime: 0.099 (0.043) Loss:  0.0216 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [230/288] DataTime: 0.019 (0.036) BatchTime: 0.025 (0.042) Loss:  0.0200 (0.0188) lr: 0.000150 
+Train-log: [epoch:19] [240/288] DataTime: 0.108 (0.036) BatchTime: 0.114 (0.042) Loss:  0.0181 (0.0189) lr: 0.000150 
+Train-log: [epoch:19] [250/288] DataTime: 0.005 (0.036) BatchTime: 0.009 (0.042) Loss:  0.0171 (0.0189) lr: 0.000150 
+Train-log: [epoch:19] [260/288] DataTime: 0.111 (0.036) BatchTime: 0.118 (0.042) Loss:  0.0186 (0.0189) lr: 0.000150 
+Train-log: [epoch:19] [270/288] DataTime: 0.004 (0.035) BatchTime: 0.008 (0.042) Loss:  0.0189 (0.0189) lr: 0.000150 
+Train-log: [epoch:19] [280/288] DataTime: 0.097 (0.035) BatchTime: 0.106 (0.042) Loss:  0.0214 (0.0189) lr: 0.000150 
+Train-log: [epoch:19] [287/288] DataTime: 0.001 (0.035) BatchTime: 0.005 (0.041) Loss:  0.0142 (0.0189) lr: 0.000150 
+[Epoch 19] training: OrderedDict([('loss', 0.018910544325896957)])
+Test-log: [ 0/16] DataTime: 1.144 (1.144) Time: 1.144 (1.144) Loss:  0.0245 (0.0245) 
+Test-log: [10/16] DataTime: 0.009 (0.138) Time: 0.009 (0.138) Loss:  0.0265 (0.0274) 
+Test-log: [15/16] DataTime: 0.002 (0.098) Time: 0.002 (0.098) Loss:  0.0265 (0.0274) 
+[Epoch 19] Test: OrderedDict([('loss', 0.027425607129792976), ('auc', 0.9689024400509831)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch:20] [ 0/288] DataTime: 1.192 (1.192) BatchTime: 1.207 (1.207) Loss:  0.0197 (0.0197) lr: 0.000135 
+Train-log: [epoch:20] [10/288] DataTime: 0.013 (0.135) BatchTime: 0.019 (0.142) Loss:  0.0184 (0.0183) lr: 0.000135 
+Train-log: [epoch:20] [20/288] DataTime: 0.079 (0.085) BatchTime: 0.089 (0.093) Loss:  0.0191 (0.0184) lr: 0.000135 
+Train-log: [epoch:20] [30/288] DataTime: 0.005 (0.066) BatchTime: 0.011 (0.073) Loss:  0.0183 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [40/288] DataTime: 0.104 (0.059) BatchTime: 0.110 (0.065) Loss:  0.0201 (0.0185) lr: 0.000135 
+Train-log: [epoch:20] [50/288] DataTime: 0.006 (0.052) BatchTime: 0.010 (0.059) Loss:  0.0196 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [60/288] DataTime: 0.106 (0.049) BatchTime: 0.112 (0.056) Loss:  0.0190 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [70/288] DataTime: 0.006 (0.046) BatchTime: 0.011 (0.052) Loss:  0.0194 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [80/288] DataTime: 0.108 (0.045) BatchTime: 0.114 (0.051) Loss:  0.0166 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [90/288] DataTime: 0.008 (0.043) BatchTime: 0.012 (0.049) Loss:  0.0188 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [100/288] DataTime: 0.106 (0.042) BatchTime: 0.116 (0.048) Loss:  0.0189 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [110/288] DataTime: 0.007 (0.041) BatchTime: 0.012 (0.047) Loss:  0.0196 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [120/288] DataTime: 0.098 (0.040) BatchTime: 0.102 (0.046) Loss:  0.0192 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [130/288] DataTime: 0.002 (0.039) BatchTime: 0.008 (0.045) Loss:  0.0190 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [140/288] DataTime: 0.012 (0.038) BatchTime: 0.016 (0.044) Loss:  0.0167 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [150/288] DataTime: 0.002 (0.038) BatchTime: 0.007 (0.044) Loss:  0.0186 (0.0187) lr: 0.000135 
+Train-log: [epoch:20] [160/288] DataTime: 0.007 (0.037) BatchTime: 0.011 (0.043) Loss:  0.0187 (0.0187) lr: 0.000135 
+Train-log: [epoch:20] [170/288] DataTime: 0.004 (0.037) BatchTime: 0.013 (0.043) Loss:  0.0186 (0.0187) lr: 0.000135 
+Train-log: [epoch:20] [180/288] DataTime: 0.008 (0.036) BatchTime: 0.012 (0.042) Loss:  0.0187 (0.0187) lr: 0.000135 
+Train-log: [epoch:20] [190/288] DataTime: 0.006 (0.036) BatchTime: 0.012 (0.042) Loss:  0.0184 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [200/288] DataTime: 0.002 (0.036) BatchTime: 0.006 (0.042) Loss:  0.0179 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [210/288] DataTime: 0.113 (0.036) BatchTime: 0.118 (0.042) Loss:  0.0182 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [220/288] DataTime: 0.007 (0.036) BatchTime: 0.013 (0.042) Loss:  0.0191 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [230/288] DataTime: 0.089 (0.035) BatchTime: 0.096 (0.042) Loss:  0.0187 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [240/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0184 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [250/288] DataTime: 0.091 (0.035) BatchTime: 0.101 (0.041) Loss:  0.0179 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [260/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0186 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [270/288] DataTime: 0.093 (0.035) BatchTime: 0.099 (0.041) Loss:  0.0193 (0.0186) lr: 0.000135 
+Train-log: [epoch:20] [280/288] DataTime: 0.004 (0.034) BatchTime: 0.009 (0.040) Loss:  0.0203 (0.0187) lr: 0.000135 
+Train-log: [epoch:20] [287/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0197 (0.0187) lr: 0.000135 
+[Epoch 20] training: OrderedDict([('loss', 0.018662331486105632)])
+Test-log: [ 0/16] DataTime: 1.127 (1.127) Time: 1.127 (1.127) Loss:  0.0305 (0.0305) 
+Test-log: [10/16] DataTime: 0.014 (0.138) Time: 0.014 (0.138) Loss:  0.0277 (0.0278) 
+Test-log: [15/16] DataTime: 0.002 (0.098) Time: 0.002 (0.098) Loss:  0.0190 (0.0275) 
+[Epoch 20] Test: OrderedDict([('loss', 0.027510705880463032), ('auc', 0.9686379869722828)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Experiment ended
+wandb: Waiting for W&B process to finish... (success).
+wandb: - 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.008 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: | 0.088 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: / 0.088 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: - 0.088 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: \ 0.088 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: | 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: / 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: - 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: \ 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: | 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: / 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb: - 0.090 MB of 0.090 MB uploaded (0.000 MB deduped)wandb:                                                                                
+wandb: 
+wandb: Run history:
+wandb:      epoch ▁▁▂▂▂▃▃▄▄▄▅▅▅▆▆▇▇▇██
+wandb:   eval_auc ▁▄▅▆▇▇▇█████████████
+wandb:  eval_loss ██▄▅▂▂▂▂▁▁▁▁▁▁▁▁▁▂▁▂
+wandb: train_loss █▅▄▄▄▃▃▃▃▂▂▂▂▂▂▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:      epoch 19
+wandb:   eval_auc 0.96864
+wandb:  eval_loss 0.02751
+wandb: train_loss 0.01866
+wandb: 
+wandb: Synced skilled-cosmos-34: https://wandb.ai/jianzhnie/protein-annotation/runs/1oma3dzi
+wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20220520_085830-1oma3dzi/logs
+wandb: W&B API key is configured. Use `wandb login --relogin` to force relogin
+wandb: Network error (ConnectTimeout), entering retry loop.
+wandb: Network error (ConnectTimeout), entering retry loop.
+Problem at: /share/home/niejianzheng/xbiome/DeepFold/tools/main_esm_embedding.py 198 main
+wandb: ERROR Error communicating with wandb process
+wandb: ERROR try: wandb.init(settings=wandb.Settings(start_method='fork'))
+wandb: ERROR or:  wandb.init(settings=wandb.Settings(start_method='thread'))
+wandb: ERROR For more info see: https://docs.wandb.ai/library/init#init-start-error
+Traceback (most recent call last):
+  File "/share/home/niejianzheng/xbiome/DeepFold/tools/main_esm_embedding.py", line 392, in <module>
+    main(args)
+  File "/share/home/niejianzheng/xbiome/DeepFold/tools/main_esm_embedding.py", line 198, in main
+    wandb.init(project=args.experiment,
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/wandb/sdk/wandb_init.py", line 999, in init
+    run = wi.init()
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/wandb/sdk/wandb_init.py", line 653, in init
+    raise UsageError(error_message)
+wandb.errors.UsageError: Error communicating with wandb process
+try: wandb.init(settings=wandb.Settings(start_method='fork'))
+or:  wandb.init(settings=wandb.Settings(start_method='thread'))
+For more info see: https://docs.wandb.ai/library/init#init-start-error
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 267207) of binary: /home/niejianzheng/anaconda3/envs/pytorch/bin/python
+Traceback (most recent call last):
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 765, in <module>
+    main()
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 345, in wrapper
+    return f(*args, **kwargs)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 761, in main
+    run(args)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 752, in run
+    elastic_launch(
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 131, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 245, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main_esm_embedding.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2022-05-20_09:32:35
+  host      : t02
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 267207)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+wandb: Currently logged in as: jianzhnie. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.12.16
+wandb: Run data is saved locally in /share/home/niejianzheng/xbiome/DeepFold/tools/wandb/run-20220520_121531-2acztrbg
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run brisk-cloud-36
+wandb: ⭐️ View project at https://wandb.ai/jianzhnie/protein-annotation
+wandb: 🚀 View run at https://wandb.ai/jianzhnie/protein-annotation/runs/2acztrbg
+Training with a single process on 0 .
+RUNNING EPOCHS FROM 0 TO 20
+Scheduled epochs: 20
+Train-log: [epoch: 1] [ 0/288] DataTime: 1.005 (1.005) BatchTime: 1.061 (1.061) Loss:  0.7144 (0.7144) lr: 0.001000 
+Train-log: [epoch: 1] [10/288] DataTime: 0.002 (0.119) BatchTime: 0.009 (0.129) Loss:  0.0488 (0.1489) lr: 0.001000 
+Train-log: [epoch: 1] [20/288] DataTime: 0.099 (0.081) BatchTime: 0.103 (0.089) Loss:  0.0384 (0.0985) lr: 0.001000 
+Train-log: [epoch: 1] [30/288] DataTime: 0.011 (0.067) BatchTime: 0.018 (0.073) Loss:  0.0444 (0.0797) lr: 0.001000 
+Train-log: [epoch: 1] [40/288] DataTime: 0.006 (0.057) BatchTime: 0.009 (0.063) Loss:  0.0384 (0.0697) lr: 0.001000 
+Train-log: [epoch: 1] [50/288] DataTime: 0.026 (0.053) BatchTime: 0.034 (0.060) Loss:  0.0367 (0.0634) lr: 0.001000 
+Train-log: [epoch: 1] [60/288] DataTime: 0.005 (0.049) BatchTime: 0.008 (0.055) Loss:  0.0326 (0.0589) lr: 0.001000 
+Train-log: [epoch: 1] [70/288] DataTime: 0.004 (0.047) BatchTime: 0.008 (0.053) Loss:  0.0380 (0.0557) lr: 0.001000 
+Train-log: [epoch: 1] [80/288] DataTime: 0.001 (0.045) BatchTime: 0.005 (0.051) Loss:  0.0395 (0.0531) lr: 0.001000 
+Train-log: [epoch: 1] [90/288] DataTime: 0.002 (0.044) BatchTime: 0.007 (0.050) Loss:  0.0330 (0.0511) lr: 0.001000 
+Train-log: [epoch: 1] [100/288] DataTime: 0.001 (0.043) BatchTime: 0.005 (0.049) Loss:  0.0348 (0.0494) lr: 0.001000 
+Train-log: [epoch: 1] [110/288] DataTime: 0.002 (0.043) BatchTime: 0.009 (0.049) Loss:  0.0330 (0.0480) lr: 0.001000 
+Train-log: [epoch: 1] [120/288] DataTime: 0.001 (0.042) BatchTime: 0.006 (0.048) Loss:  0.0341 (0.0467) lr: 0.001000 
+Train-log: [epoch: 1] [130/288] DataTime: 0.002 (0.042) BatchTime: 0.009 (0.048) Loss:  0.0350 (0.0456) lr: 0.001000 
+Train-log: [epoch: 1] [140/288] DataTime: 0.002 (0.041) BatchTime: 0.006 (0.047) Loss:  0.0356 (0.0447) lr: 0.001000 
+Train-log: [epoch: 1] [150/288] DataTime: 0.002 (0.041) BatchTime: 0.007 (0.047) Loss:  0.0302 (0.0439) lr: 0.001000 
+Train-log: [epoch: 1] [160/288] DataTime: 0.001 (0.040) BatchTime: 0.006 (0.046) Loss:  0.0303 (0.0431) lr: 0.001000 
+Train-log: [epoch: 1] [170/288] DataTime: 0.002 (0.040) BatchTime: 0.011 (0.046) Loss:  0.0297 (0.0424) lr: 0.001000 
+Train-log: [epoch: 1] [180/288] DataTime: 0.002 (0.040) BatchTime: 0.006 (0.046) Loss:  0.0338 (0.0418) lr: 0.001000 
+Train-log: [epoch: 1] [190/288] DataTime: 0.006 (0.040) BatchTime: 0.011 (0.046) Loss:  0.0319 (0.0413) lr: 0.001000 
+Train-log: [epoch: 1] [200/288] DataTime: 0.005 (0.039) BatchTime: 0.009 (0.045) Loss:  0.0290 (0.0408) lr: 0.001000 
+Train-log: [epoch: 1] [210/288] DataTime: 0.003 (0.039) BatchTime: 0.009 (0.045) Loss:  0.0288 (0.0403) lr: 0.001000 
+Train-log: [epoch: 1] [220/288] DataTime: 0.002 (0.039) BatchTime: 0.006 (0.045) Loss:  0.0342 (0.0399) lr: 0.001000 
+Train-log: [epoch: 1] [230/288] DataTime: 0.002 (0.039) BatchTime: 0.009 (0.045) Loss:  0.0301 (0.0395) lr: 0.001000 
+Train-log: [epoch: 1] [240/288] DataTime: 0.001 (0.038) BatchTime: 0.006 (0.044) Loss:  0.0332 (0.0391) lr: 0.001000 
+Train-log: [epoch: 1] [250/288] DataTime: 0.006 (0.038) BatchTime: 0.011 (0.045) Loss:  0.0269 (0.0388) lr: 0.001000 
+Train-log: [epoch: 1] [260/288] DataTime: 0.002 (0.038) BatchTime: 0.006 (0.044) Loss:  0.0309 (0.0385) lr: 0.001000 
+Train-log: [epoch: 1] [270/288] DataTime: 0.027 (0.038) BatchTime: 0.035 (0.044) Loss:  0.0303 (0.0382) lr: 0.001000 
+Train-log: [epoch: 1] [280/288] DataTime: 0.001 (0.038) BatchTime: 0.005 (0.044) Loss:  0.0281 (0.0379) lr: 0.001000 
+Train-log: [epoch: 1] [287/288] DataTime: 0.001 (0.038) BatchTime: 0.005 (0.044) Loss:  0.0275 (0.0378) lr: 0.001000 
+[Epoch 1] training: OrderedDict([('loss', 0.037756081642782456)])
+Test-log: [ 0/16] DataTime: 1.093 (1.093) Time: 1.093 (1.093) Loss:  0.0343 (0.0343) 
+Test-log: [10/16] DataTime: 0.009 (0.130) Time: 0.009 (0.130) Loss:  0.0315 (0.0301) 
+Test-log: [15/16] DataTime: 0.005 (0.093) Time: 0.005 (0.093) Loss:  0.0283 (0.0302) 
+[Epoch 1] Test: OrderedDict([('loss', 0.030171504008613053), ('auc', 0.9552189772744976)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 2] [ 0/288] DataTime: 1.015 (1.015) BatchTime: 1.036 (1.036) Loss:  0.0304 (0.0304) lr: 0.000700 
+Train-log: [epoch: 2] [10/288] DataTime: 0.002 (0.117) BatchTime: 0.010 (0.125) Loss:  0.0304 (0.0304) lr: 0.000700 
+Train-log: [epoch: 2] [20/288] DataTime: 0.098 (0.077) BatchTime: 0.108 (0.084) Loss:  0.0292 (0.0297) lr: 0.000700 
+Train-log: [epoch: 2] [30/288] DataTime: 0.005 (0.060) BatchTime: 0.010 (0.066) Loss:  0.0282 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [40/288] DataTime: 0.102 (0.054) BatchTime: 0.113 (0.060) Loss:  0.0273 (0.0293) lr: 0.000700 
+Train-log: [epoch: 2] [50/288] DataTime: 0.006 (0.048) BatchTime: 0.011 (0.054) Loss:  0.0319 (0.0292) lr: 0.000700 
+Train-log: [epoch: 2] [60/288] DataTime: 0.099 (0.046) BatchTime: 0.104 (0.052) Loss:  0.0335 (0.0292) lr: 0.000700 
+Train-log: [epoch: 2] [70/288] DataTime: 0.002 (0.043) BatchTime: 0.006 (0.049) Loss:  0.0331 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [80/288] DataTime: 0.106 (0.042) BatchTime: 0.116 (0.048) Loss:  0.0289 (0.0295) lr: 0.000700 
+Train-log: [epoch: 2] [90/288] DataTime: 0.002 (0.040) BatchTime: 0.007 (0.046) Loss:  0.0289 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [100/288] DataTime: 0.043 (0.039) BatchTime: 0.050 (0.045) Loss:  0.0341 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [110/288] DataTime: 0.010 (0.038) BatchTime: 0.016 (0.045) Loss:  0.0302 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [120/288] DataTime: 0.002 (0.037) BatchTime: 0.007 (0.044) Loss:  0.0288 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [130/288] DataTime: 0.006 (0.037) BatchTime: 0.009 (0.043) Loss:  0.0322 (0.0294) lr: 0.000700 
+Train-log: [epoch: 2] [140/288] DataTime: 0.006 (0.037) BatchTime: 0.010 (0.043) Loss:  0.0309 (0.0293) lr: 0.000700 
+Train-log: [epoch: 2] [150/288] DataTime: 0.004 (0.036) BatchTime: 0.009 (0.042) Loss:  0.0310 (0.0293) lr: 0.000700 
+Train-log: [epoch: 2] [160/288] DataTime: 0.004 (0.036) BatchTime: 0.009 (0.042) Loss:  0.0273 (0.0293) lr: 0.000700 
+Train-log: [epoch: 2] [170/288] DataTime: 0.010 (0.036) BatchTime: 0.016 (0.042) Loss:  0.0288 (0.0292) lr: 0.000700 
+Train-log: [epoch: 2] [180/288] DataTime: 0.006 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0311 (0.0292) lr: 0.000700 
+Train-log: [epoch: 2] [190/288] DataTime: 0.005 (0.035) BatchTime: 0.012 (0.041) Loss:  0.0295 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [200/288] DataTime: 0.010 (0.035) BatchTime: 0.015 (0.041) Loss:  0.0262 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [210/288] DataTime: 0.005 (0.034) BatchTime: 0.009 (0.040) Loss:  0.0283 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [220/288] DataTime: 0.056 (0.035) BatchTime: 0.063 (0.040) Loss:  0.0296 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [230/288] DataTime: 0.006 (0.034) BatchTime: 0.011 (0.040) Loss:  0.0265 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [240/288] DataTime: 0.022 (0.034) BatchTime: 0.031 (0.040) Loss:  0.0307 (0.0290) lr: 0.000700 
+Train-log: [epoch: 2] [250/288] DataTime: 0.001 (0.034) BatchTime: 0.006 (0.040) Loss:  0.0292 (0.0290) lr: 0.000700 
+Train-log: [epoch: 2] [260/288] DataTime: 0.002 (0.034) BatchTime: 0.008 (0.040) Loss:  0.0321 (0.0291) lr: 0.000700 
+Train-log: [epoch: 2] [270/288] DataTime: 0.007 (0.034) BatchTime: 0.011 (0.039) Loss:  0.0303 (0.0290) lr: 0.000700 
+Train-log: [epoch: 2] [280/288] DataTime: 0.003 (0.034) BatchTime: 0.007 (0.040) Loss:  0.0301 (0.0290) lr: 0.000700 
+Train-log: [epoch: 2] [287/288] DataTime: 0.001 (0.033) BatchTime: 0.005 (0.039) Loss:  0.0264 (0.0290) lr: 0.000700 
+[Epoch 2] training: OrderedDict([('loss', 0.02903423228316598)])
+Test-log: [ 0/16] DataTime: 1.091 (1.091) Time: 1.091 (1.091) Loss:  0.0294 (0.0294) 
+Test-log: [10/16] DataTime: 0.013 (0.132) Time: 0.013 (0.132) Loss:  0.0282 (0.0301) 
+Test-log: [15/16] DataTime: 0.003 (0.094) Time: 0.003 (0.094) Loss:  0.0470 (0.0298) 
+[Epoch 2] Test: OrderedDict([('loss', 0.029845958697731247), ('auc', 0.9607079936302516)])
+/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/nn/modules/module.py:1402: UserWarning: positional arguments and argument "destination" are deprecated. nn.Module.state_dict will not accept them in the future. Refer to https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module.state_dict for details.
+  warnings.warn(
+Train-log: [epoch: 3] [ 0/288] DataTime: 1.028 (1.028) BatchTime: 1.045 (1.045) Loss:  0.0292 (0.0292) lr: 0.000490 
+Train-log: [epoch: 3] [10/288] DataTime: 0.006 (0.118) BatchTime: 0.011 (0.124) Loss:  0.0287 (0.0278) lr: 0.000490 
+Train-log: [epoch: 3] [20/288] DataTime: 0.022 (0.076) BatchTime: 0.029 (0.082) Loss:  0.0270 (0.0273) lr: 0.000490 
+Train-log: [epoch: 3] [30/288] DataTime: 0.130 (0.064) BatchTime: 0.136 (0.070) Loss:  0.0262 (0.0273) lr: 0.000490 
+Train-log: [epoch: 3] [40/288] DataTime: 0.002 (0.054) BatchTime: 0.006 (0.061) Loss:  0.0284 (0.0273) lr: 0.000490 
+Train-log: [epoch: 3] [50/288] DataTime: 0.105 (0.050) BatchTime: 0.113 (0.057) Loss:  0.0301 (0.0274) lr: 0.000490 
+Train-log: [epoch: 3] [60/288] DataTime: 0.005 (0.046) BatchTime: 0.011 (0.052) Loss:  0.0286 (0.0274) lr: 0.000490 
+Train-log: [epoch: 3] [70/288] DataTime: 0.102 (0.044) BatchTime: 0.109 (0.050) Loss:  0.0280 (0.0274) lr: 0.000490 
+Train-log: [epoch: 3] [80/288] DataTime: 0.006 (0.042) BatchTime: 0.011 (0.048) Loss:  0.0270 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [90/288] DataTime: 0.065 (0.041) BatchTime: 0.074 (0.047) Loss:  0.0278 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [100/288] DataTime: 0.063 (0.040) BatchTime: 0.069 (0.046) Loss:  0.0296 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [110/288] DataTime: 0.016 (0.039) BatchTime: 0.021 (0.045) Loss:  0.0270 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [120/288] DataTime: 0.132 (0.038) BatchTime: 0.142 (0.044) Loss:  0.0294 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [130/288] DataTime: 0.009 (0.037) BatchTime: 0.013 (0.043) Loss:  0.0257 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [140/288] DataTime: 0.108 (0.037) BatchTime: 0.116 (0.043) Loss:  0.0287 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [150/288] DataTime: 0.004 (0.036) BatchTime: 0.009 (0.042) Loss:  0.0280 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [160/288] DataTime: 0.105 (0.036) BatchTime: 0.111 (0.042) Loss:  0.0265 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [170/288] DataTime: 0.005 (0.036) BatchTime: 0.010 (0.041) Loss:  0.0267 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [180/288] DataTime: 0.106 (0.036) BatchTime: 0.113 (0.041) Loss:  0.0277 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [190/288] DataTime: 0.005 (0.035) BatchTime: 0.010 (0.041) Loss:  0.0260 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [200/288] DataTime: 0.104 (0.035) BatchTime: 0.110 (0.041) Loss:  0.0288 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [210/288] DataTime: 0.001 (0.035) BatchTime: 0.007 (0.040) Loss:  0.0271 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [220/288] DataTime: 0.115 (0.035) BatchTime: 0.124 (0.041) Loss:  0.0286 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [230/288] DataTime: 0.002 (0.034) BatchTime: 0.009 (0.040) Loss:  0.0264 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [240/288] DataTime: 0.078 (0.034) BatchTime: 0.090 (0.040) Loss:  0.0281 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [250/288] DataTime: 0.007 (0.034) BatchTime: 0.012 (0.040) Loss:  0.0249 (0.0275) lr: 0.000490 
+Train-log: [epoch: 3] [260/288] DataTime: 0.098 (0.034) BatchTime: 0.103 (0.040) Loss:  0.0261 (0.0276) lr: 0.000490 
+Train-log: [epoch: 3] [270/288] DataTime: 0.005 (0.033) BatchTime: 0.009 (0.039) Loss:  0.0272 (0.0276) lr: 0.000490 
+WARNING:torch.distributed.elastic.agent.server.api:Received 1 death signal, shutting down workers
+Traceback (most recent call last):
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 765, in <module>
+    main()
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 345, in wrapper
+    return f(*args, **kwargs)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 761, in main
+    run(args)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/run.py", line 752, in run
+    elastic_launch(
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 131, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 236, in launch_agent
+    result = agent.run()
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 125, in wrapper
+    result = f(*args, **kwargs)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 709, in run
+    result = self._invoke_run(role)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 850, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/home/niejianzheng/anaconda3/envs/pytorch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 60, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 191415 got signal: 1

@@ -21,7 +21,6 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb

@@ -288,7 +288,7 @@ def main(args):
                                    model.parameters()),
                             lr=args.lr,
                             weight_decay=args.weight_decay)
-    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
