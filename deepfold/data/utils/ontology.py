@@ -23,6 +23,7 @@ class Ontology(object):
     is_a: GO:0008150 ! biological_process
     disjoint_from: GO:0044848 ! biological phase
     """
+
     def __init__(self, filename='data/go.obo', with_rels=False):
         self.ontology = self.load_obo(filename, with_rels=with_rels)
         self.ic = None
