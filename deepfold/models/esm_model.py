@@ -13,7 +13,6 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
 
 
 class EsmEmbeddingModel(nn.Module):
-
     def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
         super().__init__()
 
@@ -34,7 +33,6 @@ class EsmEmbeddingModel(nn.Module):
 
 
 class ESMPooler(nn.Module):
-
     def __init__(self, hidden_size):
         super().__init__()
         self.dense = nn.Linear(hidden_size, hidden_size)
@@ -51,7 +49,6 @@ class ESMPooler(nn.Module):
 
 class EsmTransformer(nn.Module):
     """ESMTransformer."""
-
     def __init__(self,
                  model_dir: str,
                  num_labels: int = 1000,
