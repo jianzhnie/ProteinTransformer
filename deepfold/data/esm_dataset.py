@@ -13,6 +13,7 @@ from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
 class EsmEmbeddingDataset(Dataset):
+
     def __init__(
         self,
         data_path: str = 'dataset/',
@@ -52,10 +53,11 @@ class EsmEmbeddingDataset(Dataset):
 
 class ESMDataset(Dataset):
     """ESMDataset."""
+
     def __init__(self,
                  data_path: str = 'dataset/',
                  split: str = 'train',
-                 model_dir: str = None,
+                 model_dir: str = '',
                  max_length: int = 1024,
                  truncate: bool = True,
                  random_crop: bool = False):
