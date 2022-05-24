@@ -11,7 +11,6 @@ from .protein_tokenizer import ProteinTokenizer
 
 
 class ProtBertDataset(Dataset):
-
     def __init__(self,
                  data_path='dataset/',
                  split='train',
@@ -82,7 +81,6 @@ class ProtBertDataset(Dataset):
 
 
 class CustomProteinSequences(Dataset):
-
     def __init__(self, data_path, split='train', max_length=1024):
         super().__init__()
 
@@ -145,7 +143,6 @@ class CustomProteinSequences(Dataset):
 
 
 class ProteinSequenceDataset(Dataset):
-
     def __init__(self, sequence, targets, tokenizer, max_len):
         self.sequence = sequence
         self.targets = targets
