@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
+sys.path.append('../')
+
 from deepfold.data.utils.data_utils import FUNC_DICT, NAMESPACES
 from deepfold.data.utils.ontology import Ontology
 from deepfold.loss.custom_metrics import evaluate_annotations
-
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -122,7 +122,7 @@ def evaluate_diamond(test_df, blast_preds, go_rels, ont):
     labels = test_annotations
     labels = list(map(lambda x: set(filter(lambda y: y in go_set, x)), labels))
 
-    for t in range(101):
+    for t in range(0, 101, 10):
         threshold = t / 100.0
         preds = []
         for i, row in enumerate(test_df.itertuples()):
@@ -199,7 +199,7 @@ def main(train_data_file,
     diamond_scores = get_diamond_scores(diamond_scores_file)
     blast_preds = get_diamond_preds(train_df, test_df, diamond_scores)
     for ont in onts:
-        logger.info(f'evaluate the {ont} protein family')
+        logger.info(f'Evaluate the {ont} protein family')
         go_set = go_rels.get_namespace_terms(NAMESPACES[ont])
         go_set.remove(FUNC_DICT[ont])
 
