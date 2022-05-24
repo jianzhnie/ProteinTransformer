@@ -13,14 +13,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
+
 sys.path.append('../')
-from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
-from deepfold.data.esm_dataset import ESMDataset
-from deepfold.models.esm_model import EsmTransformer
+
+from deepfold.data.esm_dataset import EsmEmbeddingDataset
+from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random import random_seed
-
 
 try:
     import wandb
@@ -233,13 +233,9 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = ESMDataset(data_path=args.data_path,
-                               split='train',
-                               model_dir='esm1b_t33_650M_UR50S')
-
-    val_dataset = ESMDataset(data_path=args.data_path,
-                             split='test',
-                             model_dir='esm1b_t33_650M_UR50S')
+    train_dataset = EsmEmbeddingDataset(data_path=args.data_path,
+                                        split='train')
+    val_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
@@ -256,7 +252,6 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=(train_sampler is None),
         num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
         sampler=train_sampler,
         pin_memory=True,
     )
@@ -266,17 +261,13 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=(val_sampler is None),
         num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
         sampler=val_sampler,
         pin_memory=True,
     )
 
     # model
-    num_labels = train_dataset.num_classes
-    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode=args.pool_mode,
-                           fintune=args.fintune,
-                           num_labels=num_labels)
+    num_labels = 5874
+    model = EsmEmbeddingModel(input_size=1280, num_labels=num_labels)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -293,11 +284,11 @@ def main(args):
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
     criterion = nn.BCEWithLogitsLoss().cuda()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    lr_policy = LinearLRScheduler(optimizer=optimizer,
-                                  base_lr=args.lr,
-                                  warmup_length=args.warmup,
-                                  epochs=args.epochs)
+    optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
+                                   model.parameters()),
+                            lr=args.lr,
+                            weight_decay=args.weight_decay)
+    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
@@ -318,8 +309,8 @@ def main(args):
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(model,
-                                                              output_device=0)
+            model = torch.nn.parallel.DistributedDataParallel(
+                model, output_device=0, find_unused_parameters=True)
     else:
         model.cuda()
 

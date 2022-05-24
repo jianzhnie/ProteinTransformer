@@ -13,8 +13,8 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 sys.path.append('../')
-from deepfold.data.esm_dataset import ESMDataset
-from deepfold.models.esm_model import EsmTransformer
+from deepfold.data.esm_dataset import EsmEmbeddingDataset
+from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
@@ -76,23 +76,18 @@ parser.add_argument('--output-dir',
 def main(args):
     args.gpu = 0
     # Dataset and DataLoader
-    test_dataset = ESMDataset(data_path=args.data_path,
-                              split='test',
-                              model_dir='esm1b_t33_650M_UR50S')
+    test_dataset = EsmEmbeddingDataset(data_path=args.data_path,
+                              split='test')
     # dataloders
     test_loader = DataLoader(test_dataset,
                              batch_size=args.batch_size,
                              shuffle=False,
                              num_workers=args.workers,
-                             collate_fn=test_dataset.collate_fn,
                              pin_memory=True)
 
     # model
-    num_labels = test_dataset.num_classes
-    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode=args.pool_mode,
-                           fintune=args.fintune,
-                           num_labels=num_labels)
+    num_labels = 5874
+    model = EsmEmbeddingModel(num_labels=num_labels)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -121,6 +116,7 @@ def main(args):
     test_df['preds'] = list(preds)
     df_path = os.path.join(args.data_path, 'predictions.pkl')
     test_df.to_pickle(df_path)
+    logger.info(f"Saving results to {df_path}")
 
 
 def _parse_args():
