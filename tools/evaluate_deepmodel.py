@@ -3,7 +3,8 @@
 import argparse
 import logging
 import sys
-
+import os
+import time
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -56,46 +57,50 @@ def get_model_preds(test_df, terms):
 
     return model_preds
 
+def get_model_preds_(test_df):
+    model_preds = list(test_df.preds)
+    return model_preds
 
-def evaluate_model_prediction(test_df, model_preds, go_rels, ont):
+
+def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
     fmax = 0.0
     tmax = 0.0
     smin = 1000.0
-
     precisions = []
     recalls = []
-    # test_annotations
-    test_annotations = test_df['prop_annotations'].values
-    test_annotations = list(map(lambda x: set(x), test_annotations))
-
     # go set
     go_set = go_rels.get_namespace_terms(NAMESPACES[ont])
     go_set.remove(FUNC_DICT[ont])
-
+    end = time.time()
     # labels
-    labels = test_annotations
     labels = list(map(lambda x: set(filter(lambda y: y in go_set, x)), labels))
-
+    t1 = time.time() - end
+    print(t1)
     for t in range(0, 101, 10):
         threshold = t / 100.0
         preds = []
-        for i, row in enumerate(test_df.itertuples()):
+        for i, _ in enumerate(model_preds):
             annots = set()
-            for go_id, score in model_preds[i].items():
-                if score >= threshold:
-                    annots.add(go_id)
+            pred_score = model_preds[i]
+            pred_label = terms[pred_score > threshold]
+            annots = set(pred_label)
 
             new_annots = set()
             for go_id in annots:
                 new_annots |= go_rels.get_anchestors(go_id)
             preds.append(new_annots)
 
+        t1 = time.time() - end
+        print(t1)
         # Filter classes
         preds = list(
             map(lambda x: set(filter(lambda y: y in go_set, x)), preds))
 
         fscore, prec, rec, s, _, _, _, _ = evaluate_annotations(
             go_rels, labels, preds)
+
+        t1 = time.time() - end
+        print(t1)
         precisions.append(prec)
         recalls.append(rec)
         logger.info(f'Fscore: {fscore}, S: {s}, threshold: {threshold}')
@@ -129,7 +134,8 @@ def plot_diamond_aupr(precisions, recalls, aupr, ont, save_path):
     plt.ylabel('Precision')
     plt.title('Area Under the Precision-Recall curve')
     plt.legend(loc='lower right')
-    plt.savefig(save_path + ont + '_aupr.png')
+    img_path = os.path.join(save_path, ont + '_.png')
+    plt.savefig(img_path)
 
 
 def main(train_data_file,
@@ -160,11 +166,11 @@ def main(train_data_file,
     for i, row in enumerate(train_df.itertuples()):
         prot_index[row.proteins] = i
 
-    model_preds = get_model_preds(test_df, terms)
+    model_preds = get_model_preds_(test_df)
     for ont in onts:
         logger.info(f'Evaluate the {ont} protein family')
         precisions, recalls, aupr = evaluate_model_prediction(
-            test_df, model_preds, go_rels, ont)
+            test_annotations, terms, model_preds, go_rels, ont)
         plot_diamond_aupr(precisions, recalls, aupr, ont, output_dir)
 
 
