@@ -4,11 +4,9 @@ from collections import OrderedDict
 
 import numpy as np
 import torch
-from sklearn.metrics import average_precision_score
 from torch.cuda.amp import autocast
 
-from deepfold.core.metrics.custom_metrics import (compute_auc_score,
-                                                  compute_fmax, compute_roc)
+from deepfold.core.metrics.custom_metrics import compute_roc
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
@@ -156,11 +154,7 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     pred_labels = np.concatenate(pred_labels, axis=0)
     # avg_auc
     avg_auc = compute_roc(true_labels, pred_labels)
-    metrics = OrderedDict([
-        ('loss', losses_m.avg),
-        ('auc', avg_auc)
-    ])
-    logger.info('Average evaluation loss:                 %.3f' % losses_m.avg)
+    metrics = OrderedDict([('loss', losses_m.avg), ('auc', avg_auc)])
     return metrics
 
 
@@ -303,7 +297,8 @@ def train_loop(model,
             eval_metrics = evaluate(model, val_loader, criterion, use_amp,
                                     logger, log_interval)
 
-            logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
+            logger.info('[Epoch %d] Evaluation: %s' %
+                        (epoch + 1, eval_metrics))
 
         if eval_metrics['loss'] < best_metric:
             is_best = True
