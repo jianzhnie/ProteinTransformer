@@ -156,24 +156,11 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     pred_labels = np.concatenate(pred_labels, axis=0)
     # avg_auc
     avg_auc = compute_roc(true_labels, pred_labels)
-    # Average precision score
-    avg_avgprec = average_precision_score(true_labels,
-                                          pred_labels,
-                                          average='samples')
-    avg_rocauc = compute_auc_score(true_labels, pred_labels, average='macro')
-    # Maximum F-score
-    avg_fmax = compute_fmax(true_labels, pred_labels, nrThresholds=50)
     metrics = OrderedDict([
         ('loss', losses_m.avg),
-        ('auc', avg_auc),
-        ('precision', avg_avgprec),
-        ('rocauc_score', avg_rocauc),
-        ('F-max', avg_fmax),
+        ('auc', avg_auc)
     ])
     logger.info('Average evaluation loss:                 %.3f' % losses_m.avg)
-    logger.info('Average evaluation avg precision score:  %.3f' % avg_avgprec)
-    logger.info('Average evaluation roc auc score:        %.3f' % avg_rocauc)
-    logger.info('Average evaluation max F-score:          %.3f' % avg_fmax)
     return metrics
 
 
@@ -298,14 +285,11 @@ def train_loop(model,
     best_metric = np.inf
     logger.info(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        for param_group in optimizer.param_groups:
-            logger.info('--- Current learning rate: ', param_group['lr'])
-        logger.info('# Evaluate validation set before start training')
+        logger.info('Evaluate validation set before start training')
         eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
                                 log_interval)
 
         logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
-
         if not skip_training:
             logger.info('[*] Training epoch %d...' % epoch)
             train_metrics = train(model, train_loader, criterion, optimizer,
@@ -319,7 +303,7 @@ def train_loop(model,
             eval_metrics = evaluate(model, val_loader, criterion, use_amp,
                                     logger, log_interval)
 
-            logger.info('[Epoch %d] Test: %s' % (epoch + 1, eval_metrics))
+            logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
 
         if eval_metrics['loss'] < best_metric:
             is_best = True
