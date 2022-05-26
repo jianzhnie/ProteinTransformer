@@ -4,9 +4,11 @@ from collections import OrderedDict
 
 import numpy as np
 import torch
+from sklearn.metrics import average_precision_score
 from torch.cuda.amp import autocast
 
-from deepfold.core.metrics.custom_metrics import compute_roc
+from deepfold.core.metrics.custom_metrics import (compute_auc_score,
+                                                  compute_fmax, compute_roc)
 from deepfold.utils.metrics import AverageMeter
 from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
@@ -152,10 +154,26 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     # Flatten outputs
     true_labels = np.concatenate(true_labels, axis=0)
     pred_labels = np.concatenate(pred_labels, axis=0)
-    test_auc = compute_roc(true_labels, pred_labels)
-    # test_aupr = compute_aupr(true_labels, pred_labels)
-    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
-    #    ('aupr', test_aupr)])
+    # avg_auc
+    avg_auc = compute_roc(true_labels, pred_labels)
+    # Average precision score
+    avg_avgprec = average_precision_score(true_labels,
+                                          pred_labels,
+                                          average='samples')
+    avg_rocauc = compute_auc_score(true_labels, pred_labels, average='macro')
+    # Maximum F-score
+    avg_fmax = compute_fmax(true_labels, pred_labels, nrThresholds=50)
+    metrics = OrderedDict([
+        ('loss', losses_m.avg),
+        ('auc', avg_auc),
+        ('precision', avg_avgprec),
+        ('rocauc_score', avg_rocauc),
+        ('F-max', avg_fmax),
+    ])
+    logger.info('Average evaluation loss:                 %.3f' % losses_m.avg)
+    logger.info('Average evaluation avg precision score:  %.3f' % avg_avgprec)
+    logger.info('Average evaluation roc auc score:        %.3f' % avg_rocauc)
+    logger.info('Average evaluation max F-score:          %.3f' % avg_fmax)
     return metrics
 
 
@@ -278,15 +296,26 @@ def train_loop(model,
         epochs_since_improvement = 0
 
     best_metric = np.inf
-    print(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
+    logger.info(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
+        for param_group in optimizer.param_groups:
+            logger.info('--- Current learning rate: ', param_group['lr'])
+        logger.info('# Evaluate validation set before start training')
+        eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
+                                log_interval)
+
+        logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
+
         if not skip_training:
+            logger.info('[*] Training epoch %d...' % epoch)
             train_metrics = train(model, train_loader, criterion, optimizer,
                                   scaler, gradient_accumulation_steps, use_amp,
                                   epoch, logger, log_interval)
 
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
+
         if not skip_validation:
+            logger.info('[*] Evaluating epoch %d...' % epoch)
             eval_metrics = evaluate(model, val_loader, criterion, use_amp,
                                     logger, log_interval)
 
@@ -313,6 +342,7 @@ def train_loop(model,
                 'best_metric': eval_metrics['loss'],
                 'optimizer': optimizer.state_dict(),
             }
+            logger.info('[*] Saving model epoch %d...' % (epoch + 1))
             save_checkpoint(checkpoint_state,
                             epoch,
                             is_best,
