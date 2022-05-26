@@ -285,7 +285,6 @@ def train_loop(model,
 
         logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
         if not skip_training:
-            logger.info('[*] Training epoch %d...' % epoch)
             train_metrics = train(model, train_loader, criterion, optimizer,
                                   scaler, gradient_accumulation_steps, use_amp,
                                   epoch, logger, log_interval)
@@ -293,7 +292,6 @@ def train_loop(model,
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
 
         if not skip_validation:
-            logger.info('[*] Evaluating epoch %d...' % epoch)
             eval_metrics = evaluate(model, val_loader, criterion, use_amp,
                                     logger, log_interval)
 
