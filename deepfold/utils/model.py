@@ -1,5 +1,4 @@
 import os
-from pickle import NONE
 import shutil
 from collections import OrderedDict
 
@@ -50,4 +49,23 @@ def load_model_checkpoint(checkpoint_path):
             return None, None
         return model_state, optimizer_state
     else:
-        raise FileNotFoundError()
+        raise FileNotFoundError('[!] No checkpoint found, start epoch 0')
+
+
+def load_checkpoint(model,
+                    optimizer=None,
+                    scheduler=None,
+                    filename='model_last.pth.tar'):
+    start_epoch = 0
+    try:
+        checkpoint = torch.load(filename)
+        start_epoch = checkpoint['epoch']
+        model.load_state_dict(checkpoint['state_dict'])
+        if optimizer is not None:
+            optimizer.load_state_dict(checkpoint['optimizer'])
+        if scheduler is not None:
+            scheduler.load_state_dict(checkpoint['scheduler'])
+        print('\n[*] Loaded checkpoint at epoch %d' % start_epoch)
+    except FileNotFoundError as err:
+        print(err)
+    return start_epoch
