@@ -44,7 +44,7 @@ python main_esm_embedding.py  \
 --batch-size 64 \
 --workers 4
 
-python -m torch.distributed.run main_esm_embedding.py  \
+python -m torch.distributed.run  --nnodes=1 --nproc_per_node=2 --master_port 29501 main_esm_embedding.py  \
 --data_path /home/niejianzheng/xbiome/datasets/protein \
 --output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
 --model esm_embedding \
