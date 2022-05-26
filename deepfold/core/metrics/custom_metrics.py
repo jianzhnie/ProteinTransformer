@@ -29,7 +29,7 @@ def compute_mcc(labels, preds):
     return mcc
 
 
-def fmax(Ytrue, Ypred, nrThresholds):
+def compute_fmax(Ytrue, Ypred, nrThresholds):
     """get the minimum normalized semantic distance.
 
     INPUTS:
@@ -181,7 +181,7 @@ def bootstrap(Ytrue,
         newYpred = newYpred[:, tokeep]
 
         bootstraps_troc[m] = roc_auc_score(newYtrue, newYpred, average='macro')
-        bootstraps_pfmax[m] = fmax(newYtrue, newYpred, nrThresholds)
+        bootstraps_pfmax[m] = compute_fmax(newYtrue, newYpred, nrThresholds)
 
     return {
         'auc': bootstraps_pauc,
