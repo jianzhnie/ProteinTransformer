@@ -6,8 +6,8 @@ from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from transformers import BertConfig
 
 from deepfold.data.lighting_datamodule import LightingESMDataModule
-from deepfold.models.esm_model import ESMTransformer
-from deepfold.models.transformers.lighting_model import (
+from deepfold.models.esm_model import EsmTransformer
+from deepfold.models.lighting_model import (
     BertForMultiLabelSequenceClassification, LightningTransformer)
 
 sys.path.append('../')
@@ -37,7 +37,7 @@ if __name__ == '__main__':
         transformer_model = BertForMultiLabelSequenceClassification.from_pretrained(
             model_name, config=model_config)
     else:
-        transformer_model = ESMTransformer(model_dir='esm1b_t33_650M_UR50S',
+        transformer_model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
                                            pool_mode='cls',
                                            num_labels=num_classes)
 
