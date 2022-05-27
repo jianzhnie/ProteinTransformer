@@ -57,9 +57,6 @@ def get_model_preds(test_df, terms):
 
     return model_preds
 
-def get_model_preds_(test_df):
-    model_preds = list(test_df.preds)
-    return model_preds
 
 
 def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):

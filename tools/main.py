@@ -19,7 +19,7 @@ from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
-from deepfold.utils.random import random_seed
+from DeepFold.deepfold.utils.random_utils import random_seed
 
 
 try:
