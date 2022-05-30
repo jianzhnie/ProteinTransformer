@@ -2,17 +2,19 @@
 
 import argparse
 import logging
-import sys
 import os
+import sys
 import time
+
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-sys.path.append('../')
+
 from deepfold.core.metrics.custom_metrics import evaluate_annotations
 from deepfold.data.utils.data_utils import FUNC_DICT, NAMESPACES
 from deepfold.data.utils.ontology import Ontology
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -56,6 +58,7 @@ def get_model_preds(test_df, terms):
         model_preds.append(annots_dict)
 
     return model_preds
+
 
 def get_model_preds_(test_df):
     model_preds = list(test_df.preds)

@@ -12,12 +12,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
+sys.path.append('../')
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
@@ -76,8 +77,7 @@ parser.add_argument('--output-dir',
 def main(args):
     args.gpu = 0
     # Dataset and DataLoader
-    test_dataset = EsmEmbeddingDataset(data_path=args.data_path,
-                              split='test')
+    test_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
     # dataloders
     test_loader = DataLoader(test_dataset,
                              batch_size=args.batch_size,
@@ -116,7 +116,7 @@ def main(args):
     test_df['preds'] = list(preds)
     df_path = os.path.join(args.data_path, 'predictions.pkl')
     test_df.to_pickle(df_path)
-    logger.info(f"Saving results to {df_path}")
+    logger.info(f'Saving results to {df_path}')
 
 
 def _parse_args():

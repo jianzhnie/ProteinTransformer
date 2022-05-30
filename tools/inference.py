@@ -12,12 +12,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-sys.path.append('../')
+
 from deepfold.data.esm_dataset import ESMDataset
 from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
+sys.path.append('../')
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
