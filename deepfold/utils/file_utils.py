@@ -32,12 +32,22 @@ def read_go_annotations(file_in):
 def save_annotations(data_path):
     datasetFolderPath = data_path
     trainFilePath = os.path.join(datasetFolderPath, 'train_data.pkl')
-    data_df = pd.read_pickle(trainFilePath)
-    save_path = os.path.join(data_path, 'train_annotations.txt')
-    df = data_df[['proteins', 'exp_annotations']]
-    with open(save_path, 'w') as f:
-        for row in df.itertuples():
-            f.write(row.proteins + '\t')
+    trainFilePath = os.path.join(datasetFolderPath, 'test_data.pkl')
+    train_data_df = pd.read_pickle(trainFilePath)
+    test_data_df = pd.read_pickle(trainFilePath)
+    save_train_path = os.path.join(data_path, 'train_annotations.txt')
+    save_test_path = os.path.join(data_path, 'test_annotations.txt')
+    df1 = train_data_df[['proteins', 'exp_annotations']]
+    df2 = test_data_df[['proteins', 'exp_annotations']]
+    with open(save_train_path, 'w') as f:
+        for row in df1.itertuples():
+            f.write(row.proteins + ' ')
+            for anno in row.exp_annotations:
+                f.write(anno + ',')
+            f.write('\n')
+    with open(save_test_path, 'w') as f:
+        for row in df2.itertuples():
+            f.write(row.proteins + ' ')
             for anno in row.exp_annotations:
                 f.write(anno + ',')
             f.write('\n')
