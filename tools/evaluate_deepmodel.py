@@ -48,23 +48,6 @@ parser.add_argument('--output_dir', '-o', default='./', help='output dir')
 alphas = {NAMESPACES['mf']: 0, NAMESPACES['bp']: 0, NAMESPACES['cc']: 0}
 
 
-def get_model_preds(test_df, terms):
-    model_preds = []
-    for i, row in enumerate(test_df.itertuples()):
-        annots_dict = {}
-        for j, score in enumerate(row.preds):
-            go_id = terms[j]
-            annots_dict[go_id] = score
-        model_preds.append(annots_dict)
-
-    return model_preds
-
-
-def get_model_preds_(test_df):
-    model_preds = list(test_df.preds)
-    return model_preds
-
-
 def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
     fmax = 0.0
     tmax = 0.0
@@ -169,7 +152,7 @@ def main(train_data_file,
     for i, row in enumerate(train_df.itertuples()):
         prot_index[row.proteins] = i
 
-    model_preds = get_model_preds_(test_df)
+    model_preds = list(test_df.preds)
     for ont in onts:
         logger.info(f'Evaluate the {ont} protein family')
         precisions, recalls, aupr = evaluate_model_prediction(
