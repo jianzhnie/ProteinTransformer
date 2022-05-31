@@ -4,7 +4,6 @@ import argparse
 import logging
 import os
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -59,6 +58,7 @@ def get_model_preds(test_df, terms):
 
     return model_preds
 
+
 def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
     fmax = 0.0
     tmax = 0.0
@@ -68,11 +68,8 @@ def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
     # go set
     go_set = go_rels.get_namespace_terms(NAMESPACES[ont])
     go_set.remove(FUNC_DICT[ont])
-    end = time.time()
     # labels
     labels = list(map(lambda x: set(filter(lambda y: y in go_set, x)), labels))
-    t1 = time.time() - end
-    print(t1)
     for t in range(0, 101, 10):
         threshold = t / 100.0
         preds = []
@@ -87,8 +84,6 @@ def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
                 new_annots |= go_rels.get_anchestors(go_id)
             preds.append(new_annots)
 
-        t1 = time.time() - end
-        print(t1)
         # Filter classes
         preds = list(
             map(lambda x: set(filter(lambda y: y in go_set, x)), preds))
@@ -96,8 +91,6 @@ def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
         fscore, prec, rec, s, _, _, _, _ = evaluate_annotations(
             go_rels, labels, preds)
 
-        t1 = time.time() - end
-        print(t1)
         precisions.append(prec)
         recalls.append(rec)
         logger.info(f'Fscore: {fscore}, S: {s}, threshold: {threshold}')
