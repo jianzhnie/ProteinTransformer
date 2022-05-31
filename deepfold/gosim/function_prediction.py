@@ -82,10 +82,11 @@ class FunctionPrediction(object):
                 num_hits = len(indices)
 
                 #  1. 对每个 qury 蛋白, 在数据库中找到符合标准的 K 个相似蛋白
-                #       2. 对 K 个相似蛋白， 找到 对应的 蛋白 id 和 Go term annotation 及 对应的距离
-                #       3. 将距离标准化为得分
-                #       4.
-
+                #       2. 对 K 个相似蛋白， 根据找到的蛋白id 获取 Go term annotation 及 对应的距离
+                #       3. 将距离标准化为x相似性得分
+                #       4. 预测结果输出 :
+                #                     {'GO:001: 0.878',
+                #                       'GO:002: 0.8'}
                 for ind in indices:
                     lookup_id = self.embedding_lookup.ids[ind]
                     go_terms = self.go_annotation[lookup_id]
@@ -124,7 +125,7 @@ class FunctionPrediction(object):
                 # reduce prediction to leaf terms
                 parent_terms = []
                 for p in prediction.keys():
-                    parents = self.go.get_parent_terms(p)
+                    parents = self.gen_ontology.get_parent_terms(p)
                     parent_terms += parents
                 # exclude terms that are parent terms, i.e. there are more specific terms also part of this prediction
                 keys_for_deletion = set()
@@ -205,7 +206,7 @@ class FunctionPrediction(object):
                 # reduce prediction to leaf terms
                 parent_terms = []
                 for p in prediction.keys():
-                    parents = self.go.get_parent_terms(p)
+                    parents = self.gen_ontology.get_parent_terms(p)
                     parent_terms += parents
 
                 # exclude terms that are parent terms, i.e. there are more specific terms also part of this prediction
