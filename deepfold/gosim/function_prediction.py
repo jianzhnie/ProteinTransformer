@@ -6,23 +6,23 @@ from embedding_lookup import EmbeddingLookup
 
 
 class FunctionPrediction(object):
-    def __init__(self, embedding_db, go_db, ontology, go_type):
-        self.ontology = ontology
+    def __init__(self, embedding_db, go_annotation, gene_ontology, go_type):
+        self.gen_ontology = gene_ontology
 
         if go_type == 'all':
-            self.emb_lookup = EmbeddingLookup(embedding_db)
-            self.go_db = go_db
+            self.embedding_lookup = EmbeddingLookup(embedding_db)
+            self.go_annotation = go_annotation
         elif go_type == 'mfo' or go_type == 'bpo' or go_type == 'cco':
             # only use proteins in the annotation set which actually have an annotation in this ontology
-            self.go_db = defaultdict(set)
+            self.go_annotation = defaultdict(set)
             embedding_db_reduced = dict()
             for k in embedding_db.keys():
-                terms = go_db[k]
+                terms = go_annotation[k]
                 go_terms = self.get_terms_by_go(terms)[go_type]
                 if len(go_terms) > 0:
                     embedding_db_reduced[k] = embedding_db[k]
-                    self.go_db[k] = go_terms
-            self.emb_lookup = EmbeddingLookup(embedding_db_reduced)
+                    self.go_annotation[k] = go_terms
+            self.embedding_lookup = EmbeddingLookup(embedding_db_reduced)
         else:
             sys.exit(
                 '{} is not a valid GO. Valid GOs are [all|mfo|bpo|cco]'.format(
@@ -32,7 +32,7 @@ class FunctionPrediction(object):
         terms_by_go = {'mfo': set(), 'bpo': set(), 'cco': set()}
 
         for t in terms:
-            onto = self.ontology.get_ontology(t)
+            onto = self.gene_ontology.get_ontology(t)
             if onto != '':
                 terms_by_go[onto].add(t)
 
@@ -51,7 +51,7 @@ class FunctionPrediction(object):
         predictions = defaultdict(defaultdict)
         hit_ids = defaultdict(defaultdict)
 
-        distances, query_ids = self.emb_lookup.run_embedding_lookup_distance(
+        distances, query_ids = self.embedding_lookup.run_embedding_lookup_distance(
             querys, distance)
 
         for i in range(0, len(query_ids)):
@@ -81,9 +81,14 @@ class FunctionPrediction(object):
 
                 num_hits = len(indices)
 
+                #  1. 对每个 qury 蛋白, 在数据库中找到符合标准的 K 个相似蛋白
+                #       2. 对 K 个相似蛋白， 找到 对应的 蛋白 id 和 Go term annotation 及 对应的距离
+                #       3. 将距离标准化为得分
+                #       4.
+
                 for ind in indices:
-                    lookup_id = self.emb_lookup.ids[ind]
-                    go_terms = self.go_db[lookup_id]
+                    lookup_id = self.embedding_lookup.ids[ind]
+                    go_terms = self.go_annotation[lookup_id]
                     dist = dists[ind]
 
                     if distance == 'euclidean':
@@ -147,7 +152,7 @@ class FunctionPrediction(object):
         """
 
         prediction = dict()
-        distances, _ = self.lookup_db.run_embedding_lookup_distance(
+        distances, _ = self.embedding_lookup.run_embedding_lookup_distance(
             query_embedding, distance)
         dists = distances[0, :].squeeze().numpy()
 
@@ -167,8 +172,8 @@ class FunctionPrediction(object):
         num_hits = len(indices)
 
         for ind in indices:
-            lookup_id = self.emb_lookup.ids[ind]
-            go_terms = self.go_db[lookup_id]
+            lookup_id = self.embedding_lookup.ids[ind]
+            go_terms = self.go_annotation[lookup_id]
             dist = dists[ind]
 
             if distance == 'euclidean':
