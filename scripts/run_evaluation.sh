@@ -33,3 +33,10 @@ python  evaluate_deepmodel.py \
     --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
     --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
 
+## evaluate go_sim
+python  evaluate_gosim.py \
+    --train-data-file /home/niejianzheng/xbiome/datasets/protein/train_data.pkl \
+    --test-data-file /home/niejianzheng/xbiome/datasets/protein/predictions.pkl \
+    --gosim-scores-file /home/niejianzheng/xbiome/goPredSim/results/all_predicts.txt \
+    --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
+    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
