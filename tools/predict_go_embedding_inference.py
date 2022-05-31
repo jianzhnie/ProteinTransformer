@@ -26,7 +26,7 @@ def main(args):
     test_embeddings = read_embeddings(args.test_embedding_path)
     embeddings = read_embeddings(args.train_embedding_path)
 
-    go = GeneOntology(args.go_file)
+    gene_ontology = GeneOntology(args.go_file)
     go_annotations = read_go_annotations(args['annotations'])
 
     # set ontologies
@@ -41,7 +41,8 @@ def main(args):
 
     # perform prediction for each ontology individually
     for go_sub in ontologies:
-        predictor = FunctionPrediction(embeddings, go_annotations, go, go_sub)
+        predictor = FunctionPrediction(embeddings, go_annotations,
+                                       gene_ontology, go_sub)
         predictions_all, _ = predictor.run_prediction_embedding_all(
             test_embeddings, 'euclidean', dist_cutoffs, args.modus)
 
