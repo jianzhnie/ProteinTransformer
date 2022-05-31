@@ -15,10 +15,10 @@ import yaml
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
+from DeepFold.deepfold.utils.random_utils import random_seed
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
-from deepfold.utils.random import random_seed
 
 sys.path.append('../')
 
