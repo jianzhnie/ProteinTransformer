@@ -13,14 +13,13 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
-
+sys.path.append('../')
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
-from DeepFold.deepfold.utils.random_utils import random_seed
+from deepfold.utils.random_utils import random_seed
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 
-sys.path.append('../')
 
 try:
     import wandb
