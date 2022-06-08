@@ -5,7 +5,11 @@ import torch.functional as F
 import torch.nn as nn
 
 from ..registry import registry
-from .utils.modeling_utils import ProteinConfig, ProteinModel
+from .utils.modeling_utils import (PairwiseContactPredictionHead,
+                                   ProteinConfig, ProteinModel,
+                                   SequenceClassificationHead,
+                                   SequenceToSequenceClassificationHead,
+                                   ValuePredictionHead)
 
 URL_PREFIX = 'https://s3.amazonaws.com/songlabdata/proteindata/pytorch-models/'
 LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
@@ -166,6 +170,143 @@ class ProteinLSTMModel(ProteinLSTMAbstractModel):
 
         outputs = (sequence_output, pooled_outputs) + outputs[2:]
         return outputs  # sequence_output, pooled_output, (hidden_states)
+
+
+@registry.register_task_model('language_modeling', 'lstm')
+class ProteinLSTMForLM(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.feedforward = nn.Linear(config.hidden_size, config.vocab_size)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+
+        forward_prediction, reverse_prediction = sequence_output.chunk(2, -1)
+        forward_prediction = F.pad(forward_prediction[:, :-1], [0, 0, 1, 0])
+        reverse_prediction = F.pad(reverse_prediction[:, 1:], [0, 0, 0, 1])
+        prediction_scores = \
+            self.feedforward(forward_prediction) + self.feedforward(reverse_prediction)
+        prediction_scores = prediction_scores.contiguous()
+
+        # add hidden states and if they are here
+        outputs = (prediction_scores, ) + outputs[2:]
+
+        if targets is not None:
+            loss_fct = nn.CrossEntropyLoss(ignore_index=-1)
+            lm_loss = loss_fct(
+                prediction_scores.view(-1, self.config.vocab_size),
+                targets.view(-1))
+            outputs = (lm_loss, ) + outputs
+
+        # (loss), prediction_scores, seq_relationship_score, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('fluorescence', 'lstm')
+@registry.register_task_model('stability', 'lstm')
+class ProteinLSTMForValuePrediction(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.predict = ValuePredictionHead(config.hidden_size)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.predict(pooled_output, targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('remote_homology', 'lstm')
+class ProteinLSTMForSequenceClassification(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.classify = SequenceClassificationHead(config.hidden_size,
+                                                   config.num_labels)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.classify(pooled_output, targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('secondary_structure', 'lstm')
+class ProteinLSTMForSequenceToSequenceClassification(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.classify = SequenceToSequenceClassificationHead(
+            config.hidden_size * 2, config.num_labels, ignore_index=-1)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        amino_acid_class_scores = self.classify(sequence_output.contiguous())
+
+        # add hidden states and if they are here
+        outputs = (amino_acid_class_scores, ) + outputs[2:]
+
+        if targets is not None:
+            loss_fct = nn.CrossEntropyLoss(ignore_index=-1)
+            classification_loss = loss_fct(
+                amino_acid_class_scores.view(-1, self.config.num_labels),
+                targets.view(-1))
+            outputs = (classification_loss, ) + outputs
+
+        # (loss), prediction_scores, seq_relationship_score, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('contact_prediction', 'lstm')
+class ProteinLSTMForContactPrediction(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.predict = PairwiseContactPredictionHead(config.hidden_size,
+                                                     ignore_index=-1)
+
+        self.init_weights()
+
+    def forward(self,
+                input_ids,
+                protein_length,
+                input_mask=None,
+                targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.predict(sequence_output, protein_length,
+                               targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states), (attentions)
+        return outputs
 
 
 class MultilabelProteinLSTMModel(ProteinLSTMModel):
