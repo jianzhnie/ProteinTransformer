@@ -3,17 +3,25 @@ import typing
 import torch
 import torch.functional as F
 import torch.nn as nn
-from tape.models.modeling_utils import ProteinModel
+
+from ..registry import registry
+from .utils.modeling_utils import (PairwiseContactPredictionHead,
+                                   ProteinConfig, ProteinModel,
+                                   SequenceClassificationHead,
+                                   SequenceToSequenceClassificationHead,
+                                   ValuePredictionHead)
 
 URL_PREFIX = 'https://s3.amazonaws.com/songlabdata/proteindata/pytorch-models/'
 LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
 LSTM_PRETRAINED_MODEL_ARCHIVE_MAP: typing.Dict[str, str] = {}
 
 
-class ProteinLSTMConfig():
+class ProteinLSTMConfig(ProteinConfig):
+    pretrained_config_archive_map = LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP
+
     def __init__(self,
                  vocab_size: int = 30,
-                 embed_dim: int = 128,
+                 input_size: int = 128,
                  hidden_size: int = 1024,
                  num_hidden_layers: int = 3,
                  bidirectional: bool = False,
@@ -23,7 +31,7 @@ class ProteinLSTMConfig():
                  **kwargs):
         super().__init__(**kwargs)
         self.vocab_size = vocab_size
-        self.embed_dim = embed_dim
+        self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_hidden_layers = num_hidden_layers
         self.bidirectional = bidirectional
@@ -140,6 +148,7 @@ class ProteinLSTMAbstractModel(ProteinModel):
             module.bias.data.zero_()
 
 
+@registry.register_task_model('embed', 'lstm')
 class ProteinLSTMModel(ProteinLSTMAbstractModel):
     def __init__(self, config: ProteinLSTMConfig):
         super().__init__(config)
@@ -163,31 +172,163 @@ class ProteinLSTMModel(ProteinLSTMAbstractModel):
         return outputs  # sequence_output, pooled_output, (hidden_states)
 
 
-class MultilabelProteinLSTMModel(ProteinLSTMModel):
+@registry.register_task_model('language_modeling', 'lstm')
+class ProteinLSTMForLM(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
 
-        self.config = config
+        self.lstm = ProteinLSTMModel(config)
+        self.feedforward = nn.Linear(config.hidden_size, config.vocab_size)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+
+        forward_prediction, reverse_prediction = sequence_output.chunk(2, -1)
+        forward_prediction = F.pad(forward_prediction[:, :-1], [0, 0, 1, 0])
+        reverse_prediction = F.pad(reverse_prediction[:, 1:], [0, 0, 0, 1])
+        prediction_scores = \
+            self.feedforward(forward_prediction) + self.feedforward(reverse_prediction)
+        prediction_scores = prediction_scores.contiguous()
+
+        # add hidden states and if they are here
+        outputs = (prediction_scores, ) + outputs[2:]
+
+        if targets is not None:
+            loss_fct = nn.CrossEntropyLoss(ignore_index=-1)
+            lm_loss = loss_fct(
+                prediction_scores.view(-1, self.config.vocab_size),
+                targets.view(-1))
+            outputs = (lm_loss, ) + outputs
+
+        # (loss), prediction_scores, seq_relationship_score, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('fluorescence', 'lstm')
+@registry.register_task_model('stability', 'lstm')
+class ProteinLSTMForValuePrediction(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.predict = ValuePredictionHead(config.hidden_size)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.predict(pooled_output, targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('remote_homology', 'lstm')
+class ProteinLSTMForSequenceClassification(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.classify = SequenceClassificationHead(config.hidden_size,
+                                                   config.num_labels)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.classify(pooled_output, targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('secondary_structure', 'lstm')
+class ProteinLSTMForSequenceToSequenceClassification(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.classify = SequenceToSequenceClassificationHead(
+            config.hidden_size * 2, config.num_labels, ignore_index=-1)
+
+        self.init_weights()
+
+    def forward(self, input_ids, input_mask=None, targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        amino_acid_class_scores = self.classify(sequence_output.contiguous())
+
+        # add hidden states and if they are here
+        outputs = (amino_acid_class_scores, ) + outputs[2:]
+
+        if targets is not None:
+            loss_fct = nn.CrossEntropyLoss(ignore_index=-1)
+            classification_loss = loss_fct(
+                amino_acid_class_scores.view(-1, self.config.num_labels),
+                targets.view(-1))
+            outputs = (classification_loss, ) + outputs
+
+        # (loss), prediction_scores, seq_relationship_score, (hidden_states)
+        return outputs
+
+
+@registry.register_task_model('contact_prediction', 'lstm')
+class ProteinLSTMForContactPrediction(ProteinLSTMAbstractModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.lstm = ProteinLSTMModel(config)
+        self.predict = PairwiseContactPredictionHead(config.hidden_size,
+                                                     ignore_index=-1)
+
+        self.init_weights()
+
+    def forward(self,
+                input_ids,
+                protein_length,
+                input_mask=None,
+                targets=None):
+
+        outputs = self.lstm(input_ids, input_mask=input_mask)
+
+        sequence_output, pooled_output = outputs[:2]
+        outputs = self.predict(sequence_output, protein_length,
+                               targets) + outputs[2:]
+        # (loss), prediction_scores, (hidden_states), (attentions)
+        return outputs
+
+
+@registry.register_task_model('multilabelclassification', 'lstm')
+class MultilabelProteinLSTMModel(ProteinLSTMModel):
+    def __init__(self, config: ProteinLSTMConfig):
+        super().__init__(config)
+
         self.num_labels = config.num_labels
-        self.protlstm = ProteinLSTMModel(config)
+        self.lstm = ProteinLSTMModel(config)
         classifier_dropout = (config.classifier_dropout
                               if config.classifier_dropout is not None else
                               config.hidden_dropout_prob)
         self.dropout = nn.Dropout(classifier_dropout)
-        self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
-        self.init_weights()
+        self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-    def forward(
-        self,
-        input_ids,
-        labels=None,
-    ):
-        outputs = self.protlstm(input_ids)
+    def forward(self, input_ids, labels=None):
+        outputs = self.lstm(input_ids)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         outputs = (logits, ) + outputs[2:]
-        return outputs  # (loss), logits, (hidden_states), (attentions)
+        return outputs  # logits, (hidden_states), (attentions)
 
 
 class LstmEncoderModel(nn.Module):

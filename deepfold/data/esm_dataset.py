@@ -50,12 +50,12 @@ class EsmEmbeddingDataset(Dataset):
         return df
 
 
-class ESMDataset(Dataset):
+class EsmDataset(Dataset):
     """ESMDataset."""
     def __init__(self,
                  data_path: str = 'dataset/',
                  split: str = 'train',
-                 model_dir: str = '',
+                 model_dir: str = 'esm1b_t33_650M_UR50S',
                  max_length: int = 1024,
                  truncate: bool = True,
                  random_crop: bool = False):
@@ -210,7 +210,7 @@ if __name__ == '__main__':
     from torch.utils.data import DataLoader
     data_root = '/home/niejianzheng/xbiome/datasets/protein'
     # data_root = '/Users/robin/xbiome/datasets/protein'
-    pro_dataset = ESMDataset(data_path=data_root,
+    pro_dataset = EsmDataset(data_path=data_root,
                              model_dir='esm1b_t33_650M_UR50S')
     print(pro_dataset.num_classes)
     data_loader = DataLoader(pro_dataset,
