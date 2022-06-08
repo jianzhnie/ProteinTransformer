@@ -309,31 +309,30 @@ class ProteinLSTMForContactPrediction(ProteinLSTMAbstractModel):
         return outputs
 
 
+@registry.register_task_model('multilabelclassification', 'lstm')
 class MultilabelProteinLSTMModel(ProteinLSTMModel):
-    def __init__(self, config):
+    def __init__(self, config: ProteinLSTMConfig):
         super().__init__(config)
 
-        self.config = config
         self.num_labels = config.num_labels
-        self.protlstm = ProteinLSTMModel(config)
+        self.lstm = ProteinLSTMModel(config)
         classifier_dropout = (config.classifier_dropout
                               if config.classifier_dropout is not None else
                               config.hidden_dropout_prob)
         self.dropout = nn.Dropout(classifier_dropout)
-        self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
-        self.init_weights()
+        self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
     def forward(
         self,
         input_ids,
         labels=None,
     ):
-        outputs = self.protlstm(input_ids)
+        outputs = self.lstm(input_ids)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         outputs = (logits, ) + outputs[2:]
-        return outputs  # (loss), logits, (hidden_states), (attentions)
+        return outputs  # logits, (hidden_states), (attentions)
 
 
 class LstmEncoderModel(nn.Module):
