@@ -12,14 +12,12 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from torch.utils.data import DataLoader
 
-from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
-from deepfold.data.esm_dataset import ESMDataset
-from DeepFold.deepfold.utils.random_utils import random_seed
-from deepfold.models.esm_model import EsmTransformer
+from deepfold.data.dataset_factory import get_dataloaders
+from deepfold.models.model_factory import get_model
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
+from deepfold.utils.random_utils import random_seed
 
 sys.path.append('../')
 
@@ -234,50 +232,10 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = ESMDataset(data_path=args.data_path,
-                               split='train',
-                               model_dir='esm1b_t33_650M_UR50S')
-
-    val_dataset = ESMDataset(data_path=args.data_path,
-                             split='test',
-                             model_dir='esm1b_t33_650M_UR50S')
-
-    if args.distributed:
-        train_sampler = torch.utils.data.distributed.DistributedSampler(
-            train_dataset)
-        val_sampler = torch.utils.data.distributed.DistributedSampler(
-            val_dataset)
-    else:
-        train_sampler = torch.utils.data.RandomSampler(train_dataset)
-        val_sampler = torch.utils.data.RandomSampler(val_dataset)
-
-    # dataloders
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        shuffle=(train_sampler is None),
-        num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
-        sampler=train_sampler,
-        pin_memory=True,
-    )
-
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=args.batch_size,
-        shuffle=(val_sampler is None),
-        num_workers=args.workers,
-        collate_fn=train_dataset.collate_fn,
-        sampler=val_sampler,
-        pin_memory=True,
-    )
+    train_loader, val_loader = get_dataloaders(args)
 
     # model
-    num_labels = train_dataset.num_classes
-    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode=args.pool_mode,
-                           fintune=args.fintune,
-                           num_labels=num_labels)
+    model = get_model(args)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -294,11 +252,11 @@ def main(args):
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
     criterion = nn.BCEWithLogitsLoss().cuda()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    lr_policy = LinearLRScheduler(optimizer=optimizer,
-                                  base_lr=args.lr,
-                                  warmup_length=args.warmup,
-                                  epochs=args.epochs)
+    optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
+                                   model.parameters()),
+                            lr=args.lr,
+                            weight_decay=args.weight_decay)
+    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
