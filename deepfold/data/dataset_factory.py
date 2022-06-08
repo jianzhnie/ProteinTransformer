@@ -17,10 +17,10 @@ def get_dataloaders(args):
                                             split='train')
         val_dataset = EsmEmbeddingDataset(data_path=args.data_path,
                                           split='test')
-    elif name == 'custom_prot_seq':
+    elif name == 'protseq':
         train_dataset = ProtSeqDataset(data_path=args.data_path, split='train')
         val_dataset = ProtSeqDataset(data_path=args.data_path, split='test')
-    elif name == 'prot_bert':
+    elif name == 'bert':
         train_dataset = ProtBertDataset(data_path=args.data_path,
                                         split='train')
         val_dataset = ProtBertDataset(data_path=args.data_path, split='test')
@@ -36,7 +36,7 @@ def get_dataloaders(args):
         train_sampler = torch.utils.data.RandomSampler(train_dataset)
         val_sampler = torch.utils.data.RandomSampler(val_dataset)
 
-    if name in ['esm', 'custom_prot_seq']:
+    if name in ['esm', 'protseq']:
         collate_fn = train_dataset.collate_fn
     else:
         collate_fn = None
