@@ -3,17 +3,21 @@ import typing
 import torch
 import torch.functional as F
 import torch.nn as nn
-from tape.models.modeling_utils import ProteinModel
+
+from ..registry import registry
+from .utils.modeling_utils import ProteinConfig, ProteinModel
 
 URL_PREFIX = 'https://s3.amazonaws.com/songlabdata/proteindata/pytorch-models/'
 LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
 LSTM_PRETRAINED_MODEL_ARCHIVE_MAP: typing.Dict[str, str] = {}
 
 
-class ProteinLSTMConfig():
+class ProteinLSTMConfig(ProteinConfig):
+    pretrained_config_archive_map = LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP
+
     def __init__(self,
                  vocab_size: int = 30,
-                 embed_dim: int = 128,
+                 input_size: int = 128,
                  hidden_size: int = 1024,
                  num_hidden_layers: int = 3,
                  bidirectional: bool = False,
@@ -23,7 +27,7 @@ class ProteinLSTMConfig():
                  **kwargs):
         super().__init__(**kwargs)
         self.vocab_size = vocab_size
-        self.embed_dim = embed_dim
+        self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_hidden_layers = num_hidden_layers
         self.bidirectional = bidirectional
@@ -140,6 +144,7 @@ class ProteinLSTMAbstractModel(ProteinModel):
             module.bias.data.zero_()
 
 
+@registry.register_task_model('embed', 'lstm')
 class ProteinLSTMModel(ProteinLSTMAbstractModel):
     def __init__(self, config: ProteinLSTMConfig):
         super().__init__(config)
