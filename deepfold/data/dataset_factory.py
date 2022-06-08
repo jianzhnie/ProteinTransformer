@@ -20,7 +20,7 @@ def get_dataloaders(args):
     elif name == 'protseq':
         train_dataset = ProtSeqDataset(data_path=args.data_path, split='train')
         val_dataset = ProtSeqDataset(data_path=args.data_path, split='test')
-    elif name == 'bert':
+    elif name == 'protbert':
         train_dataset = ProtBertDataset(data_path=args.data_path,
                                         split='train')
         val_dataset = ProtBertDataset(data_path=args.data_path, split='test')
