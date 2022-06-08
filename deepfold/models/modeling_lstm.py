@@ -322,11 +322,7 @@ class MultilabelProteinLSTMModel(ProteinLSTMModel):
         self.dropout = nn.Dropout(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-    def forward(
-        self,
-        input_ids,
-        labels=None,
-    ):
+    def forward(self, input_ids, labels=None):
         outputs = self.lstm(input_ids)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
