@@ -4,7 +4,7 @@ import torch.utils.data.distributed
 from torch.utils.data import DataLoader
 
 from .esm_dataset import EsmDataset, EsmEmbeddingDataset
-from .protein_dataset import CustomProtSeqDataset, ProtBertDataset
+from .protein_dataset import ProtBertDataset, ProtSeqDataset
 
 
 def get_dataloaders(args):
@@ -18,10 +18,8 @@ def get_dataloaders(args):
         val_dataset = EsmEmbeddingDataset(data_path=args.data_path,
                                           split='test')
     elif name == 'custom_prot_seq':
-        train_dataset = CustomProtSeqDataset(data_path=args.data_path,
-                                             split='train')
-        val_dataset = CustomProtSeqDataset(data_path=args.data_path,
-                                           split='test')
+        train_dataset = ProtSeqDataset(data_path=args.data_path, split='train')
+        val_dataset = ProtSeqDataset(data_path=args.data_path, split='test')
     elif name == 'prot_bert':
         train_dataset = ProtBertDataset(data_path=args.data_path,
                                         split='train')
