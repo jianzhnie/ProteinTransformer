@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import sys
 
 import pandas as pd
 import torch
@@ -8,7 +9,10 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 
-from .protein_tokenizer import ProteinTokenizer
+from deepfold.data.protein_tokenizer import ProteinTokenizer
+from deepfold.utils.distance import compute_jaccard_matrix
+
+sys.path.append('../../')
 
 
 class ProtBertDataset(Dataset):
@@ -125,28 +129,32 @@ class ProtSeqDataset(Dataset):
 
         length = len(sequence)
         multilabel = [0] * self.num_classes
-        label_list = self.labels[idx]
-        for t_id in label_list:
+        anno_term_list = self.labels[idx]
+        for t_id in anno_term_list:
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
 
         token_ids = self.tokenizer.gen_token_ids(sequence)
-        return token_ids, length, multilabel
+        return token_ids, length, multilabel, anno_term_list
 
     def collate_fn(self, examples):
         # 从独立样本集合中构建batch输入输出
         inputs = [torch.tensor(ex[0]) for ex in examples]
         lengths = [ex[1] for ex in examples]
         targets = [ex[2] for ex in examples]
+        anno_terms = [ex[3] for ex in examples]
+
         # 对batch内的样本进行padding，使其具有相同长度
         inputs = pad_sequence(inputs,
                               batch_first=True,
                               padding_value=self.tokenizer.padding_token_id)
-
+        jaccardMat = compute_jaccard_matrix(anno_terms, anno_terms)
         encoded_inputs = {'input_ids': inputs}
         encoded_inputs['lengths'] = torch.tensor(lengths, dtype=torch.int)
         encoded_inputs['labels'] = torch.tensor(targets, dtype=torch.int)
+        encoded_inputs['similarity'] = torch.tensor(jaccardMat,
+                                                    dtype=torch.float)
         return encoded_inputs
 
     def load_dataset(self, data_path, term_path):
@@ -154,10 +162,10 @@ class ProtSeqDataset(Dataset):
         terms_df = pd.read_pickle(term_path)
         terms = terms_df['terms'].values.flatten()
 
-        seq = list(df['sequences'])
-        label = list(df['prop_annotations'])
-        assert len(seq) == len(label)
-        return seq, label, terms
+        prot_seqs = list(df['sequences'])
+        anno_terms = list(df['prop_annotations'])
+        assert len(prot_seqs) == len(anno_terms)
+        return prot_seqs, anno_terms, terms
 
 
 def crop_sequence(sequence: str, crop_length: int) -> str:
@@ -176,8 +184,7 @@ if __name__ == '__main__':
         data_path='/Users/robin/xbiome/datasets/protein', split=True)
     for i in range(10):
         sample = pro_dataset[i]
-        for key, val in sample.items():
-            print(key, val)
+        print(sample)
 
     pro_dataset = ProtBertDataset(
         data_path='/Users/robin/xbiome/datasets/protein')
