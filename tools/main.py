@@ -13,10 +13,8 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 
-from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
-from deepfold.data.esm_dataset import ESMDataset
-from deepfold.utils.random_utils import random_seed
-from deepfold.models.esm_model import EsmTransformer
+from deepfold.data.dataset_factory import get_dataloaders
+from deepfold.models.model_factory import get_model
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
@@ -31,78 +29,85 @@ except ImportError:
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
-config_parser = parser = argparse.ArgumentParser(description='Training Config',
-                                                 add_help=False)
-parser.add_argument('-c',
-                    '--config',
-                    default='',
-                    type=str,
-                    metavar='FILE',
-                    help='YAML config file specifying default arguments')
+config_parser = parser = argparse.ArgumentParser(
+    description='Training Config', add_help=False)
+parser.add_argument(
+    '-c',
+    '--config',
+    default='',
+    type=str,
+    metavar='FILE',
+    help='YAML config file specifying default arguments')
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
-parser.add_argument('--data_path',
-                    default='',
-                    type=str,
-                    help='data dir of dataset')
-parser.add_argument('--dataset_name',
-                    default='',
-                    type=str,
-                    help='dataset name: esm, esm_embedding, protseq, protbert')
+parser.add_argument(
+    '--data_path', default='', type=str, help='data dir of dataset')
+parser.add_argument(
+    '--dataset_name',
+    default='',
+    type=str,
+    help='dataset name: esm, esm_embedding, protseq, protbert')
 
-parser.add_argument('--model',
-                    metavar='MODEL',
-                    default='esm',
-                    help='model architecture: (default: esm)')
-parser.add_argument('--pool_mode',
-                    type=str,
-                    default='mean',
-                    help='embedding method')
+parser.add_argument(
+    '--model',
+    metavar='MODEL',
+    default='esm',
+    help='model architecture: (default: esm)')
+parser.add_argument(
+    '--pool_mode', type=str, default='mean', help='embedding method')
 parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
-parser.add_argument('--resume',
-                    default=None,
-                    type=str,
-                    metavar='PATH',
-                    help='path to latest checkpoint (default: none)')
-parser.add_argument('--epochs',
-                    default=90,
-                    type=int,
-                    metavar='N',
-                    help='number of total epochs to run')
-parser.add_argument('--start-epoch',
-                    default=0,
-                    type=int,
-                    metavar='N',
-                    help='manual epoch number (useful on restarts)')
-parser.add_argument('-j',
-                    '--workers',
-                    type=int,
-                    default=4,
-                    metavar='N',
-                    help='how many training processes to use (default: 1)')
-parser.add_argument('--num_labels',
-                    default=5874,
-                    type=int,
-                    help='num labels for multi-label classification')
-parser.add_argument('-b',
-                    '--batch-size',
-                    default=256,
-                    type=int,
-                    metavar='N',
-                    help='mini-batch size (default: 256) per gpu')
-parser.add_argument('--lr',
-                    '--learning-rate',
-                    default=0.1,
-                    type=float,
-                    metavar='LR',
-                    help='initial learning rate',
-                    dest='lr')
-parser.add_argument('--end-lr',
-                    '--minimum learning-rate',
-                    default=1e-8,
-                    type=float,
-                    metavar='END-LR',
-                    help='initial learning rate')
+parser.add_argument(
+    '--resume',
+    default=None,
+    type=str,
+    metavar='PATH',
+    help='path to latest checkpoint (default: none)')
+parser.add_argument(
+    '--epochs',
+    default=90,
+    type=int,
+    metavar='N',
+    help='number of total epochs to run')
+parser.add_argument(
+    '--start-epoch',
+    default=0,
+    type=int,
+    metavar='N',
+    help='manual epoch number (useful on restarts)')
+parser.add_argument(
+    '-j',
+    '--workers',
+    type=int,
+    default=4,
+    metavar='N',
+    help='how many training processes to use (default: 1)')
+parser.add_argument(
+    '--num_labels',
+    default=5874,
+    type=int,
+    help='num labels for multi-label classification')
+parser.add_argument(
+    '-b',
+    '--batch-size',
+    default=256,
+    type=int,
+    metavar='N',
+    help='mini-batch size (default: 256) per gpu')
+parser.add_argument(
+    '--lr',
+    '--learning-rate',
+    default=0.1,
+    type=float,
+    metavar='LR',
+    help='initial learning rate',
+    dest='lr')
+parser.add_argument(
+    '--end-lr',
+    '--minimum learning-rate',
+    default=1e-8,
+    type=float,
+    metavar='END-LR',
+    help='initial learning rate')
 parser.add_argument(
     '--lr-schedule',
     default='step',
@@ -113,36 +118,37 @@ parser.add_argument(
                                                        'cosine',
                                                        'exponential'),
 )
-parser.add_argument('--warmup',
-                    default=0,
-                    type=int,
-                    metavar='E',
-                    help='number of warmup epochs')
-parser.add_argument('--optimizer',
-                    default='sgd',
-                    type=str,
-                    choices=('sgd', 'rmsprop', 'adamw'))
-parser.add_argument('--momentum',
-                    default=0.9,
-                    type=float,
-                    metavar='M',
-                    help='momentum')
-parser.add_argument('--wd',
-                    '--weight-decay',
-                    default=1e-4,
-                    type=float,
-                    metavar='W',
-                    help='weight decay (default: 1e-4)',
-                    dest='weight_decay')
+parser.add_argument(
+    '--warmup',
+    default=0,
+    type=int,
+    metavar='E',
+    help='number of warmup epochs')
+parser.add_argument(
+    '--optimizer',
+    default='sgd',
+    type=str,
+    choices=('sgd', 'rmsprop', 'adamw'))
+parser.add_argument(
+    '--momentum', default=0.9, type=float, metavar='M', help='momentum')
+parser.add_argument(
+    '--wd',
+    '--weight-decay',
+    default=1e-4,
+    type=float,
+    metavar='W',
+    help='weight decay (default: 1e-4)',
+    dest='weight_decay')
 parser.add_argument(
     '--amp',
     action='store_true',
     default=False,
     help='use NVIDIA Apex AMP or Native AMP for mixed precision training')
-parser.add_argument('--native-amp',
-                    action='store_true',
-                    default=False,
-                    help='Use Native Torch AMP mixed precision')
+parser.add_argument(
+    '--native-amp',
+    action='store_true',
+    default=False,
+    help='Use Native Torch AMP mixed precision')
 parser.add_argument(
     '--early-stopping-patience',
     default=-1,
@@ -157,13 +163,13 @@ parser.add_argument(
     metavar='N',
     help='=To run gradient descent after N steps',
 )
-parser.add_argument('--evaluate',
-                    dest='evaluate',
-                    action='store_true',
-                    help='evaluate model on validation set')
-parser.add_argument('--training-only',
-                    action='store_true',
-                    help='do not evaluate')
+parser.add_argument(
+    '--evaluate',
+    dest='evaluate',
+    action='store_true',
+    help='evaluate model on validation set')
+parser.add_argument(
+    '--training-only', action='store_true', help='do not evaluate')
 parser.add_argument('--local_rank', default=0, type=int)
 parser.add_argument(
     '--static-loss-scale',
@@ -183,32 +189,33 @@ parser.add_argument(
     dest='save_checkpoints',
     help='do not store any checkpoints, useful for benchmarking',
 )
-parser.add_argument('--seed',
-                    type=int,
-                    default=42,
-                    metavar='S',
-                    help='random seed (default: 42)')
-parser.add_argument('--log_interval',
-                    default=10,
-                    type=int,
-                    metavar='N',
-                    help='print frequency (default: 10)')
-parser.add_argument('--output-dir',
-                    default='./work_dirs',
-                    type=str,
-                    help='output directory for model and log')
-parser.add_argument('--log_wandb',
-                    action='store_true',
-                    help='while to use wandb log systerm')
+parser.add_argument(
+    '--seed',
+    type=int,
+    default=42,
+    metavar='S',
+    help='random seed (default: 42)')
+parser.add_argument(
+    '--log_interval',
+    default=10,
+    type=int,
+    metavar='N',
+    help='print frequency (default: 10)')
+parser.add_argument(
+    '--output-dir',
+    default='./work_dirs',
+    type=str,
+    help='output directory for model and log')
+parser.add_argument(
+    '--log_wandb', action='store_true', help='while to use wandb log systerm')
 parser.add_argument('--experiment', default='protein-annotation', type=str)
 
 
 def main(args):
     if args.log_wandb:
         if has_wandb:
-            wandb.init(project=args.experiment,
-                       config=args,
-                       entity='hushuangwei')
+            wandb.init(
+                project=args.experiment, config=args, entity='hushuangwei')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "
@@ -263,10 +270,10 @@ def main(args):
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
     criterion = nn.BCEWithLogitsLoss().cuda()
-    optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
-                                   model.parameters()),
-                            lr=args.lr,
-                            weight_decay=args.weight_decay)
+    optimizer = optim.AdamW(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=args.lr,
+        weight_decay=args.weight_decay)
     lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
 
     if args.distributed:
@@ -288,8 +295,8 @@ def main(args):
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(model,
-                                                              output_device=0)
+            model = torch.nn.parallel.DistributedDataParallel(
+                model, output_device=0)
     else:
         model.cuda()
 
@@ -305,25 +312,26 @@ def main(args):
 
     gradient_accumulation_steps = args.gradient_accumulation_steps
 
-    train_loop(model,
-               optimizer,
-               criterion,
-               lr_policy,
-               scaler,
-               gradient_accumulation_steps,
-               train_loader,
-               val_loader,
-               use_amp=args.amp,
-               logger=logger,
-               start_epoch=start_epoch,
-               end_epoch=args.epochs,
-               early_stopping_patience=args.early_stopping_patience,
-               skip_training=args.evaluate,
-               skip_validation=args.training_only,
-               save_checkpoints=args.save_checkpoints and not args.evaluate,
-               output_dir=args.output_dir,
-               log_wandb=args.log_wandb,
-               log_interval=args.log_interval)
+    train_loop(
+        model,
+        optimizer,
+        criterion,
+        lr_policy,
+        scaler,
+        gradient_accumulation_steps,
+        train_loader,
+        val_loader,
+        use_amp=args.amp,
+        logger=logger,
+        start_epoch=start_epoch,
+        end_epoch=args.epochs,
+        early_stopping_patience=args.early_stopping_patience,
+        skip_training=args.evaluate,
+        skip_validation=args.training_only,
+        save_checkpoints=args.save_checkpoints and not args.evaluate,
+        output_dir=args.output_dir,
+        log_wandb=args.log_wandb,
+        log_interval=args.log_interval)
     print('Experiment ended')
 
 
