@@ -277,12 +277,11 @@ def train_loop(model,
         epochs_since_improvement = 0
 
     best_metric = np.inf
+    logger.info('Evaluate validation set before start training')
+    eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
+                            log_interval)
     logger.info(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        logger.info('Evaluate validation set before start training')
-        eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
-                                log_interval)
-
         logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
         if not skip_training:
             train_metrics = train(model, train_loader, criterion, optimizer,
