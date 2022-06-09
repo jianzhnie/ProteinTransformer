@@ -43,6 +43,11 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--dataset_name',
+                    default='',
+                    type=str,
+                    help='dataset name: esm, esm_embedding, protseq, protbert')
+
 parser.add_argument('--model',
                     metavar='MODEL',
                     default='esm',
@@ -73,6 +78,10 @@ parser.add_argument('-j',
                     default=4,
                     metavar='N',
                     help='how many training processes to use (default: 1)')
+parser.add_argument('--num_labels',
+                    default=5874,
+                    type=int,
+                    help='num labels for multi-label classification')
 parser.add_argument('-b',
                     '--batch-size',
                     default=256,
