@@ -2,9 +2,30 @@
 
 DeepFold is an ToolKit Using AI for Computing Biology
 
-## Train model
+[Toc]
 
-## Gpu Training
+## Installation
+
+The sources for AutoTabular can be downloaded from the `Github repo`.
+
+You can either clone the public repository:
+
+```bash
+# clone project
+git clone
+# First, install dependencies
+pip install -r requirements.txt
+```
+
+Once you have a copy of the source, you can install it with:
+
+```bash
+python setup.py install
+```
+
+## How to use
+
+### Single Gpu Training
 
 ```sh
 python main.py  \
@@ -30,58 +51,54 @@ torchrun --nnodes=1 --nproc_per_node=2  --rdzv_id=0 main.py  \
 --workers 4
 ```
 
+### Evaluate
+
+```sh
+## evaluate diamond
+python  evaluate_diamondscore.py \
+    --train-data-file /home/niejianzheng/xbiome/datasets/protein/train_data.pkl \
+    --test-data-file /home/niejianzheng/xbiome/datasets/protein/test_data.pkl \
+    --diamond-scores-file /home/niejianzheng/xbiome/datasets/protein/test_diamond.res \
+    --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
+    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
 
 
-## Protein-Language Model
+## evaluate model
+python  evaluate_deepmodel.py \
+    --train-data-file /home/niejianzheng/xbiome/datasets/protein/train_data.pkl \
+    --test-data-file /home/niejianzheng/xbiome/datasets/protein/predictions.pkl \
+    --terms-file /home/niejianzheng/xbiome/datasets/protein/terms.pkl \
+    --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
+    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
+```
 
-- **Deep generative models of genetic variation capture the effects of mutations**
+### Inference
 
-- **Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences**
+```sh
+## inference
+python inference_embedding.py  \
+--data_path /home/niejianzheng/xbiome/datasets/protein \
+--output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
+--resume /home/niejianzheng/xbiome/DeepFold/work_dir/ProtLM_esm_embedding_mean/model_best.pth.tar \
+--model esm_embedding \
+--pool_mode  mean \
+--batch-size  128 \
+--workers 4
+```
 
-- **Evaluating protein transfer learning with tape**
+### Extract Embeddings
 
-- **Large-scale clinical interpretation of genetic variants using evolutionary data and deep learning**
+```sh
+python extract_embeddings.py  \
+--data_path /home/niejianzheng/xbiome/datasets/protein \
+--split "test" \
+--batch-size 32
+```
 
+## License
 
+This library is licensed under the Apache 2.0 License.
 
-## Protein function Annotation
+## Contributing to DeepFold
 
-- **DeepGO: predicting protein functions from sequence and interactions using a deep ontology-aware classifier** [[link\]](https://dx.doi.org/10.1093/bioinformatics/btx624)
-
-- **Deep Semantic Protein Representation for Annotation, Discovery, and Engineering** [[link\]](https://www.biorxiv.org/content/early/2018/07/10/365965)
-
-- **Embeddings from deep learning transfer GO annotations beyond homology**
-- **Improving Protein Function Annotation via Unsupervised Pre-training: Robustness, Efficiency, and Insights**
-
-- **Using Deep Learning to Annotate the Protein Universe** [[link\]](https://www.biorxiv.org/content/early/2019/05/03/626507)
-
-
-
-
-
-## Structure Prection
-
-- **End-to-end differentiable learning of protein structure**
-- **Improved protein structure prediction using potentials from deep learning**
-- **Improved protein structure prediction using predicted interresidue orientations** [[link\]](https://www.pnas.org/content/117/3/1496)
-- **Improved protein structure prediction using predicted interresidue orientations**
-- **Energy-based models for atomic-resolution protein conformations**
-- **MSA Transformer**
-
-
-
-## Protein Generation
-
-- **Machine-learning-guided directed evolution for protein engineering**
-- **Machine learning in enzyme engineering**
-- **Low-N protein engineering with data-efficient deep learning**
-- **Progen: Language modeling for protein generation**
-- **ProtTrans: towards cracking the language of Life's code through self-supervised deep learning and high performance computing**
-- **De novo protein design by deep network hallucination**
-- **Deep diversification of an AAV capsid protein by machine learning**
-
-
-
-## Evaluation
-
-- **A large-scale evaluation of computational protein function prediction**
+We are actively accepting code contributions to the AutoTabular project. If you are interested in contributing to AutoTabular, please contact me.
