@@ -1,7 +1,7 @@
 import typing
 
 import torch
-import torch.functional as F
+import torch.nn.functional as F
 import torch.nn as nn
 
 from .utils.modeling_utils import (PairwiseContactPredictionHead,
@@ -15,6 +15,7 @@ LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
 LSTM_PRETRAINED_MODEL_ARCHIVE_MAP: typing.Dict[str, str] = {}
 
 
+
 class ProteinLSTMConfig(ProteinConfig):
     pretrained_config_archive_map = LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP
 
@@ -26,6 +27,7 @@ class ProteinLSTMConfig(ProteinConfig):
                  bidirectional: bool = False,
                  hidden_dropout_prob: float = 0.1,
                  dropout_rate: float = 0.1,
+                 classifier_dropout: float = None,
                  initializer_range: float = 0.02,
                  **kwargs):
         super().__init__(**kwargs)
@@ -37,6 +39,7 @@ class ProteinLSTMConfig(ProteinConfig):
         self.hidden_dropout_prob = hidden_dropout_prob
         self.dropout_rate = dropout_rate
         self.initializer_range = initializer_range
+        self.classifier_dropout = classifier_dropout
 
 
 class ProteinLSTMLayer(nn.Module):
@@ -313,14 +316,12 @@ class MultilabelProteinLSTMModel(ProteinLSTMModel):
         self.dropout = nn.Dropout(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-    def forward(self, input_ids, labels=None):
+    def forward(self, input_ids, labels=None, lengths=None):
         outputs = self.lstm(input_ids)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
-        outputs = (logits, ) + outputs[2:]
-        return outputs  # logits, (hidden_states), (attentions)
-
+        return logits
 
 class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""
