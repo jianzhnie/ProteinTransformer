@@ -4,7 +4,6 @@ import torch
 import torch.functional as F
 import torch.nn as nn
 
-from ..registry import registry
 from .utils.modeling_utils import (PairwiseContactPredictionHead,
                                    ProteinConfig, ProteinModel,
                                    SequenceClassificationHead,
@@ -148,7 +147,6 @@ class ProteinLSTMAbstractModel(ProteinModel):
             module.bias.data.zero_()
 
 
-@registry.register_task_model('embed', 'lstm')
 class ProteinLSTMModel(ProteinLSTMAbstractModel):
     def __init__(self, config: ProteinLSTMConfig):
         super().__init__(config)
@@ -172,7 +170,6 @@ class ProteinLSTMModel(ProteinLSTMAbstractModel):
         return outputs  # sequence_output, pooled_output, (hidden_states)
 
 
-@registry.register_task_model('language_modeling', 'lstm')
 class ProteinLSTMForLM(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
@@ -209,8 +206,6 @@ class ProteinLSTMForLM(ProteinLSTMAbstractModel):
         return outputs
 
 
-@registry.register_task_model('fluorescence', 'lstm')
-@registry.register_task_model('stability', 'lstm')
 class ProteinLSTMForValuePrediction(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
@@ -230,7 +225,6 @@ class ProteinLSTMForValuePrediction(ProteinLSTMAbstractModel):
         return outputs
 
 
-@registry.register_task_model('remote_homology', 'lstm')
 class ProteinLSTMForSequenceClassification(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
@@ -251,7 +245,6 @@ class ProteinLSTMForSequenceClassification(ProteinLSTMAbstractModel):
         return outputs
 
 
-@registry.register_task_model('secondary_structure', 'lstm')
 class ProteinLSTMForSequenceToSequenceClassification(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
@@ -283,7 +276,6 @@ class ProteinLSTMForSequenceToSequenceClassification(ProteinLSTMAbstractModel):
         return outputs
 
 
-@registry.register_task_model('contact_prediction', 'lstm')
 class ProteinLSTMForContactPrediction(ProteinLSTMAbstractModel):
     def __init__(self, config):
         super().__init__(config)
@@ -309,7 +301,6 @@ class ProteinLSTMForContactPrediction(ProteinLSTMAbstractModel):
         return outputs
 
 
-@registry.register_task_model('multilabelclassification', 'lstm')
 class MultilabelProteinLSTMModel(ProteinLSTMModel):
     def __init__(self, config: ProteinLSTMConfig):
         super().__init__(config)
