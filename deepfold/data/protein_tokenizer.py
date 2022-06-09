@@ -1,6 +1,7 @@
 """Tools for protein features."""
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import List
+from abc import ABC, abstractmethod
 
 IUPAC_CODES = OrderedDict([('Ala', 'A'), ('Asx', 'B'), ('Cys', 'C'),
                            ('Asp', 'D'), ('Glu', 'E'), ('Phe', 'F'),
@@ -29,56 +30,30 @@ UNIREP_VOCAB = OrderedDict([('<pad>', 0), ('M', 1),
                             ('<sep>', 25)])
 
 
-class ProteinTokenizer(object):
-    """Protein Tokenizer."""
+class Tokenizer(ABC):
 
-    padding_token = '<pad>'
-    mask_token = '<mask>'
-    start_token = class_token = '<cls>'
-    end_token = seperate_token = '<sep>'
-    unknown_token = '<unk>'
+    @abstractmethod
+    def __init__(self):
+        self.unknown_token_id = -1
+        self.start_token = '<cls>'
+        self.end_token = '<sep>'
+        self.vocab = defaultdict(lambda: "Not Present")
+        self.tokens = list(self.vocab.keys())
 
-    padding_token_id = 0
-    mask_token_id = 1
-    start_token_id = class_token_id = 2
-    end_token_id = seperate_token_id = 3
-    unknown_token_id = 4
-
-    special_token_ids = [
-        padding_token_id, mask_token_id, start_token_id, end_token_id,
-        unknown_token_id
-    ]
-
-    vocab = OrderedDict([(padding_token, 0), (mask_token, 1), (class_token, 2),
-                         (seperate_token, 3), (unknown_token, 4), ('A', 5),
-                         ('B', 6), ('C', 7), ('D', 8), ('E', 9), ('F', 10),
-                         ('G', 11), ('H', 12), ('I', 13), ('K', 14), ('L', 15),
-                         ('M', 16), ('N', 17), ('O', 18), ('P', 19), ('Q', 20),
-                         ('R', 21), ('S', 22), ('T', 23), ('U', 24), ('V', 25),
-                         ('W', 26), ('X', 27), ('Y', 28), ('Z', 29)])
-    tokens = list(vocab.keys())
+    @abstractmethod
+    def tokenize(self, sequence):
+        pass
 
     @property
     def vocab_size(self) -> int:
         return len(self.vocab)
 
-    @property
-    def mask_token(self) -> str:
-        if '<mask>' in self.vocab:
-            return '<mask>'
-        else:
-            raise RuntimeError(' vocab does not support masking')
-
-    def tokenize(self, sequence):
-        """Split the sequence into token list.
-
-        Args:
-            sequence: The sequence to be tokenized.
-
-        Returns:
-            tokens: The token lists.
-        """
-        return [x for x in sequence]
+    # @property
+    # def mask_token(self) -> str:
+    #     if '<mask>' in self.vocab:
+    #         return '<mask>'
+    #     else:
+    #         raise RuntimeError(' vocab does not support masking')
 
     def convert_token_to_id(self, token):
         """Converts a token to an id.
@@ -90,9 +65,9 @@ class ProteinTokenizer(object):
             id: The id of the input token.
         """
         if token not in self.vocab:
-            return ProteinTokenizer.unknown_token_id
+            return self.unknown_token_id
         else:
-            return ProteinTokenizer.vocab[token]
+            return self.vocab[token]
 
     def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
         """Convert multiple tokens to ids.
@@ -116,7 +91,8 @@ class ProteinTokenizer(object):
     def convert_ids_to_tokens(self, indices: List[int]) -> List[str]:
         return [self.convert_id_to_token(id_) for id_ in indices]
 
-    def convert_tokens_to_string(self, tokens: str) -> str:
+    @staticmethod
+    def convert_tokens_to_string(tokens: str) -> str:
         """Converts a sequence of tokens (string) in a single string."""
         return ''.join(tokens)
 
@@ -129,13 +105,57 @@ class ProteinTokenizer(object):
         Returns:
             token_ids: The list of token ids.
         """
-        tokens = []
-        tokens.append(ProteinTokenizer.start_token)
+        tokens = [self.start_token]
         tokens.extend(self.tokenize(sequence))
-        tokens.append(ProteinTokenizer.end_token)
+        tokens.append(self.end_token)
         token_ids = self.convert_tokens_to_ids(tokens)
         return token_ids
 
-    @classmethod
-    def from_pretrained(cls, **kwargs):
-        return cls()
+
+class ProteinTokenizer(Tokenizer):
+    """Protein Tokenizer."""
+
+    def __init__(self):
+        # "<s>": 0, "<pad>": 1, "</s>": 2, "<unk>": 3, "<mask>": 4
+        super().__init__()
+
+        self.padding_token = '<pad>'
+        self.mask_token = '<mask>'
+        self.start_token = self.class_token = '<cls>'
+        self.end_token = self.separate_token = '<sep>'
+        self.unknown_token = '<unk>'
+
+        self.padding_token_id = 0
+        self.mask_token_id = 1
+        self.start_token_id = self.class_token_id = 2
+        self.end_token_id = self.separate_token_id = 3
+        self.unknown_token_id = 4
+
+        self.vocab = OrderedDict([(self.padding_token, 0), (self.mask_token, 1), (self.class_token, 2),
+                                  (self.separate_token, 3), (self.unknown_token, 4), ('A', 5),
+                                  ('B', 6), ('C', 7), ('D', 8), ('E', 9), ('F', 10),
+                                  ('G', 11), ('H', 12), ('I', 13), ('K', 14), ('L', 15),
+                                  ('M', 16), ('N', 17), ('O', 18), ('P', 19), ('Q', 20),
+                                  ('R', 21), ('S', 22), ('T', 23), ('U', 24), ('V', 25),
+                                  ('W', 26), ('X', 27), ('Y', 28), ('Z', 29)])
+        self.tokens = list(self.vocab.keys())
+
+    def tokenize(self, sequence):
+        """Split the sequence into token list.
+
+        Args:
+            sequence: The sequence to be tokenized.
+
+        Returns:
+            tokens: The token lists.
+        """
+        return [x for x in sequence]
+
+
+if __name__ == '__main__':
+    tokenizer = ProteinTokenizer()
+    print(tokenizer.tokens)
+    print(tokenizer.convert_id_to_token(5))
+    print(tokenizer.convert_token_to_id('hangzhou'))
+    print(tokenizer.vocab_size)
+    print(tokenizer.gen_token_ids(['A', 'G']))
