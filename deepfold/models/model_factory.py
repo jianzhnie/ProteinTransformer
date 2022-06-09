@@ -1,6 +1,7 @@
 from .deepgoplus import DeepGOPlusModel
 from .esm_model import EsmEmbeddingModel, EsmTransformer
-from .modeling_lstm import MultilabelProteinLSTMModel, ProteinLSTMConfig
+from .modeling_lstm import (ContrastiveProteinLSTMModel,
+                            MultilabelProteinLSTMModel, ProteinLSTMConfig)
 
 
 def get_model(args):
@@ -20,5 +21,10 @@ def get_model(args):
 
         config = ProteinLSTMConfig(num_labels=args.num_labels)
         model = MultilabelProteinLSTMModel(config)
+
+    if args.model == 'contrastive_lstm':
+
+        config = ProteinLSTMConfig()
+        model = ContrastiveProteinLSTMModel(config)
 
     return model
