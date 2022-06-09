@@ -1,6 +1,6 @@
 # DeepFold
 
-DeepFold is an ToolKit Using AI for Computing Biology
+X-DeepGO is toolkit using deep learning for protein function annotation
 
 [Toc]
 
@@ -12,7 +12,7 @@ You can either clone the public repository:
 
 ```bash
 # clone project
-git clone
+git clone https://github.com/jianzhnie/X-DeepGO.git
 # First, install dependencies
 pip install -r requirements.txt
 ```
@@ -25,7 +25,7 @@ python setup.py install
 
 ## How to use
 
-### Single Gpu Training
+### Single GPU Training
 
 ```sh
 python main.py  \
