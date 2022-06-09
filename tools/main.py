@@ -13,8 +13,10 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 
-from deepfold.data.dataset_factory import get_dataloaders
-from deepfold.models.model_factory import get_model
+from deepfold.core.scheduler.lr_scheduler import LinearLRScheduler
+from deepfold.data.esm_dataset import ESMDataset
+from deepfold.utils.random_utils import random_seed
+from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
@@ -206,7 +208,7 @@ def main(args):
         if has_wandb:
             wandb.init(project=args.experiment,
                        config=args,
-                       entity='jianzhnie')
+                       entity='hushuangwei')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "

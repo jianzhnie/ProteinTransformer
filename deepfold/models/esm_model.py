@@ -56,7 +56,7 @@ class EsmTransformer(nn.Module):
                  repr_layers: List[int] = None,
                  dropout_ratio: float = 0.0,
                  pool_mode: str = 'cls',
-                 fintune: bool = True):
+                 fintune: bool = False):
         super().__init__()
 
         if model_dir not in ESM_LIST:

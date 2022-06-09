@@ -7,7 +7,6 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
-import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
@@ -15,12 +14,11 @@ import yaml
 from torch.utils.data import DataLoader
 sys.path.append('../')
 from deepfold.data.esm_dataset import EsmEmbeddingDataset
-from deepfold.utils.random_utils import random_seed
 from deepfold.models.esm_model import EsmEmbeddingModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
-
-
+from deepfold.utils.random_utils import random_seed
+from deepfold.core.loss.asl_losses import AsymmetricLossOptimized
 try:
     import wandb
     has_wandb = True
@@ -197,7 +195,7 @@ def main(args):
         if has_wandb:
             wandb.init(project=args.experiment,
                        config=args,
-                       entity='jianzhnie')
+                       entity='hushuangwei')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "
@@ -282,7 +280,8 @@ def main(args):
     )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    criterion = nn.BCEWithLogitsLoss().cuda()
+    #criterion = nn.BCEWithLogitsLoss().cuda()
+    criterion = AsymmetricLossOptimized(gamma_neg=8, gamma_pos=0.1, clip=0.1).cuda()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
                                    model.parameters()),
                             lr=args.lr,
