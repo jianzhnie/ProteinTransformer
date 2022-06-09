@@ -1,8 +1,8 @@
 import typing
 
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .utils.modeling_utils import (PairwiseContactPredictionHead,
                                    ProteinConfig, ProteinModel,
@@ -13,7 +13,6 @@ from .utils.modeling_utils import (PairwiseContactPredictionHead,
 URL_PREFIX = 'https://s3.amazonaws.com/songlabdata/proteindata/pytorch-models/'
 LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
 LSTM_PRETRAINED_MODEL_ARCHIVE_MAP: typing.Dict[str, str] = {}
-
 
 
 class ProteinLSTMConfig(ProteinConfig):
@@ -322,6 +321,7 @@ class MultilabelProteinLSTMModel(ProteinLSTMModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         return logits
+
 
 class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""
