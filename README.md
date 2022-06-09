@@ -1,4 +1,4 @@
-# DeepFold
+# X-DeepGO
 
 X-DeepGO is toolkit using deep learning for protein function annotation
 
@@ -99,6 +99,6 @@ python extract_embeddings.py  \
 
 This library is licensed under the Apache 2.0 License.
 
-## Contributing to DeepFold
+## Contributing to X-DeepGO
 
-We are actively accepting code contributions to the AutoTabular project. If you are interested in contributing to AutoTabular, please contact me.
+We are actively accepting code contributions to the X-DeepGO project. If you are interested in contributing to X-DeepGO, please contact me.
