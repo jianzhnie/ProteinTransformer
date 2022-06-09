@@ -2,7 +2,8 @@ import sys
 from collections import defaultdict
 
 import numpy
-from embedding_lookup import EmbeddingLookup
+
+from .embedding_lookup import EmbeddingLookup
 
 
 class FunctionPrediction(object):

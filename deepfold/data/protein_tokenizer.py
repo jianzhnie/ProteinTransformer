@@ -1,7 +1,7 @@
 """Tools for protein features."""
+from abc import ABC, abstractmethod
 from collections import OrderedDict, defaultdict
 from typing import List
-from abc import ABC, abstractmethod
 
 IUPAC_CODES = OrderedDict([('Ala', 'A'), ('Asx', 'B'), ('Cys', 'C'),
                            ('Asp', 'D'), ('Glu', 'E'), ('Phe', 'F'),
@@ -31,13 +31,12 @@ UNIREP_VOCAB = OrderedDict([('<pad>', 0), ('M', 1),
 
 
 class Tokenizer(ABC):
-
     @abstractmethod
     def __init__(self):
         self.unknown_token_id = -1
         self.start_token = '<cls>'
         self.end_token = '<sep>'
-        self.vocab = defaultdict(lambda: "Not Present")
+        self.vocab = defaultdict(lambda: 'Not Present')
         self.tokens = list(self.vocab.keys())
 
     @abstractmethod
@@ -114,7 +113,6 @@ class Tokenizer(ABC):
 
 class ProteinTokenizer(Tokenizer):
     """Protein Tokenizer."""
-
     def __init__(self):
         # "<s>": 0, "<pad>": 1, "</s>": 2, "<unk>": 3, "<mask>": 4
         super().__init__()
@@ -131,13 +129,16 @@ class ProteinTokenizer(Tokenizer):
         self.end_token_id = self.separate_token_id = 3
         self.unknown_token_id = 4
 
-        self.vocab = OrderedDict([(self.padding_token, 0), (self.mask_token, 1), (self.class_token, 2),
-                                  (self.separate_token, 3), (self.unknown_token, 4), ('A', 5),
-                                  ('B', 6), ('C', 7), ('D', 8), ('E', 9), ('F', 10),
-                                  ('G', 11), ('H', 12), ('I', 13), ('K', 14), ('L', 15),
-                                  ('M', 16), ('N', 17), ('O', 18), ('P', 19), ('Q', 20),
-                                  ('R', 21), ('S', 22), ('T', 23), ('U', 24), ('V', 25),
-                                  ('W', 26), ('X', 27), ('Y', 28), ('Z', 29)])
+        self.vocab = OrderedDict([(self.padding_token, 0),
+                                  (self.mask_token, 1), (self.class_token, 2),
+                                  (self.separate_token, 3),
+                                  (self.unknown_token, 4), ('A', 5), ('B', 6),
+                                  ('C', 7), ('D', 8), ('E', 9), ('F', 10),
+                                  ('G', 11), ('H', 12), ('I', 13), ('K', 14),
+                                  ('L', 15), ('M', 16), ('N', 17), ('O', 18),
+                                  ('P', 19), ('Q', 20), ('R', 21), ('S', 22),
+                                  ('T', 23), ('U', 24), ('V', 25), ('W', 26),
+                                  ('X', 27), ('Y', 28), ('Z', 29)])
         self.tokens = list(self.vocab.keys())
 
     def tokenize(self, sequence):
