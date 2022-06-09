@@ -14,6 +14,7 @@ from deepfold.utils.summary import update_summary
 
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
+
     def _step(inputs, optimizer_step=True):
         # Runs the forward pass with autocasting.
         with autocast(enabled=use_amp):
@@ -87,14 +88,15 @@ def train(model,
                     'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
                     'BatchTime: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
                     'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '
-                    'lr: {lr:>4.6f} '.format(log_name,
-                                             epoch + 1,
-                                             idx,
-                                             steps_per_epoch,
-                                             data_time=data_time_m,
-                                             batch_time=batch_time_m,
-                                             loss=losses_m,
-                                             lr=learning_rate))
+                    'lr: {lr:>4.6f} '.format(
+                        log_name,
+                        epoch + 1,
+                        idx,
+                        steps_per_epoch,
+                        data_time=data_time_m,
+                        batch_time=batch_time_m,
+                        loss=losses_m,
+                        lr=learning_rate))
 
     return OrderedDict([('loss', losses_m.avg)])
 
@@ -277,12 +279,11 @@ def train_loop(model,
         epochs_since_improvement = 0
 
     best_metric = np.inf
+    logger.info('Evaluate validation set before start training')
+    eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
+                            log_interval)
     logger.info(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
-        logger.info('Evaluate validation set before start training')
-        eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
-                                log_interval)
-
         logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
         if not skip_training:
             train_metrics = train(model, train_loader, criterion, optimizer,
@@ -304,12 +305,13 @@ def train_loop(model,
 
         if log_wandb and (not torch.distributed.is_initialized()
                           or torch.distributed.get_rank() == 0):
-            update_summary(epoch,
-                           train_metrics,
-                           eval_metrics,
-                           os.path.join(output_dir, 'summary.csv'),
-                           write_header=best_metric is None,
-                           log_wandb=log_wandb)
+            update_summary(
+                epoch,
+                train_metrics,
+                eval_metrics,
+                os.path.join(output_dir, 'summary.csv'),
+                write_header=best_metric is None,
+                log_wandb=log_wandb)
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
@@ -320,10 +322,8 @@ def train_loop(model,
                 'optimizer': optimizer.state_dict(),
             }
             logger.info('[*] Saving model epoch %d...' % (epoch + 1))
-            save_checkpoint(checkpoint_state,
-                            epoch,
-                            is_best,
-                            checkpoint_dir=output_dir)
+            save_checkpoint(
+                checkpoint_state, epoch, is_best, checkpoint_dir=output_dir)
 
         if early_stopping_patience > 0:
             if not is_best:

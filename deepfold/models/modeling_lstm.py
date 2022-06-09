@@ -1,8 +1,9 @@
 import typing
 
+import numpy as np
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .utils.modeling_utils import (PairwiseContactPredictionHead,
                                    ProteinConfig, ProteinModel,
@@ -13,7 +14,6 @@ from .utils.modeling_utils import (PairwiseContactPredictionHead,
 URL_PREFIX = 'https://s3.amazonaws.com/songlabdata/proteindata/pytorch-models/'
 LSTM_PRETRAINED_CONFIG_ARCHIVE_MAP: typing.Dict[str, str] = {}
 LSTM_PRETRAINED_MODEL_ARCHIVE_MAP: typing.Dict[str, str] = {}
-
 
 
 class ProteinLSTMConfig(ProteinConfig):
@@ -322,6 +322,29 @@ class MultilabelProteinLSTMModel(ProteinLSTMModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         return logits
+
+
+class ContrastiveProteinLSTMModel(ProteinLSTMModel):
+    def __init__(self, config: ProteinLSTMConfig):
+        super().__init__(config)
+
+        self.num_labels = config.num_labels
+        self.lstm = ProteinLSTMModel(config)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+
+    def forward(self, input_ids, labels=None, lengths=None):
+        # cosine similarity as logits
+        logit_scale = self.logit_scale.exp()
+        outputs = self.lstm(input_ids)
+        pooled_output = outputs[1]
+        # normalized features
+        proteins_features = pooled_output / pooled_output.norm(dim=1,
+                                                               keepdim=True)
+        logits_per_seq = logit_scale * proteins_features @ proteins_features.t(
+        )
+
+        return logits_per_seq
+
 
 class LstmEncoderModel(nn.Module):
     """LstmEncoderModel."""

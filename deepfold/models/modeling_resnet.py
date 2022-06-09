@@ -10,20 +10,20 @@ class ResnetBasicBlock(nn.Module):
                  dilation=1,
                  dropout_rate=0.1):
         super(ResnetBasicBlock, self).__init__()
-        self.conv1 = nn.Conv1D(in_channels=inplanes,
+        self.conv1 = nn.Conv1d(in_channels=inplanes,
                                out_channels=planes,
                                kernel_size=kernel_size,
                                dilation=dilation,
                                padding='same')
-        self.bn1 = nn.BatchNorm1D(planes)
+        self.bn1 = nn.BatchNorm1d(planes)
         self.gelu1 = nn.GELU()
         self.dropout1 = nn.Dropout(p=dropout_rate)
-        self.conv2 = nn.Conv1D(in_channels=planes,
+        self.conv2 = nn.Conv1d(in_channels=planes,
                                out_channels=planes,
                                kernel_size=kernel_size,
                                dilation=dilation,
                                padding='same')
-        self.bn2 = nn.BatchNorm1D(planes)
+        self.bn2 = nn.BatchNorm1d(planes)
         self.gelu2 = nn.GELU()
         self.dropout2 = nn.Dropout(p=dropout_rate)
 
