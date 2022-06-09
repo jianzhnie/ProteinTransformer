@@ -1,16 +1,11 @@
 #!/bin/bash
-
-python function_predcit.py \
-        --data-path /Users/robin/xbiome/DeepFold/data/data \
-        --model-path /Users/robin/xbiome/DeepFold/work_dir/model/deepgoplus \
-        --summary-path /Users/robin/xbiome/DeepFold/work_dir/logs/deepgoplus
-
-
-python function_predcit.py \
-        --data-path /home/niejianzheng/xbiome/DeepFold/data/data \
-        --model-path /home/niejianzheng/xbiome/DeepFold/work_dir/model/deepgoplus \
-        --summary-path home/niejianzheng/xbiome/DeepFold/work_dir/logs/deepgoplus
-
-
-
-nohup python protlm.py > results.log 2>&1 &
+python main.py \
+        --data_path /Users/robin/xbiome/datasets/protein \
+        --output-dir /Users/robin/xbiome/DeepFold/work_dir \
+        --dataset_name protseq \
+        --num_labels 5874 \
+        --model esm_embedding \
+        --lr 0.001 \
+        --epochs 20 \
+        --batch-size 2 \
+        --workers 4
