@@ -8,7 +8,7 @@ from .aminoacids import MAXLEN, AminoacidsVocab
 
 # ------------------------------------------------------------------------------------------
 # Customized pytorch Dateset for annotated sequences
-class AnnotatedSequences(Dataset):
+class OneHotSequences(Dataset):
     def __init__(self,
                  data_file,
                  terms_file,

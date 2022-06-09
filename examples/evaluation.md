@@ -46,7 +46,7 @@ AUPR: 0.709
 ```
 
 
-## Diamond 
+## Diamond
 
 ```shell
 Evaluate the bp protein family

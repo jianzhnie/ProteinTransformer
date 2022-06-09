@@ -50,7 +50,7 @@ class ESMPooler(nn.Module):
 class EsmTransformer(nn.Module):
     """ESMTransformer."""
     def __init__(self,
-                 model_dir: str,
+                 model_dir: str = 'esm1b_t33_650M_UR50S',
                  num_labels: int = 1000,
                  max_len: int = 1024,
                  repr_layers: List[int] = None,

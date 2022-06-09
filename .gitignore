@@ -132,3 +132,4 @@ work_dirs/
 .DS_Store
 logs/
 wandb/
+nohup.out

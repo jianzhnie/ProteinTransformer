@@ -46,8 +46,8 @@ python main_esm_embedding.py  \
 
 ###  108 node
 python main_esm_embedding.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
+--data_path /home/af2/xbiome/data/protein_classification \
+--output-dir /home/af2/xbiome/DeepFold/work_dir \
 --model esm_embedding \
 --lr 0.001 \
 --epochs 20 \
