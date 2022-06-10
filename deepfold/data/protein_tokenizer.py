@@ -2,6 +2,7 @@
 from collections import OrderedDict, defaultdict
 from typing import List
 from abc import ABC, abstractmethod
+from tokenizers import ByteLevelBPETokenizer
 
 IUPAC_CODES = OrderedDict([('Ala', 'A'), ('Asx', 'B'), ('Cys', 'C'),
                            ('Asp', 'D'), ('Glu', 'E'), ('Phe', 'F'),
@@ -116,7 +117,6 @@ class ProteinTokenizer(Tokenizer):
     """Protein Tokenizer."""
 
     def __init__(self):
-        # "<s>": 0, "<pad>": 1, "</s>": 2, "<unk>": 3, "<mask>": 4
         super().__init__()
 
         self.padding_token = '<pad>'
@@ -152,10 +152,22 @@ class ProteinTokenizer(Tokenizer):
         return [x for x in sequence]
 
 
+class BPEtokenizer(Tokenizer):
+
+    def __init__(self, vocab_file='/home/af2/xbiome/protein_function/X_DeepGO/work_dir/Roberta_model/exp4_longformer/vocab.json',
+                 merges_file='/home/af2/xbiome/protein_function/X_DeepGO/work_dir/Roberta_model/exp4_longformer/merges.txt'):
+        super().__init__()
+
+        # "<s>": 0, "<pad>": 1, "</s>": 2, "<unk>": 3, "<mask>": 4
+        self.tokenizer = ByteLevelBPETokenizer(vocab_file, merges_file)
+
+    def tokenize(self, sequence):
+        return self.tokenizer.encode(sequence)
+
+
 if __name__ == '__main__':
-    tokenizer = ProteinTokenizer()
-    print(tokenizer.tokens)
-    print(tokenizer.convert_id_to_token(5))
-    print(tokenizer.convert_token_to_id('hangzhou'))
-    print(tokenizer.vocab_size)
-    print(tokenizer.gen_token_ids(['A', 'G']))
+    tokenizer = BPEtokenizer()
+    encoded = tokenizer.tokenize('LFTGVVPILVELDGDVNGHKFSVSGEGEG')
+
+    print(encoded.tokens)
+    print(encoded.ids)
