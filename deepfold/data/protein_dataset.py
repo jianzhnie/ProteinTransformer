@@ -7,12 +7,83 @@ import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, RobertaTokenizer
 
 from deepfold.data.protein_tokenizer import ProteinTokenizer
 from deepfold.utils.distance import compute_jaccard_matrix
 
 sys.path.append('../../')
+
+
+class BPETokenizerDataset(Dataset):
+    def __init__(self,
+                 data_path='dataset/',
+                 tokenizer_dir='tokenizer/',
+                 split='train',
+                 max_length=1024):
+        self.datasetFolderPath = data_path
+        self.trainFilePath = os.path.join(self.datasetFolderPath,
+                                          'train_data.pkl')
+        self.testFilePath = os.path.join(self.datasetFolderPath,
+                                         'test_data.pkl')
+        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+
+        # load pre-trained tokenizer
+        self.tokenizer = RobertaTokenizer(
+            vocab_file=os.path.join(tokenizer_dir, 'vocab.json'),
+            merges_file=os.path.join(tokenizer_dir, 'merges.txt'))
+
+        if split == 'train':
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.trainFilePath, self.termsFilePath)
+        else:
+            self.seqs, self.labels, self.terms = self.load_dataset(
+                self.testFilePath, self.termsFilePath)
+
+        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
+        self.num_classes = len(self.terms)
+        self.max_length = max_length
+
+    def load_dataset(self, data_path, term_path):
+        df = pd.read_pickle(data_path)
+        terms_df = pd.read_pickle(term_path)
+        terms = terms_df['terms'].values.flatten()
+
+        seq = list(df['sequences'])
+        label = list(df['prop_annotations'])
+        assert len(seq) == len(label)
+        return seq, label, terms
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+
+        # Make sure there is a space between every token, and map rarely amino acids
+        seq = self.seqs[idx]
+
+        seq_ids = self.tokenizer(
+            seq,
+            # add_special_tokens=True,  #Add [CLS] [SEP] tokens
+            padding='max_length',
+            max_length=self.max_length,
+            truncation=True,  # Truncate data beyond max length
+            # return_token_type_ids=False,
+            # return_attention_mask=True,  # diff normal/pad tokens
+            # return_tensors='pt'  # PyTorch Tensor format
+        )
+
+        sample = {key: torch.tensor(val) for key, val in seq_ids.items()}
+
+        label_list = self.labels[idx]
+        multilabel = [0] * self.num_classes
+        for t_id in label_list:
+            if t_id in self.terms_dict:
+                label_idx = self.terms_dict[t_id]
+                multilabel[label_idx] = 1
+
+        sample['labels'] = torch.tensor(multilabel)
+        return sample
 
 
 class ProtBertDataset(Dataset):
