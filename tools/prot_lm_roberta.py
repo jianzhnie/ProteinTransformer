@@ -1,0 +1,83 @@
+import sys
+
+from sklearn.metrics import average_precision_score, roc_auc_score
+from torch.optim import AdamW
+from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,
+                          TrainingArguments)
+
+from deepfold.data.protein_dataset import ProtRobertaDataset
+from deepfold.models.transformers.multilabel_transformer import \
+    RobertaForMultiLabelSequenceClassification
+
+sys.path.append('../')
+
+
+def compute_metrics(pred):
+    labels = pred.label_ids
+    preds = pred.predictions
+    auc = roc_auc_score(labels, preds)
+    ap = average_precision_score(labels, preds)
+    return {'auc': auc, 'ap': ap}
+
+
+if __name__ == '__main__':
+    data_root = '/home/niejianzheng/xbiome/datasets/protein'
+    pretrain_model_dir = ''
+    train_dataset = ProtRobertaDataset(
+        data_path=data_root,
+        tokenizer_dir=pretrain_model_dir,
+        split='train',
+        max_length=2048,
+    )  # max_length is only capped to speed-up example.
+    val_dataset = ProtRobertaDataset(
+        data_path=data_root,
+        tokenizer_dir=pretrain_model_dir,
+        split='test',
+        max_length=2048,
+    )
+    num_classes = train_dataset.num_classes
+    model_config = RobertaConfig.from_pretrained(
+        pretrained_model_name_or_path=pretrain_model_dir,
+        num_labels=num_classes)
+    model = RobertaForMultiLabelSequenceClassification.from_pretrained(
+        pretrained_model_name_or_path=pretrain_model_dir)
+
+    # setting custom optimization parameters. You may implement a scheduler here as well.
+    param_optimizer = list(model.named_parameters())
+    optimizer = AdamW(param_optimizer, lr=2e-5)
+    training_args = TrainingArguments(
+        report_to='none',
+        output_dir='./work_dir',  # output directory
+        num_train_epochs=30,  # total number of training epochs
+        per_device_train_batch_size=16,  # batch size per device during training
+        per_device_eval_batch_size=16,  # batch size for evaluation
+        learning_rate=0.0001,  # learning_rate
+        warmup_steps=1000,  # number of warmup steps for learning rate scheduler
+        weight_decay=0.01,  # strength of weight decay
+        gradient_accumulation_steps=2,
+        # total number of steps before back propagation
+        fp16=True,  # Use mixed precision
+        fp16_opt_level='02',  # mixed precision mode
+        do_train=True,  # Perform training
+        do_eval=True,  # Perform evaluation
+        save_strategy='epoch',  # save model every epoch
+        evaluation_strategy='epoch',  # evalute after each epoch
+        # report_to='wandb',  # enable logging to W&B
+        load_best_model_at_end=True,
+        run_name='ProRoberta',  # experiment name
+        logging_dir='./logs',  # directory for storing logs
+        logging_steps=100,  # How often to print logs
+        seed=3  # Seed for experiment reproducibility 3x3
+    )
+
+    trainer = Trainer(
+        model=model,  # the instantiated 🤗 Transformers model to be trained
+        args=training_args,  # training arguments, defined above
+        train_dataset=train_dataset,  # training dataset
+        eval_dataset=val_dataset,  # evaluation dataset
+        # compute_metrics=compute_metrics,  # evaluation metrics
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
+    )
+
+    trainer.train()
+    trainer.save_model('models/')
