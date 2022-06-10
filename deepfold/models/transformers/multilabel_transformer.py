@@ -124,7 +124,9 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
         head_mask=None,
         inputs_embeds=None,
         labels=None,
+        return_dict=None,
     ):
+
         outputs = self.roberta(
             input_ids,
             attention_mask=attention_mask,
@@ -143,7 +145,15 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
                             labels.view(-1, self.num_labels))
             outputs = (loss, ) + outputs
 
-        return outputs
+        if not return_dict:
+            return outputs
+
+        return SequenceClassifierOutput(
+            loss=loss,
+            logits=logits,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
 
 
 class BertweetForMultiLabelSequenceClassification(
