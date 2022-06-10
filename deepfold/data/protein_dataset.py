@@ -15,7 +15,7 @@ from deepfold.utils.distance import compute_jaccard_matrix
 sys.path.append('../../')
 
 
-class BPETokenizerDataset(Dataset):
+class ProtRobertaDataset(Dataset):
     def __init__(self,
                  data_path='dataset/',
                  tokenizer_dir='tokenizer/',
