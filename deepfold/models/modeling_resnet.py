@@ -1,17 +1,15 @@
-import torch.nn as nn
-import typing
 import logging
-import torch
+import typing
 
-from .utils.modeling_utils import ProteinConfig
-from .utils.modeling_utils import ProteinModel
-from .utils.modeling_utils import get_activation_fn
-from .utils.modeling_utils import MLMHead
-from .utils.modeling_utils import ValuePredictionHead
-from .utils.modeling_utils import SequenceClassificationHead
-from .utils.modeling_utils import SequenceToSequenceClassificationHead
-from .utils.modeling_utils import PairwiseContactPredictionHead
+import torch
+import torch.nn as nn
+
 from ..utils.registry import registry
+from .utils.modeling_utils import (MLMHead, PairwiseContactPredictionHead,
+                                   ProteinConfig, ProteinModel,
+                                   SequenceClassificationHead,
+                                   SequenceToSequenceClassificationHead,
+                                   ValuePredictionHead, get_activation_fn)
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ class ProteinResNetConfig(ProteinConfig):
                  vocab_size: int = 30,
                  hidden_size: int = 512,
                  num_hidden_layers: int = 30,
-                 hidden_act: str = "gelu",
+                 hidden_act: str = 'gelu',
                  hidden_dropout_prob: float = 0.1,
                  initializer_range: float = 0.02,
                  layer_norm_eps: float = 1e-12,
@@ -93,8 +91,8 @@ class ProteinResNetBlock(nn.Module):
 
 
 class ProteinResNetEmbeddings(nn.Module):
-    """Construct the embeddings from word, position and token_type embeddings.
-    """
+    """Construct the embeddings from word, position and token_type
+    embeddings."""
     def __init__(self, config):
         super().__init__()
         embed_dim = config.hidden_size
@@ -176,18 +174,17 @@ class ResNetEncoder(nn.Module):
 
 
 class ProteinResNetAbstractModel(ProteinModel):
-    """ An abstract class to handle weights initialization and
-        a simple interface for dowloading and loading pretrained models.
-    """
+    """An abstract class to handle weights initialization and a simple
+    interface for dowloading and loading pretrained models."""
     config_class = ProteinResNetConfig
     pretrained_model_archive_map = RESNET_PRETRAINED_MODEL_ARCHIVE_MAP
-    base_model_prefix = "resnet"
+    base_model_prefix = 'resnet'
 
     def __init__(self, config):
         super().__init__(config)
 
     def _init_weights(self, module):
-        """ Initialize the weights """
+        """Initialize the weights."""
         if isinstance(module, nn.Embedding):
             module.weight.data.normal_(mean=0.0,
                                        std=self.config.initializer_range)
@@ -260,8 +257,9 @@ class ProteinResNetForMaskedLM(ProteinResNetAbstractModel):
         self.tie_weights()
 
     def tie_weights(self):
-        """ Make sure we are sharing the input and output embeddings.
-            Export to TorchScript can't handle parameter sharing so we are cloning them instead.
+        """Make sure we are sharing the input and output embeddings.
+
+        Export to TorchScript can't handle parameter sharing so we are cloning them instead.
         """
         self._tie_or_clone_weights(self.mlm.decoder,
                                    self.resnet.embeddings.word_embeddings)
