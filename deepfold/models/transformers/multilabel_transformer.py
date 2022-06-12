@@ -1,5 +1,4 @@
 import torch
-import torch.nn.functional as F
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers import (BertModel, BertPreTrainedModel, DistilBertModel,
@@ -40,7 +39,6 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
     """Bert model adapted for multi-label sequence classification."""
     def __init__(self, config, pos_weight=None):
         super(BertForMultiLabelSequenceClassification, self).__init__(config)
-        self.config = config
         self.num_labels = config.num_labels
         self.bert = BertModel(config)
         classifier_dropout = (config.classifier_dropout
@@ -80,20 +78,22 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
 
+        outputs = (logits, ) + outputs[2:]
+        # add hidden states and attention if they are here
+
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            preds = F.sigmoid(logits)
 
         if not return_dict:
-            output = (preds, ) + outputs[2:]
-            return ((loss, ) + output) if loss is not None else output
+            outputs = (loss, ) + outputs
+            return outputs
 
         return SequenceClassifierOutput(
             loss=loss,
-            logits=preds,
+            logits=logits,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
