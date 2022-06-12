@@ -1,10 +1,8 @@
 import sys
-
-from sklearn.metrics import average_precision_score, roc_auc_score
-
 from torch.optim import AdamW
-from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,EvalPrediction,
-                          TrainingArguments)
+from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,
+                          EvalPrediction, TrainingArguments)
+
 sys.path.append('../')
 from deepfold.utils.fun_utils import sigmoid
 from deepfold.core.metrics.custom_metrics import compute_roc
@@ -39,8 +37,9 @@ if __name__ == '__main__':
     )
     num_classes = train_dataset.num_classes
     model_config = RobertaConfig.from_pretrained(
-        pretrained_model_name_or_path=pretrain_model_dir, num_labels=num_classes)
-    
+        pretrained_model_name_or_path=pretrain_model_dir,
+        num_labels=num_classes)
+
     model = RobertaForMultiLabelSequenceClassification.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir, config=model_config)
 
