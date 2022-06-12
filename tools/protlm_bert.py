@@ -1,22 +1,25 @@
 import sys
 
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import average_precision_score
 from torch.optim import AdamW
 from transformers import (BertConfig, EarlyStoppingCallback, Trainer,
-                          TrainingArguments)
-
+                          EvalPrediction, TrainingArguments)
+from deepfold.utils.fun_utils import sigmoid
+from deepfold.core.metrics.custom_metrics import compute_roc
 from deepfold.data.protein_dataset import ProtBertDataset
-from deepfold.models.transformers.multilabel_transformer import \
-    BertForMultiLabelSequenceClassification
+from deepfold.models.transformers.multilabel_transformer import BertForMultiLabelSequenceClassification
 
 sys.path.append('../')
 
 
-def compute_metrics(pred):
-    labels = pred.label_ids
-    preds = pred.predictions
-    auc = roc_auc_score(labels, preds)
+def compute_metrics(p: EvalPrediction):
+    preds = p.predictions[0] if isinstance(p.predictions,
+                                           tuple) else p.predictions
+    labels = p.label_ids
+    preds = sigmoid(preds)
+    auc = compute_roc(labels, preds)
     ap = average_precision_score(labels, preds)
+
     return {'auc': auc, 'ap': ap}
 
 
