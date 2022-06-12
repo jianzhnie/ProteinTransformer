@@ -143,7 +143,7 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            output = (loss, ) + outputs
+            output = (loss, ) + output
 
         if not return_dict:
             return output
