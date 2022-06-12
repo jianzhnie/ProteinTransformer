@@ -19,9 +19,7 @@ def compute_metrics(p: EvalPrediction):
     labels = p.label_ids
     preds = sigmoid(preds)
     auc = compute_roc(labels, preds)
-    ap = average_precision_score(labels, preds)
-
-    return {'auc': auc, 'ap': ap}
+    return {'auc': auc}
 
 
 if __name__ == '__main__':
@@ -93,7 +91,7 @@ if __name__ == '__main__':
         args=training_args,  # training arguments, defined above
         train_dataset=train_dataset,  # training dataset
         eval_dataset=val_dataset,  # evaluation dataset
-        # compute_metrics=compute_metrics,  # evaluation metrics
+        compute_metrics=compute_metrics,  # evaluation metrics
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
 

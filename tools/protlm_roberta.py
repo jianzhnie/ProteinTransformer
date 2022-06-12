@@ -1,23 +1,25 @@
 import sys
 
 from sklearn.metrics import average_precision_score, roc_auc_score
+
 from torch.optim import AdamW
-from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,
+from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,EvalPrediction,
                           TrainingArguments)
 sys.path.append('../')
-
+from deepfold.utils.fun_utils import sigmoid
+from deepfold.core.metrics.custom_metrics import compute_roc
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 
 
-
-def compute_metrics(pred):
-    labels = pred.label_ids
-    preds = pred.predictions
-    auc = roc_auc_score(labels, preds)
-    ap = average_precision_score(labels, preds)
-    return {'auc': auc, 'ap': ap}
+def compute_metrics(p: EvalPrediction):
+    preds = p.predictions[0] if isinstance(p.predictions,
+                                           tuple) else p.predictions
+    labels = p.label_ids
+    preds = sigmoid(preds)
+    auc = compute_roc(labels, preds)
+    return {'auc': auc}
 
 
 if __name__ == '__main__':
@@ -88,7 +90,7 @@ if __name__ == '__main__':
         args=training_args,  # training arguments, defined above
         train_dataset=train_dataset,  # training dataset
         eval_dataset=val_dataset,  # evaluation dataset
-        # compute_metrics=compute_metrics,  # evaluation metrics
+        compute_metrics=compute_metrics,  # evaluation metrics
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
 
