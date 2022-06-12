@@ -4,12 +4,11 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from torch.optim import AdamW
 from transformers import (BertConfig, EarlyStoppingCallback, Trainer,
                           TrainingArguments)
-
+sys.path.append('../')
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics(pred):
@@ -22,20 +21,21 @@ def compute_metrics(pred):
 
 if __name__ == '__main__':
     model_name = 'Rostlab/prot_bert_bfd'
-    data_root = '/home/niejianzheng/xbiome/datasets/protein'
+    data_root = '/data/xbiome/protein_classification'
     train_dataset = ProtBertDataset(
         data_path=data_root,
         split='train',
         tokenizer_name=model_name,
-        max_length=512)  # max_length is only capped to speed-up example.
+        max_length=128)  # max_length is only capped to speed-up example.
     val_dataset = ProtBertDataset(data_path=data_root,
                                   split='valid',
                                   tokenizer_name=model_name,
-                                  max_length=512)
+                                  max_length=128)
     test_dataset = ProtBertDataset(data_path=data_root,
                                    split='test',
                                    tokenizer_name=model_name,
-                                   max_length=512)
+                                   max_length=128)
+    train_dataset = val_dataset
     num_classes = train_dataset.num_classes
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
@@ -62,12 +62,12 @@ if __name__ == '__main__':
         report_to='none',
         output_dir='./work_dir',  # output directory
         num_train_epochs=30,  # total number of training epochs
-        per_device_train_batch_size=16,  # batch size per device during training
-        per_device_eval_batch_size=16,  # batch size for evaluation
+        per_device_train_batch_size=8,  # batch size per device during training
+        per_device_eval_batch_size=8,  # batch size for evaluation
         learning_rate=0.0001,  # learning_rate
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
-        gradient_accumulation_steps=2,
+        gradient_accumulation_steps=8,
         # total number of steps before back propagation
         fp16=True,  # Use mixed precision
         fp16_opt_level='02',  # mixed precision mode
