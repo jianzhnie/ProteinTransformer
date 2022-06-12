@@ -78,7 +78,7 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
 
-        outputs = (logits, ) + outputs[2:]
+        output = (logits, ) + outputs[2:]
         # add hidden states and attention if they are here
 
         if labels is not None:
@@ -88,8 +88,8 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
                             labels.view(-1, self.num_labels))
 
         if not return_dict:
-            outputs = (loss, ) + outputs
-            return outputs
+            output = (loss, ) + output
+            return output
 
         return SequenceClassifierOutput(
             loss=loss,
@@ -137,16 +137,16 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
         sequence_output = outputs[0]
         logits = self.classifier(sequence_output)
 
-        outputs = (logits, ) + outputs[2:]
+        output = (logits, ) + outputs[2:]
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            outputs = (loss, ) + outputs
+            output = (loss, ) + outputs
 
         if not return_dict:
-            return outputs
+            return output
 
         return SequenceClassifierOutput(
             loss=loss,
