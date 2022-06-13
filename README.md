@@ -29,8 +29,8 @@ python setup.py install
 
 ```sh
 python main.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
+--data_path ./protein \
+--output-dir ./work_dir \
 --lr 0.0001 \
 --epochs 10 \
 --batch-size 2 \
@@ -42,8 +42,8 @@ python main.py  \
 
 ```sh
 torchrun --nnodes=1 --nproc_per_node=2  --rdzv_id=0 main.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
+--data_path ./protein \
+--output-dir ./work_dir \
 --lr 0.0001 \
 --epochs 10 \
 --batch-size 2 \
@@ -56,20 +56,20 @@ torchrun --nnodes=1 --nproc_per_node=2  --rdzv_id=0 main.py  \
 ```sh
 ## evaluate diamond
 python  evaluate_diamondscore.py \
-    --train-data-file /home/niejianzheng/xbiome/datasets/protein/train_data.pkl \
-    --test-data-file /home/niejianzheng/xbiome/datasets/protein/test_data.pkl \
-    --diamond-scores-file /home/niejianzheng/xbiome/datasets/protein/test_diamond.res \
-    --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
-    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
+    --train-data-file ./protein/train_data.pkl \
+    --test-data-file ./protein/test_data.pkl \
+    --diamond-scores-file ./protein/test_diamond.res \
+    --ontology-obo-file ./protein/go.obo \
+    --output_dir ./work_dir
 
 
 ## evaluate model
 python  evaluate_deepmodel.py \
-    --train-data-file /home/niejianzheng/xbiome/datasets/protein/train_data.pkl \
-    --test-data-file /home/niejianzheng/xbiome/datasets/protein/predictions.pkl \
-    --terms-file /home/niejianzheng/xbiome/datasets/protein/terms.pkl \
-    --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
-    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
+    --train-data-file ./protein/train_data.pkl \
+    --test-data-file ./protein/predictions.pkl \
+    --terms-file ./protein/terms.pkl \
+    --ontology-obo-file ./protein/go.obo \
+    --output_dir ./work_dir
 ```
 
 ### Inference
@@ -77,9 +77,9 @@ python  evaluate_deepmodel.py \
 ```sh
 ## inference
 python inference_embedding.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---output-dir /home/niejianzheng/xbiome/DeepFold/work_dir \
---resume /home/niejianzheng/xbiome/DeepFold/work_dir/ProtLM_esm_embedding_mean/model_best.pth.tar \
+--data_path ./protein \
+--output-dir ./work_dir \
+--resume ./work_dir/ProtLM_esm_embedding_mean/model_best.pth.tar \
 --model esm_embedding \
 --pool_mode  mean \
 --batch-size  128 \
@@ -90,7 +90,7 @@ python inference_embedding.py  \
 
 ```sh
 python extract_embeddings.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
+--data_path ./protein \
 --split "test" \
 --batch-size 32
 ```
