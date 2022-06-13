@@ -1,23 +1,26 @@
 import sys
-from torch.optim import AdamW
-from transformers import (EarlyStoppingCallback, RobertaConfig, Trainer,
-                          EvalPrediction, TrainingArguments)
 
-sys.path.append('../')
-from deepfold.utils.fun_utils import sigmoid
-from deepfold.core.metrics.custom_metrics import compute_roc
+from torch.optim import AdamW
+from transformers import (EarlyStoppingCallback, EvalPrediction, RobertaConfig,
+                          Trainer, TrainingArguments)
+
+from deepfold.core.metrics.multilabel_metrics import multi_label_metrics
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 
+sys.path.append('../')
 
-def compute_metrics(p: EvalPrediction):
+
+def compute_metrics(p: EvalPrediction, threshold=0.2):
     preds = p.predictions[0] if isinstance(p.predictions,
                                            tuple) else p.predictions
     labels = p.label_ids
-    preds = sigmoid(preds)
-    auc = compute_roc(labels, preds)
-    return {'auc': auc}
+
+    results = multi_label_metrics(predictions=preds,
+                                  labels=labels,
+                                  threshold=threshold)
+    return results
 
 
 if __name__ == '__main__':
@@ -38,7 +41,10 @@ if __name__ == '__main__':
     num_classes = train_dataset.num_classes
     model_config = RobertaConfig.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir,
-        num_labels=num_classes)
+        problem_type='multi_label_classification',
+        num_labels=num_classes,
+        id2label=train_dataset.id2label,
+        label2id=train_dataset.label2id)
 
     model = RobertaForMultiLabelSequenceClassification.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir, config=model_config)
@@ -65,7 +71,7 @@ if __name__ == '__main__':
         num_train_epochs=30,  # total number of training epochs
         per_device_train_batch_size=2,  # batch size per device during training
         per_device_eval_batch_size=2,  # batch size for evaluation
-        learning_rate=0.0001,  # learning_rate
+        learning_rate=2e-5,  # learning_rate
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
         gradient_accumulation_steps=4,
@@ -78,6 +84,7 @@ if __name__ == '__main__':
         evaluation_strategy='epoch',  # evalute after each epoch
         # report_to='wandb',  # enable logging to W&B
         load_best_model_at_end=True,
+        metric_for_best_model='f1',  # use f1 score for model eval metric
         run_name='ProRoberta',  # experiment name
         logging_dir='./logs',  # directory for storing logs
         logging_steps=100,  # How often to print logs
