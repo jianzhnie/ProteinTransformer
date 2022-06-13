@@ -8,9 +8,10 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer, RobertaTokenizer
-sys.path.append('../../')
+
 from deepfold.data.protein_tokenizer import ProteinTokenizer
 
+sys.path.append('../../')
 
 
 class ProtRobertaDataset(Dataset):
@@ -38,9 +39,10 @@ class ProtRobertaDataset(Dataset):
             self.seqs, self.labels, self.terms = self.load_dataset(
                 self.testFilePath, self.termsFilePath)
 
-        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
         self.max_length = max_length
+        self.id2label = {idx: label for idx, label in enumerate(self.terms)}
+        self.label2id = {label: idx for idx, label in enumerate(self.terms)}
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -76,8 +78,8 @@ class ProtRobertaDataset(Dataset):
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
         for t_id in label_list:
-            if t_id in self.terms_dict:
-                label_idx = self.terms_dict[t_id]
+            if t_id in self.label2id:
+                label_idx = self.label2id[t_id]
                 multilabel[label_idx] = 1
 
         sample['labels'] = torch.tensor(multilabel)
@@ -107,9 +109,10 @@ class ProtBertDataset(Dataset):
             self.seqs, self.labels, self.terms = self.load_dataset(
                 self.testFilePath, self.termsFilePath)
 
-        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
         self.max_length = max_length
+        self.id2label = {idx: label for idx, label in enumerate(self.terms)}
+        self.label2id = {label: idx for idx, label in enumerate(self.terms)}
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -146,8 +149,8 @@ class ProtBertDataset(Dataset):
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
         for t_id in label_list:
-            if t_id in self.terms_dict:
-                label_idx = self.terms_dict[t_id]
+            if t_id in self.label2id:
+                label_idx = self.label2id[t_id]
                 multilabel[label_idx] = 1
 
         sample['labels'] = torch.tensor(multilabel)
@@ -179,11 +182,12 @@ class ProtSeqDataset(Dataset):
 
         # self.
         self.tokenizer = ProteinTokenizer()
-        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
         self.max_length = max_length
         self.truncate = truncate
         self.random_crop = random_crop
+        self.id2label = {idx: label for idx, label in enumerate(self.terms)}
+        self.label2id = {label: idx for idx, label in enumerate(self.terms)}
 
     def __len__(self):
         return len(self.labels)
@@ -200,8 +204,8 @@ class ProtSeqDataset(Dataset):
         multilabel = [0] * self.num_classes
         anno_term_list = self.labels[idx]
         for t_id in anno_term_list:
-            if t_id in self.terms_dict:
-                label_idx = self.terms_dict[t_id]
+            if t_id in self.label2id:
+                label_idx = self.label2id[t_id]
                 multilabel[label_idx] = 1
 
         token_ids = self.tokenizer.gen_token_ids(sequence)
@@ -212,7 +216,6 @@ class ProtSeqDataset(Dataset):
         inputs = [torch.tensor(ex[0]) for ex in examples]
         lengths = [ex[1] for ex in examples]
         targets = [ex[2] for ex in examples]
-        anno_terms = [ex[3] for ex in examples]
 
         # 对batch内的样本进行padding，使其具有相同长度
         inputs = pad_sequence(inputs,
