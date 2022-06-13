@@ -5,13 +5,12 @@ from torch.optim import AdamW
 from transformers import (AutoModelForSequenceClassification, BertConfig,
                           EarlyStoppingCallback, EvalPrediction, Trainer,
                           TrainingArguments)
-
+sys.path.append('../')
 from deepfold.core.metrics.multilabel_metrics import multi_label_metrics
 from deepfold.data.protein_dataset import ProtBertDataset
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics(p: EvalPrediction, threshold=0.2):
@@ -62,19 +61,9 @@ if __name__ == '__main__':
     model_config = BertConfig.from_pretrained(model_name,
                                               num_labels=num_classes)
 
-    model = AutoModelForSequenceClassification.from_pretrained(
-        'bert-base-uncased',
-        problem_type='multi_label_classification',
-        num_labels=num_classes,
-        id2label=train_dataset.id2label,
-        label2id=train_dataset.label2id)
-
-    # model = BertForMultiLabelSequenceClassification.from_pretrained(
-    #     model_name,
-    #     config=model_config,
-    #     problem_type="multi_label_classification",
-    #     id2label=train_dataset.id2label,
-    #     label2id=train_dataset.label2id)
+    model = BertForMultiLabelSequenceClassification.from_pretrained(
+        model_name,
+        config=model_config)
 
     # setting custom optimization parameters. You may implement a scheduler here as well.
     param_optimizer = list(model.named_parameters())

@@ -41,10 +41,7 @@ if __name__ == '__main__':
     num_classes = train_dataset.num_classes
     model_config = RobertaConfig.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir,
-        problem_type='multi_label_classification',
-        num_labels=num_classes,
-        id2label=train_dataset.id2label,
-        label2id=train_dataset.label2id)
+        num_labels=num_classes)
 
     model = RobertaForMultiLabelSequenceClassification.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir, config=model_config)
