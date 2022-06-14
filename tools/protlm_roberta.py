@@ -3,13 +3,12 @@ import sys
 from torch.optim import AdamW
 from transformers import (EarlyStoppingCallback, EvalPrediction, RobertaConfig,
                           Trainer, TrainingArguments)
-
+sys.path.append('../')
 from deepfold.core.metrics.multilabel_metrics import multi_label_metrics
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 
-sys.path.append('../')
 
 
 def compute_metrics(p: EvalPrediction, threshold=0.2):
@@ -64,10 +63,10 @@ if __name__ == '__main__':
 
     training_args = TrainingArguments(
         report_to='none',
-        output_dir='./work_dir',  # output directory
+        output_dir='../work_dir/protlm_roberta',  # output directory
         num_train_epochs=30,  # total number of training epochs
-        per_device_train_batch_size=2,  # batch size per device during training
-        per_device_eval_batch_size=2,  # batch size for evaluation
+        per_device_train_batch_size=4,  # batch size per device during training
+        per_device_eval_batch_size=4,  # batch size for evaluation
         learning_rate=2e-5,  # learning_rate
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
