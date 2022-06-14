@@ -9,6 +9,12 @@ from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 
+try:
+    import wandb
+    has_wandb = True
+except ImportError:
+    has_wandb = False
+sys.path.append('../')
 
 
 def compute_metrics(p: EvalPrediction, threshold=0.2):
@@ -23,6 +29,8 @@ def compute_metrics(p: EvalPrediction, threshold=0.2):
 
 
 if __name__ == '__main__':
+    if has_wandb:
+        wandb.init(project='Prot_roberta', entity='jianzhnie')
     data_root = '/data/xbiome/protein_classification'
     pretrain_model_dir = '/data/xbiome/pre_trained_models/exp4_longformer'
     train_dataset = ProtRobertaDataset(
