@@ -3,11 +3,13 @@ import sys
 from torch.optim import AdamW
 from transformers import (EarlyStoppingCallback, EvalPrediction, RobertaConfig,
                           Trainer, TrainingArguments)
-sys.path.append('../')
+
 from deepfold.core.metrics.multilabel_metrics import multi_label_metrics
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
+
+sys.path.append('../')
 
 try:
     import wandb
@@ -70,7 +72,7 @@ if __name__ == '__main__':
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5)
 
     training_args = TrainingArguments(
-        report_to='none',
+        report_to='wandb',  # enable logging to W&B
         output_dir='../work_dir/protlm_roberta',  # output directory
         num_train_epochs=30,  # total number of training epochs
         per_device_train_batch_size=4,  # batch size per device during training
@@ -86,7 +88,6 @@ if __name__ == '__main__':
         do_eval=True,  # Perform evaluation
         save_strategy='epoch',  # save model every epoch
         evaluation_strategy='epoch',  # evalute after each epoch
-        # report_to='wandb',  # enable logging to W&B
         load_best_model_at_end=True,
         metric_for_best_model='f1',  # use f1 score for model eval metric
         run_name='ProRoberta',  # experiment name
