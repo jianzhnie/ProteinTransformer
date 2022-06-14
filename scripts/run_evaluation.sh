@@ -15,6 +15,17 @@ python  evaluate_deepmodel.py \
     --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
 
 
+
+## af2
+python  evaluate_deepmodel.py \
+    --train-data-file /data/xbiome/protein_classification/train_data.pkl \
+    --test-data-file /data/xbiome/protein_classification/predictions.pkl \
+    --terms-file /data/xbiome/protein_classification/terms.pkl \
+    --ontology-obo-file /data/xbiome/protein_classification/go.obo \
+    --output_dir /home/af2/xbiome/DeepFold/work_dir
+
+
+
 ## 108
 ## evaluate diamond
 python  evaluate_diamondscore.py \

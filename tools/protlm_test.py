@@ -3,8 +3,8 @@ import sys
 
 from transformers import Trainer
 
+from deepfold.core.metrics.custom_metrics import compute_roc
 from deepfold.data.protein_dataset import ProtBertDataset
-from deepfold.loss.custom_metrics import compute_mcc, compute_roc
 from deepfold.models.transformers.multilabel_transformer import \
     BertForMultiLabelSequenceClassification
 
@@ -14,10 +14,8 @@ sys.path.append('../')
 def compute_metrics(predictions):
     labels = predictions.label_ids
     preds = predictions.predictions
-    preds = preds > 0.5
-    mcc = compute_mcc(labels, preds)
     roc = compute_roc(labels, preds)
-    return {'mcc': mcc, 'roc': roc}
+    return {'roc': roc}
 
 
 if __name__ == '__main__':

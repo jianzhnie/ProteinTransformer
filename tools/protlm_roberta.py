@@ -11,6 +11,13 @@ from deepfold.models.transformers.multilabel_transformer import \
 
 sys.path.append('../')
 
+try:
+    import wandb
+    has_wandb = True
+except ImportError:
+    has_wandb = False
+sys.path.append('../')
+
 
 def compute_metrics(p: EvalPrediction, threshold=0.2):
     preds = p.predictions[0] if isinstance(p.predictions,
@@ -24,6 +31,8 @@ def compute_metrics(p: EvalPrediction, threshold=0.2):
 
 
 if __name__ == '__main__':
+    if has_wandb:
+        wandb.init(project='Prot_roberta', entity='jianzhnie')
     data_root = '/data/xbiome/protein_classification'
     pretrain_model_dir = '/data/xbiome/pre_trained_models/exp4_longformer'
     train_dataset = ProtRobertaDataset(
@@ -41,10 +50,7 @@ if __name__ == '__main__':
     num_classes = train_dataset.num_classes
     model_config = RobertaConfig.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir,
-        problem_type='multi_label_classification',
-        num_labels=num_classes,
-        id2label=train_dataset.id2label,
-        label2id=train_dataset.label2id)
+        num_labels=num_classes)
 
     model = RobertaForMultiLabelSequenceClassification.from_pretrained(
         pretrained_model_name_or_path=pretrain_model_dir, config=model_config)
@@ -66,11 +72,11 @@ if __name__ == '__main__':
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5)
 
     training_args = TrainingArguments(
-        report_to='none',
-        output_dir='./work_dir',  # output directory
+        report_to='wandb',  # enable logging to W&B
+        output_dir='../work_dir/protlm_roberta',  # output directory
         num_train_epochs=30,  # total number of training epochs
-        per_device_train_batch_size=2,  # batch size per device during training
-        per_device_eval_batch_size=2,  # batch size for evaluation
+        per_device_train_batch_size=4,  # batch size per device during training
+        per_device_eval_batch_size=4,  # batch size for evaluation
         learning_rate=2e-5,  # learning_rate
         warmup_steps=1000,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
@@ -82,7 +88,6 @@ if __name__ == '__main__':
         do_eval=True,  # Perform evaluation
         save_strategy='epoch',  # save model every epoch
         evaluation_strategy='epoch',  # evalute after each epoch
-        # report_to='wandb',  # enable logging to W&B
         load_best_model_at_end=True,
         metric_for_best_model='f1',  # use f1 score for model eval metric
         run_name='ProRoberta',  # experiment name
