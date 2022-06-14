@@ -13,7 +13,7 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.data.esm_dataset import ESMDataset
+from deepfold.data.esm_dataset import EsmDataset
 from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
@@ -77,7 +77,7 @@ parser.add_argument('--output-dir',
 def main(args):
     args.gpu = 0
     # Dataset and DataLoader
-    test_dataset = ESMDataset(data_path=args.data_path,
+    test_dataset = EsmDataset(data_path=args.data_path,
                               split='test',
                               model_dir='esm1b_t33_650M_UR50S')
     # dataloders
