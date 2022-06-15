@@ -30,7 +30,8 @@ class ProtRobertaDataset(Dataset):
         # load pre-trained tokenizer
         self.tokenizer = RobertaTokenizer(
             vocab_file=os.path.join(tokenizer_dir, 'vocab.json'),
-            merges_file=os.path.join(tokenizer_dir, 'merges.txt'))
+            merges_file=os.path.join(tokenizer_dir, 'merges.txt'),
+            local_files_only=True)
 
         if split == 'train':
             self.seqs, self.labels, self.terms = self.load_dataset(
