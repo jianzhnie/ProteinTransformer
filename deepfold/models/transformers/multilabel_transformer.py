@@ -1,11 +1,11 @@
 import torch
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
-from transformers import (BertModel, BertPreTrainedModel, RobertaPreTrainedModel, DistilBertModel,
+from transformers import (BertModel, BertPreTrainedModel, DistilBertModel,
                           ElectraForMaskedLM, ElectraForPreTraining,
                           FlaubertModel, LongformerModel, RobertaModel,
-                          XLMModel, XLMPreTrainedModel, XLNetModel,
-                          XLNetPreTrainedModel)
+                          RobertaPreTrainedModel, XLMModel, XLMPreTrainedModel,
+                          XLNetModel, XLNetPreTrainedModel)
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers.modeling_utils import PreTrainedModel, SequenceSummary
 from transformers.models.albert.modeling_albert import (AlbertModel,
@@ -115,20 +115,20 @@ class RobertaForMultiLabelSequenceClassification(RobertaPreTrainedModel):
         self.roberta = RobertaModel(config)
         self.classifier = RobertaClassificationHead(config)
 
-    def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
-        lengths=None,
-        labels=None,
-        output_attentions = None,
-        output_hidden_states=None,
-        return_dict=None
-    ):
+    def forward(self,
+                input_ids=None,
+                attention_mask=None,
+                token_type_ids=None,
+                position_ids=None,
+                head_mask=None,
+                inputs_embeds=None,
+                lengths=None,
+                labels=None,
+                output_attentions=None,
+                output_hidden_states=None,
+                return_dict=None):
+
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.roberta(
             input_ids,
@@ -148,9 +148,9 @@ class RobertaForMultiLabelSequenceClassification(RobertaPreTrainedModel):
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            output = (loss, ) + output
 
         if not return_dict:
+            output = (loss, ) + output
             return output
 
         return SequenceClassifierOutput(
