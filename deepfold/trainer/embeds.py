@@ -55,8 +55,8 @@ def extract_transformer_embedds(model, data_loader, pool_mode, logger):
                     key: val.to(device='cuda')
                     for key, val in batch.items()
                 }
-            batch_labels = batch['labels']
-            batch_lengths = batch['lengths']
+            batch_labels = model_inputs['labels']
+            batch_lengths = model_inputs['lengths']
             model_outputs = model(**model_inputs,
                                   output_hidden_states=True,
                                   return_dict=True)
