@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
-from transformers import (BertModel, BertPreTrainedModel, DistilBertModel,
+from transformers import (BertModel, BertPreTrainedModel, RobertaPreTrainedModel, DistilBertModel,
                           ElectraForMaskedLM, ElectraForPreTraining,
                           FlaubertModel, LongformerModel, RobertaModel,
                           XLMModel, XLMPreTrainedModel, XLNetModel,
@@ -99,7 +99,7 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         )
 
 
-class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
+class RobertaForMultiLabelSequenceClassification(RobertaPreTrainedModel):
     """Roberta model adapted for multi-label sequence classification."""
 
     config_class = RobertaConfig
@@ -123,8 +123,11 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         inputs_embeds=None,
+        lengths=None,
         labels=None,
-        return_dict=None,
+        output_attentions = None,
+        output_hidden_states=None,
+        return_dict=None
     ):
 
         outputs = self.roberta(
@@ -133,6 +136,8 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
             token_type_ids=token_type_ids,
             position_ids=position_ids,
             head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
         )
         sequence_output = outputs[0]
         logits = self.classifier(sequence_output)

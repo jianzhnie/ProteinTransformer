@@ -312,8 +312,8 @@ def extract_embeddings(model, data_loader, pool_mode, logger):
 
 
 def extract_transformer_embedds(model, data_loader, pool_mode, logger):
-    true_labels = torch.Tensor()  # [batch_size, num_labels]
-    embeddings = torch.Tensor()  # [num_seqs, max_len_seqs+1, embedding_size]
+    true_labels = []  # [batch_size, num_labels]
+    embeddings =  [] # [num_seqs, max_len_seqs+1, embedding_size]
     steps = len(data_loader)
     with torch.no_grad():
         end = time.time()
@@ -325,11 +325,11 @@ def extract_transformer_embedds(model, data_loader, pool_mode, logger):
                     key: val.to(device='cuda')
                     for key, val in batch.items()
                 }
-            batch_labels = batch['labels']
+            batch_labels = batch['labels'].to('cpu').numpy()
             batch_lengths = batch['lengths']
-            model_outputs = model(**model_inputs, output_hidden_states=True)
+            model_outputs = model(**model_inputs, output_hidden_states=True, return_dict=True)
 
-            last_hidden_state = model_outputs.hidden_states[-1]
+            last_hidden_state = model_outputs.hidden_states[-1].to('cpu').numpy()
             # batch_embeddings: batch_size * seq_length * embedding_dim
 
             batch_embedding_list = [emb for emb in last_hidden_state]
@@ -342,15 +342,15 @@ def extract_transformer_embedds(model, data_loader, pool_mode, logger):
             ]
 
             if 'mean' in pool_mode:
-                batch_embeddings = torch.stack(
-                    [torch.mean(emb, dim=0) for emb in filtered_embeddings])
+                batch_embeddings = 
+                    [torch.mean(emb, dim=0) for emb in filtered_embeddings]
 
             # keep class token only
             if 'cls' in pool_mode:
                 batch_embeddings = torch.stack(
                     [emb[0, :] for emb in batch_embedding_list])
 
-            embeddings = torch.cat((embeddings, batch_embeddings), dim=0)
+            embeddings = .cat((embeddings, batch_embeddings), dim=0)
             true_labels = torch.cat((true_labels, batch_labels), dim=0)
 
             batch_time = time.time() - end

@@ -8,13 +8,13 @@ import pandas as pd
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from transformers import RobertaConfig
+sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 from deepfold.trainer.training import extract_transformer_embedds
 
-sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -22,7 +22,7 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
-parser.add_argument('--pretrained_model_dir',
+parser.add_argument('--pretrain_model_dir',
                     default='',
                     type=str,
                     help='pretrained model checkpoint dir')
@@ -78,7 +78,7 @@ def main(args):
     print('Embeddings save path: ', save_path)
     # Dataset and DataLoader
     dataset = ProtRobertaDataset(data_path=args.data_path,
-                                 tokenizer_dir=args.tokenizer_dir,
+                                 tokenizer_dir=args.pretrain_model_dir,
                                  split=args.split,
                                  max_length=1024)
     # dataloders
