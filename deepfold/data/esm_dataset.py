@@ -16,15 +16,13 @@ class EsmEmbeddingDataset(Dataset):
     def __init__(
         self,
         data_path: str = 'dataset/',
+        train_file: str = 'xxx.pkl',
+        test_file: str = 'xxx.pkl',
         split: str = 'train',
     ):
         self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(
-            self.datasetFolderPath,
-            'esm1b_t33_650M_UR50S_embeddings_mean_train.pkl')
-        self.testFilePath = os.path.join(
-            self.datasetFolderPath,
-            'esm1b_t33_650M_UR50S_embeddings_mean_test.pkl')
+        self.trainFilePath = os.path.join(data_path, train_file)
+        self.testFilePath = os.path.join(data_path, test_file)
 
         if split == 'train':
             self.data_df = self.load_dataset(self.trainFilePath)
