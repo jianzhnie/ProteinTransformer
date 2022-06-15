@@ -50,13 +50,9 @@ def extract_transformer_embedds(model,
         start = time.time()
         for batch_idx, batch in enumerate(data_loader):
 
-            if torch.cuda.is_available():
-                model_inputs = {
-                    key: val.to(device)
-                    for key, val in batch.items()
-                }
             batch_labels = batch['labels']
             batch_lengths = batch['lengths']
+            model_inputs = {key: val.to(device) for key, val in batch.items()}
             model_outputs = model(**model_inputs,
                                   output_hidden_states=True,
                                   return_dict=True)
