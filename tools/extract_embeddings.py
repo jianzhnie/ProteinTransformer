@@ -8,13 +8,13 @@ import pandas as pd
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from transformers import RobertaConfig
-sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 from deepfold.trainer.training import extract_transformer_embedds
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
