@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 
-def extract_embeddings(model, data_loader, pool_mode, logger):
+def extract_embeddings(model, data_loader, pool_mode, logger, device):
     embeddings = []
     true_labels = []
     steps = len(data_loader)
@@ -14,14 +14,10 @@ def extract_embeddings(model, data_loader, pool_mode, logger):
         for batch_idx, batch in enumerate(data_loader):
 
             if torch.cuda.is_available():
-                batch = {
-                    key: val.to(device='cuda')
-                    for key, val in batch.items()
-                }
+                batch = {key: val.to(device) for key, val in batch.items()}
             labels = batch['labels']
             embeddings_dict = model.compute_embeddings(**batch)
-            batch_embeddings = embeddings_dict[pool_mode].to(
-                device='cpu').numpy()
+            batch_embeddings = embeddings_dict[pool_mode].to('cpu').numpy()
             labels = labels.to('cpu').numpy()
             true_labels.append(labels)
             embeddings.append(batch_embeddings)
@@ -41,9 +37,13 @@ def extract_embeddings(model, data_loader, pool_mode, logger):
     return embeddings, true_labels
 
 
-def extract_transformer_embedds(model, data_loader, pool_mode, logger):
-    true_labels = torch.Tensor().to('cuda')
-    embeddings = torch.Tensor().to('cuda')
+def extract_transformer_embedds(model,
+                                data_loader,
+                                pool_mode,
+                                logger,
+                                device='cuda'):
+    true_labels = torch.Tensor()
+    embeddings = torch.Tensor()
     steps = len(data_loader)
     with torch.no_grad():
         end = time.time()
@@ -52,16 +52,16 @@ def extract_transformer_embedds(model, data_loader, pool_mode, logger):
 
             if torch.cuda.is_available():
                 model_inputs = {
-                    key: val.to(device='cuda')
+                    key: val.to(device)
                     for key, val in batch.items()
                 }
-            batch_labels = model_inputs['labels']
-            batch_lengths = model_inputs['lengths']
+            batch_labels = batch['labels']
+            batch_lengths = batch['lengths']
             model_outputs = model(**model_inputs,
                                   output_hidden_states=True,
                                   return_dict=True)
 
-            last_hidden_state = model_outputs.hidden_states[-1]
+            last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
             # batch_embeddings: batch_size * seq_length * embedding_dim
 
             batch_embedding_list = [emb for emb in last_hidden_state]
@@ -96,6 +96,6 @@ def extract_transformer_embedds(model, data_loader, pool_mode, logger):
                             steps + 1,
                             batch_time=batch_time,
                             total_time=total_time))
-    embeddings = embeddings.cpu().detach().numpy()
-    true_labels = true_labels.cpu().detach().numpy()
+    embeddings = embeddings.numpy()
+    true_labels = true_labels.numpy()
     return embeddings, true_labels
