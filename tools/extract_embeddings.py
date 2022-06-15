@@ -5,16 +5,17 @@ import sys
 
 import numpy as np
 import pandas as pd
+import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from transformers import RobertaConfig
-sys.path.append('../')
 
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
-from deepfold.trainer.training import extract_transformer_embedds
+from deepfold.trainer.embeds import extract_transformer_embedds
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -96,10 +97,15 @@ def main(args):
         pretrained_model_name_or_path=args.pretrain_model_dir,
         config=model_config)
 
-    model = model.cuda()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
     # run predict
     embeddings, true_labels = extract_transformer_embedds(
-        model, data_loader, pool_mode=args.pool_mode, logger=logger)
+        model,
+        data_loader,
+        pool_mode=args.pool_mode,
+        logger=logger,
+        device=device)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
