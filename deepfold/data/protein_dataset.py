@@ -45,34 +45,19 @@ class ProtRobertaDataset(Dataset):
         self.id2label = {idx: label for idx, label in enumerate(self.terms)}
         self.label2id = {label: idx for idx, label in enumerate(self.terms)}
 
-    def load_dataset(self, data_path, term_path):
-        df = pd.read_pickle(data_path)
-        terms_df = pd.read_pickle(term_path)
-        terms = terms_df['terms'].values.flatten()
-
-        seq = list(df['sequences'])
-        label = list(df['prop_annotations'])
-        assert len(seq) == len(label)
-        return seq, label, terms
-
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
 
         # Make sure there is a space between every token, and map rarely amino acids
-        seq = self.seqs[idx]
+        sequence = self.seqs[idx]
+        length = len(sequence)
 
-        seq_ids = self.tokenizer(
-            seq,
-            # add_special_tokens=True,  #Add [CLS] [SEP] tokens
-            padding='max_length',
-            max_length=self.max_length,
-            truncation=True,  # Truncate data beyond max length
-            # return_token_type_ids=False,
-            # return_attention_mask=True,  # diff normal/pad tokens
-            # return_tensors='pt'  # PyTorch Tensor format
-        )
+        seq_ids = self.tokenizer(sequence,
+                                 padding='max_length',
+                                 max_length=self.max_length,
+                                 truncation=True)
 
         sample = {key: torch.tensor(val) for key, val in seq_ids.items()}
 
@@ -83,8 +68,19 @@ class ProtRobertaDataset(Dataset):
                 label_idx = self.label2id[t_id]
                 multilabel[label_idx] = 1
 
-        sample['labels'] = torch.tensor(multilabel)
+        sample['labels'] = torch.tensor(multilabel, dtype=torch.int)
+        sample['lengths'] = torch.tensor(length, dtype=torch.int)
         return sample
+
+    def load_dataset(self, data_path, term_path):
+        df = pd.read_pickle(data_path)
+        terms_df = pd.read_pickle(term_path)
+        terms = terms_df['terms'].values.flatten()
+
+        seq = list(df['sequences'])
+        label = list(df['prop_annotations'])
+        assert len(seq) == len(label)
+        return seq, label, terms
 
 
 class ProtBertDataset(Dataset):
