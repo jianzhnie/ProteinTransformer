@@ -12,7 +12,7 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
                                               WeightedLayerPooling)
 
 
-class EsmEmbeddingModel(nn.Module):
+class MLP(nn.Module):
     def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
         super().__init__()
 

@@ -53,9 +53,7 @@ def extract_transformer_embedds(model,
             batch_labels = batch['labels']
             batch_lengths = batch['lengths']
             model_inputs = {key: val.to(device) for key, val in batch.items()}
-            model_outputs = model(**model_inputs,
-                                  output_hidden_states=True,
-                                  return_dict=True)
+            model_outputs = model(**model_inputs, output_hidden_states=True)
 
             last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
             # batch_embeddings: batch_size * seq_length * embedding_dim

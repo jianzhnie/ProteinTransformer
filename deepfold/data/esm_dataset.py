@@ -12,23 +12,12 @@ from torch.utils.data import Dataset
 from deepfold.utils.constant import DEFAULT_ESM_MODEL, ESM_LIST
 
 
-class EsmEmbeddingDataset(Dataset):
-    def __init__(
-        self,
-        data_path: str = 'dataset/',
-        train_file: str = 'xxx.pkl',
-        test_file: str = 'xxx.pkl',
-        split: str = 'train',
-    ):
-        self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(data_path, train_file)
-        self.testFilePath = os.path.join(data_path, test_file)
-
-        if split == 'train':
-            self.data_df = self.load_dataset(self.trainFilePath)
-        else:
-            self.data_df = self.load_dataset(self.testFilePath)
-
+class EmbeddingDataset(Dataset):
+    def __init__(self,
+                 data_path: str = 'dataset/',
+                 file_name: str = 'xxx.pkl'):
+        self.file_path = os.path.join(data_path, file_name)
+        self.data_df = self.load_dataset(self.file_path)
         self.embeddings = list(self.data_df['esm_embeddings'])
         self.labels = list(self.data_df['labels'])
 
@@ -52,26 +41,18 @@ class EsmDataset(Dataset):
     """ESMDataset."""
     def __init__(self,
                  data_path: str = 'dataset/',
-                 split: str = 'train',
+                 file_name: str = 'xxx.pkl',
                  model_dir: str = 'esm1b_t33_650M_UR50S',
                  max_length: int = 1024,
                  truncate: bool = True,
                  random_crop: bool = False):
         super().__init__()
 
-        self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(self.datasetFolderPath,
-                                          'train_data.pkl')
-        self.testFilePath = os.path.join(self.datasetFolderPath,
-                                         'test_data.pkl')
-        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+        self.file_path = os.path.join(data_path, file_name)
+        self.terms_path = os.path.join(data_path, 'terms.pkl')
 
-        if split == 'train':
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.trainFilePath, self.termsFilePath)
-        else:
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.testFilePath, self.termsFilePath)
+        self.seqs, self.labels, self.terms = self.load_dataset(
+            self.file_path, self.terms_path)
 
         self.terms_dict = {v: i for i, v in enumerate(self.terms)}
         self.num_classes = len(self.terms)
