@@ -1,12 +1,15 @@
+## af2
 python extract_embeddings.py  \
---data_path /home/af2/xbiome/data/protein_classification \
+--data_path /data/xbiome/protein_classification \
+--pretrain_model_dir /data/xbiome/pre_trained_models/exp4_longformer \
 --split "test" \
---batch-size 16
+--batch-size 64
 
-nohup python extract_embeddings.py  \
---data_path /home/af2/xbiome/data/protein_classification \
+python extract_embeddings.py  \
+--data_path /data/xbiome/protein_classification \
+--pretrain_model_dir /data/xbiome/pre_trained_models/exp4_longformer \
 --split "train" \
---batch-size 16
+--batch-size 64
 
 
 

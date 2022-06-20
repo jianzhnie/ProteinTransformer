@@ -274,43 +274,6 @@ def ProtLMPredict(model, loader, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
-def extract_embeddings(model, data_loader, pool_mode, logger):
-    embeddings = []
-    true_labels = []
-    steps = len(data_loader)
-    with torch.no_grad():
-        end = time.time()
-        start = time.time()
-        for batch_idx, batch in enumerate(data_loader):
-
-            if torch.cuda.is_available():
-                batch = {
-                    key: val.to(device='cuda')
-                    for key, val in batch.items()
-                }
-            labels = batch['labels']
-            embeddings_dict = model.compute_embeddings(**batch)
-            batch_embeddings = embeddings_dict[pool_mode].to(
-                device='cpu').numpy()
-            labels = labels.to('cpu').numpy()
-            true_labels.append(labels)
-            embeddings.append(batch_embeddings)
-            batch_time = time.time() - end
-            total_time = time.time() - start
-            end = time.time()
-            logger.info('{0}: [{1:>2d}/{2}] '
-                        'Batch Time: {batch_time:.3f} '
-                        'Total Time: {total_time:.3f} '.format(
-                            'Extract embeddings',
-                            batch_idx + 1,
-                            steps + 1,
-                            batch_time=batch_time,
-                            total_time=total_time))
-    embeddings = np.concatenate(embeddings, axis=0)
-    true_labels = np.concatenate(true_labels, axis=0)
-    return embeddings, true_labels
-
-
 def train_loop(model,
                optimizer,
                criterion,

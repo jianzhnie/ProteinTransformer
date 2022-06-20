@@ -1,5 +1,5 @@
 #!/bin/bash/
-python deepfold/data/utils/load_swissport.py \
-        --go-file data/go.obo \
-        --swissprot-file  data/uniprot_sprot.dat.gz \
-        --out-file data/data/swissprot.pkl
+nohup python load_swissport.py \
+        --go-file /data/xbiome/protein_classification/go.obo \
+        --swissprot-file  /data/xbiome/protein_classification/uniprot_trembl.dat.gz \
+        --out-file /data/xbiome/protein_classification/uniprot_trembl.pkl

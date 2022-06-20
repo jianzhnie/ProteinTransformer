@@ -5,15 +5,12 @@ import sys
 
 import numpy as np
 import pandas as pd
-import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
-from transformers import RobertaConfig
 
-from deepfold.data.protein_dataset import ProtRobertaDataset
-from deepfold.models.transformers.multilabel_transformer import \
-    RobertaForMultiLabelSequenceClassification
-from deepfold.trainer.embeds import extract_transformer_embedds
+from deepfold.data.esm_dataset import ESMDataset
+from deepfold.models.esm_model import EsmTransformer
+from deepfold.trainer.training import extract_embeddings
 
 sys.path.append('../')
 
@@ -23,18 +20,17 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
-parser.add_argument('--pretrain_model_dir',
-                    default='',
-                    type=str,
-                    help='pretrained model checkpoint dir')
 parser.add_argument('--split',
                     default='train',
                     help=' train or test data split')
 parser.add_argument('--model',
                     metavar='MODEL',
-                    default='bert',
-                    help='model architecture: (default: bert)')
-parser.add_argument('--pool_mode', default='mean', help='embedding method')
+                    default='esm',
+                    help='model architecture: (default: esm)')
+parser.add_argument('--pool_mode',
+                    metavar='MODEL',
+                    default='mean',
+                    help='embedding method')
 parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
 parser.add_argument('-j',
                     '--workers',
@@ -63,7 +59,7 @@ def compute_kernel_bias(vecs):
 
 
 def main(args):
-    model_name = 'roberta'
+    model_name = 'esm1b_t33_650M_UR50S'
     if args.split == 'train':
         data_file = os.path.join(args.data_path, 'train_data.pkl')
     else:
@@ -78,34 +74,28 @@ def main(args):
         (model_name, args.pool_mode, args.split, data_file))
     print('Embeddings save path: ', save_path)
     # Dataset and DataLoader
-    dataset = ProtRobertaDataset(data_path=args.data_path,
-                                 tokenizer_dir=args.pretrain_model_dir,
-                                 split=args.split,
-                                 max_length=1024)
+    dataset = ESMDataset(data_path=args.data_path,
+                         split=args.split,
+                         model_dir=model_name)
     # dataloders
     data_loader = DataLoader(dataset,
                              batch_size=args.batch_size,
                              shuffle=False,
                              num_workers=args.workers,
+                             collate_fn=dataset.collate_fn,
                              pin_memory=True)
     # model
-    num_classes = dataset.num_classes
-    model_config = RobertaConfig.from_pretrained(
-        pretrained_model_name_or_path=args.pretrain_model_dir,
-        num_labels=num_classes)
-    model = RobertaForMultiLabelSequenceClassification.from_pretrained(
-        pretrained_model_name_or_path=args.pretrain_model_dir,
-        config=model_config)
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = model.to(device)
+    num_labels = dataset.num_classes
+    model = EsmTransformer(model_dir=model_name,
+                           pool_mode=args.pool_mode,
+                           fintune=args.fintune,
+                           num_labels=num_labels)
+    model = model.cuda()
     # run predict
-    embeddings, true_labels = extract_transformer_embedds(
-        model,
-        data_loader,
-        pool_mode=args.pool_mode,
-        logger=logger,
-        device=device)
+    embeddings, true_labels = extract_embeddings(model,
+                                                 data_loader,
+                                                 pool_mode=args.pool_mode,
+                                                 logger=logger)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
