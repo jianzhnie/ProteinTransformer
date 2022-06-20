@@ -206,7 +206,7 @@ def main(args):
         if has_wandb:
             wandb.init(project=args.experiment,
                        config=args,
-                       entity='hushuangwei')
+                       entity='jianzhnie')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "

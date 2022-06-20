@@ -82,11 +82,15 @@ parser.add_argument('--output-dir',
 
 
 def main(args):
+    args.distributed = False
     args.gpu = 0
     # dataloders
     # Dataset and DataLoader
+    logger.info('=> lodding test datasets:( %s, %s)' %
+                (args.data_path, args.dataset_name))
     _, test_loader = get_dataloaders(args)
     # model
+    logger.info('=> build models %s ' % args.model)
     model = get_model(args)
     if args.resume is not None:
         if args.local_rank == 0:

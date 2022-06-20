@@ -12,12 +12,13 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 from transformers import RobertaConfig
-sys.path.append('../')
+
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 from deepfold.trainer.training import ProtLMPredict
 
+sys.path.append('../')
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
