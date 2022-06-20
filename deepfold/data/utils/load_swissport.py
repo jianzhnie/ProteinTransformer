@@ -1,11 +1,14 @@
+import argparse
 import gzip
 import logging
+import sys
 
-import click as ck
 import pandas as pd
 
-from .data_utils import is_cafa_target, is_exp_code
-from .ontology import Ontology
+from deepfold.data.utils.data_utils import is_cafa_target, is_exp_code
+from deepfold.data.utils.ontology import Ontology
+
+sys.path.append('../../../')
 
 logging.basicConfig(level=logging.INFO)
 
@@ -74,21 +77,24 @@ def load_swissport(swissprot_file):
     return proteins, accessions, sequences, annotations, interpros, orgs
 
 
-@ck.command()
-@ck.option('--go-file',
-           '-gf',
-           default='data/go.obo',
-           help='Gene Ontology file in OBO Format')
-@ck.option(
+parser = argparse.ArgumentParser(
+    description='Protein function Classification Model Train config')
+parser.add_argument('--go-file',
+                    '-gf',
+                    default='data/go.obo',
+                    help='Gene Ontology file in OBO Format')
+parser.add_argument(
     '--swissprot-file',
     '-sf',
     default='data/uniprot_sprot.dat.gz',
     help='UniProt/SwissProt knowledgebase file in text format (archived)')
-@ck.option(
+parser.add_argument(
     '--out-file',
     '-o',
     default='data/swissprot.pkl',
     help='Result file with a list of proteins, sequences and annotations')
+
+
 def main(go_file, swissprot_file, out_file):
     go = Ontology(go_file, with_rels=True)
 
@@ -145,8 +151,5 @@ def main(go_file, swissprot_file, out_file):
 
 
 if __name__ == '__main__':
-    swissport_file = '/Users/robin/xbiome/datasets/protein/uniprot_sprot.dat.gz'
-    # proteins, accessions, sequences, annotations, interpros, orgs = load_swissport(
-    #     swissport_file)
-    # print(sequences)
-    main()
+    args = parser.parse_args()
+    main(args.go_file, args.swissprot_file, args.out_file)
