@@ -13,8 +13,8 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.data.esm_dataset import EsmEmbeddingDataset
-from deepfold.models.esm_model import EsmEmbeddingModel
+from deepfold.data.esm_dataset import EmbeddingDataset
+from deepfold.models.esm_model import MLP
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
@@ -77,7 +77,7 @@ parser.add_argument('--output-dir',
 def main(args):
     args.gpu = 0
     # Dataset and DataLoader
-    test_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
+    test_dataset = EmbeddingDataset(data_path=args.data_path, split='test')
     # dataloders
     test_loader = DataLoader(test_dataset,
                              batch_size=args.batch_size,
@@ -87,7 +87,7 @@ def main(args):
 
     # model
     num_labels = 5874
-    model = EsmEmbeddingModel(num_labels=num_labels)
+    model = MLP(num_labels=num_labels)
 
     if args.resume is not None:
         if args.local_rank == 0:

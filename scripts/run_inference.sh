@@ -18,8 +18,9 @@ python inference_protlm.py  \
 --batch-size  64 \
 --workers 4
 
+
 ## inference
-python inference.py  \
+python inference_protlm.py  \
 --data_path /data/xbiome/protein_classification \
 --tokenizer_model_dir /data/xbiome/pre_trained_models/exp4_longformer \
 --output-dir /home/af2/xbiome/DeepFold/work_dir \
