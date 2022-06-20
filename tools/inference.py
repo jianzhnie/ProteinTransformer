@@ -11,10 +11,9 @@ import torch.nn as nn
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from torch.utils.data import DataLoader
 
-from deepfold.data.esm_dataset import EsmDataset
-from deepfold.models.esm_model import EsmTransformer
+from deepfold.data.dataset_factory import get_dataloaders
+from deepfold.models.model_factory import get_model
 from deepfold.trainer.training import Predict
 from deepfold.utils.model import load_model_checkpoint
 
@@ -36,6 +35,10 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--dataset_name',
+                    default='',
+                    type=str,
+                    help='dataset name: esm, esm_embedding, protseq, protbert')
 parser.add_argument('--model',
                     metavar='MODEL',
                     default='esm',
@@ -44,6 +47,10 @@ parser.add_argument('--pool_mode',
                     metavar='MODEL',
                     default='mean',
                     help='embedding method')
+parser.add_argument('--num_labels',
+                    default=5874,
+                    type=int,
+                    help='num labels for multi-label classification')
 parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
 parser.add_argument('--resume',
                     default=None,
@@ -76,25 +83,11 @@ parser.add_argument('--output-dir',
 
 def main(args):
     args.gpu = 0
-    # Dataset and DataLoader
-    test_dataset = EsmDataset(data_path=args.data_path,
-                              split='test',
-                              model_dir='esm1b_t33_650M_UR50S')
     # dataloders
-    test_loader = DataLoader(test_dataset,
-                             batch_size=args.batch_size,
-                             shuffle=False,
-                             num_workers=args.workers,
-                             collate_fn=test_dataset.collate_fn,
-                             pin_memory=True)
-
+    # Dataset and DataLoader
+    _, test_loader = get_dataloaders(args)
     # model
-    num_labels = test_dataset.num_classes
-    model = EsmTransformer(model_dir='esm1b_t33_650M_UR50S',
-                           pool_mode=args.pool_mode,
-                           fintune=args.fintune,
-                           num_labels=num_labels)
-
+    model = get_model(args)
     if args.resume is not None:
         if args.local_rank == 0:
             model_state, optimizer_state = load_model_checkpoint(args.resume)
@@ -120,7 +113,8 @@ def main(args):
     preds, test_labels = predictions
     test_df['labels'] = list(test_labels)
     test_df['preds'] = list(preds)
-    df_path = os.path.join(args.data_path, 'predictions.pkl')
+    df_path = os.path.join(args.data_path, args.model + '_predictions.pkl')
+    logger.info('Saveing predictions %s' % df_path)
     test_df.to_pickle(df_path)
 
 
