@@ -1,7 +1,6 @@
 Bio
 boto3
 botocore
-esm
 filelock
 h5py
 matplotlib
@@ -15,4 +14,3 @@ tokenizers
 torch
 tqdm
 transformers
-yaml
