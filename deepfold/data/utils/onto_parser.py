@@ -180,6 +180,25 @@ class OntologyParser(object):
                         q.append(parent_id)
         return term_set
 
+    def get_ancestors(self, term_id):
+        if term_id not in self.ont:
+            return set()
+
+        parents = set(self.ont[term_id]['is_a']) | \
+            set(self.ont[term_id]['part_of']) | \
+            set(self.ont[term_id]['regulates']) | \
+            set(self.ont[term_id]['negatively_regulates']) | \
+            set(self.ont[term_id]['positively_regulates']) | \
+            set(self.ont[term_id]['occurs_in']) | \
+            set(self.ont[term_id]['ends_during']) | \
+            set(self.ont[term_id]['happens_during'])
+        if len(parents) < 1:
+            return [[term_id]]
+        branches = []
+        for parent_id in parents:
+            branches += [b + [term_id] for b in self.get_ancestors(parent_id)]
+        return branches
+
     def get_parents(self, term_id):
         if term_id not in self.ont:
             return set()
