@@ -14,8 +14,8 @@ import yaml
 from torch.utils.data import DataLoader
 
 from deepfold.core.loss.asl_losses import AsymmetricLossOptimized
-from deepfold.data.esm_dataset import EsmEmbeddingDataset
-from deepfold.models.esm_model import EsmEmbeddingModel
+from deepfold.data.esm_dataset import EmbeddingDataset
+from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
@@ -232,9 +232,10 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = EsmEmbeddingDataset(data_path=args.data_path,
-                                        split='train')
-    val_dataset = EsmEmbeddingDataset(data_path=args.data_path, split='test')
+    train_dataset = EmbeddingDataset(data_path=args.data_path,
+                                     file_name='train_data.pkl')
+    val_dataset = EmbeddingDataset(data_path=args.data_path,
+                                   file_name='test_data.pkl')
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
@@ -266,7 +267,7 @@ def main(args):
 
     # model
     num_labels = 5874
-    model = EsmEmbeddingModel(input_size=1280, num_labels=num_labels)
+    model = EsmTransformer(input_size=1280, num_labels=num_labels)
 
     if args.resume is not None:
         if args.local_rank == 0:
