@@ -10,12 +10,10 @@ from .utils.onto_parser import (BIOLOGICAL_PROCESS, CELLULAR_COMPONENT,
 
 class GoVocab(object):
     """Vocabulary for Go Terms."""
-    def __init__(self, go_terms):
-        self.ont = go_terms
+    def __init__(self, terms):
         # add GO terms in the tokenizer
-        self.terms = sorted(list(set(go_terms.keys())))
+        self.terms = terms
         self.vocab_sz = len(self.terms)
-        # zero is padding
         self.term2index = dict([(term, i)
                                 for i, term in enumerate(self.terms)])
         self.index2term = dict([(i, term)
@@ -56,13 +54,14 @@ class OntoDataset(Dataset):
                                         with_rels=True,
                                         include_alt_ids=False)
         self.ont = self.ontparser.ont
-        self.vocab = GoVocab(self.ont)
-        self.terms_name_all = self.ont.keys()
+        self.all_terms = sorted(list(set(self.ont.keys())))
+        self.vocab = GoVocab(self.all_terms)
+
         self.root_terms = [
             BIOLOGICAL_PROCESS, MOLECULAR_FUNCTION, CELLULAR_COMPONENT
         ]
-        self.terms_name = list(
-            set(self.terms_name_all).difference(set(self.root_terms)))
+        self.filter_term = list(
+            set(self.all_terms).difference(set(self.root_terms)))
 
         self.name2code = {
             'biological_process': 0,
@@ -72,13 +71,13 @@ class OntoDataset(Dataset):
         self.build_dataset(data_dir)
 
     def __len__(self):
-        return len(self.terms_name)
+        return len(self.filter_term)
 
     def __getitem__(self, idx):
-        term = self.terms_name[idx]
+        term = self.filter_term[idx]
         namespace = self.ont[term]['namespace']
-        ancestors = self.ontparser.get_anchestors(term)
-        ancestors = list(set(ancestors))
+        ancestors = self.ontparser.get_ancestors(term)
+        ancestors = sorted(set([term for anc in ancestors for term in anc]))
 
         term_id = self.vocab.to_ids(term)
         neighbors_id = self.vocab.to_ids(ancestors)
@@ -101,12 +100,11 @@ class OntoDataset(Dataset):
             for line in f.readlines():
                 term, neighbors, namespace = line.strip().split('\t')
 
-                term_id = self.vocab.to_ids[term]
+                term_id = self.vocab.to_ids(term)
                 neighbors_id = [
-                    self.vocab.to_ids[t] for t in neighbors.split(',')
+                    self.vocab.to_ids(t) for t in neighbors.split(',')
                 ]
                 namespace = self.name2code(namespace)
-
                 print(term_id, neighbors_id, namespace)
 
     def build_dataset(self, path):
@@ -115,13 +113,14 @@ class OntoDataset(Dataset):
         # create dataset
         with open(data_fin, 'w+') as f:
             # loop over GO terms
-            for t in self.terms_name_all:
+            for t in self.all_terms:
                 # skip roots
                 if t in self.root_terms:
                     continue
                 namespace = self.ont[t]['namespace']
-                ancestors = self.ontparser.get_anchestors(t)
-                ancestors = set(ancestors)
+                ancestors = self.ontparser.get_ancestors(t)
+                ancestors = list(
+                    set([term for anc in ancestors for term in anc]))
 
                 datapoint = '{}\t{}\t{}\n'.format(t,
                                                   ','.join(sorted(ancestors)),
