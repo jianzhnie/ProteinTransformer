@@ -92,7 +92,7 @@ class OntoDataset(Dataset):
         term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz)
         neighbors2onehot = F.one_hot(
             term_id,
-            num_classes=self.vocab.vocab_sz) * (1.0 / len(neighbors_id))
+            num_classes=self.vocab.vocab_sz) * (1.0 / neighbors_id.shape[0])
 
         return term2onehot, neighbors2onehot, label2onehot
 
