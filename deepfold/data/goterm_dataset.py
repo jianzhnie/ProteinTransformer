@@ -87,13 +87,13 @@ class OntoDataset(Dataset):
         neighbors_id = torch.tensor(neighbors_id)
         label_id = torch.tensor(label_id)
 
-        label2onehot = F.one_hot(label_id, num_classes=3)
         term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz)
         neighbors2onehot = F.one_hot(
-            term_id,
+            neighbors_id,
             num_classes=self.vocab.vocab_sz) * (1.0 / neighbors_id.shape[0])
-
-        return term2onehot, neighbors2onehot, label2onehot
+        neighbors = torch.sum(neighbors2onehot, dim=0)
+        labels = F.one_hot(label_id, num_classes=3)
+        return term2onehot, neighbors, labels
 
     def load_dataset(self, path):
         with open(path) as f:
