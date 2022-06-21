@@ -8,9 +8,9 @@ import pandas as pd
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 
-from deepfold.data.esm_dataset import ESMDataset
+from deepfold.data.esm_dataset import EsmDataset
 from deepfold.models.esm_model import EsmTransformer
-from deepfold.trainer.training import extract_embeddings
+from deepfold.trainer.embeds import extract_embeddings
 
 sys.path.append('../')
 
@@ -62,8 +62,10 @@ def main(args):
     model_name = 'esm1b_t33_650M_UR50S'
     if args.split == 'train':
         data_file = os.path.join(args.data_path, 'train_data.pkl')
+        file_name = 'train_data.pkl'
     else:
         data_file = os.path.join(args.data_path, 'test_data.pkl')
+        file_name = 'test_data.pkl'
 
     assert os.path.exists(data_file)
     save_path = os.path.join(
@@ -74,8 +76,8 @@ def main(args):
         (model_name, args.pool_mode, args.split, data_file))
     print('Embeddings save path: ', save_path)
     # Dataset and DataLoader
-    dataset = ESMDataset(data_path=args.data_path,
-                         split=args.split,
+    dataset = EsmDataset(data_path=args.data_path,
+                         file_name=file_name,
                          model_dir=model_name)
     # dataloders
     data_loader = DataLoader(dataset,
