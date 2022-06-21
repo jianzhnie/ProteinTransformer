@@ -31,7 +31,7 @@ class GoVocab(object):
 
     def to_ids(self, tokens):
         if isinstance(tokens, (list, tuple)):
-            return [self.term2index(token) for token in tokens]
+            return [self.term2index[token] for token in tokens]
         return self.term2index.get(tokens)
 
 
@@ -57,11 +57,10 @@ class OntoDataset(Dataset):
                                         include_alt_ids=False)
         self.ont = self.ontparser.ont
         self.vocab = GoVocab(self.ont)
-        self.build_dataset(data_dir)
+        self.terms_name_all = self.ont.keys()
         self.root_terms = [
             BIOLOGICAL_PROCESS, MOLECULAR_FUNCTION, CELLULAR_COMPONENT
         ]
-        self.terms_name_all = self.ont.keys()
         self.terms_name = list(
             set(self.terms_name_all).difference(set(self.root_terms)))
 
@@ -70,6 +69,7 @@ class OntoDataset(Dataset):
             'cellular_component': 1,
             'molecular_function': 2
         }
+        self.build_dataset(data_dir)
 
     def __len__(self):
         return len(self.terms_name)
@@ -78,10 +78,10 @@ class OntoDataset(Dataset):
         term = self.terms_name[idx]
         namespace = self.ont[term]['namespace']
         ancestors = self.ontparser.get_anchestors(term)
-        ancestors = set([term for anc in ancestors for term in anc])
+        ancestors = list(set(ancestors))
 
-        term_id = self.vocab.to_ids[term]
-        neighbors_id = self.vocab.to_ids[ancestors]
+        term_id = self.vocab.to_ids(term)
+        neighbors_id = self.vocab.to_ids(ancestors)
         label_id = self.name2code[namespace]
 
         term_id = torch.tensor(term_id)
@@ -105,33 +105,26 @@ class OntoDataset(Dataset):
                 neighbors_id = [
                     self.vocab.to_ids[t] for t in neighbors.split(',')
                 ]
-                namespace = int(namespace)
+                namespace = self.name2code(namespace)
 
                 print(term_id, neighbors_id, namespace)
 
     def build_dataset(self, path):
         """Create a train dataset from obo file."""
         data_fin = os.path.join(path, 'ds.txt')
-
-        name2code = {
-            'biological_process': 0,
-            'cellular_component': 1,
-            'molecular_function': 2
-        }
-
         # create dataset
         with open(data_fin, 'w+') as f:
             # loop over GO terms
-            for t in self.go_terms:
+            for t in self.terms_name_all:
                 # skip roots
                 if t in self.root_terms:
                     continue
                 namespace = self.ont[t]['namespace']
                 ancestors = self.ontparser.get_anchestors(t)
-                ancestors = set([t for a in ancestors for t in a])
+                ancestors = set(ancestors)
 
                 datapoint = '{}\t{}\t{}\n'.format(t,
                                                   ','.join(sorted(ancestors)),
-                                                  name2code[namespace])
+                                                  namespace)
 
                 f.write(datapoint)
