@@ -83,7 +83,7 @@ class OntoDataset(Dataset):
     def collate_fn(self, examples):
         term_ids = torch.tensor([ex[0] for ex in examples])
         ancestor_ids = torch.tensor([ex[1] for ex in examples])
-        namespace_ids = torch.tensor([ex[3] for ex in examples])
+        namespace_ids = torch.tensor([ex[2] for ex in examples])
 
         encoded_inputs = {
             'term_ids': term_ids,
