@@ -65,7 +65,7 @@ class OntoDataset(Dataset):
             'cellular_component': 1,
             'molecular_function': 2
         }
-        self.data = self.build_dataset(data_dir)
+        self.data = self.build_dataset()
 
         # save data
         data_fin = os.path.join(data_dir, 'ds.txt')
@@ -78,7 +78,7 @@ class OntoDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        return len(self.data)
+        return self.data[idx]
 
     def collate_fn(self, examples):
         term_ids = torch.tensor([ex[0] for ex in examples])
