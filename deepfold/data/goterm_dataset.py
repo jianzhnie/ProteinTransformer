@@ -1,7 +1,6 @@
 import os
 
 import torch
-import torch.nn.functional as F
 from torch.utils.data import Dataset
 
 from .utils.onto_parser import (BIOLOGICAL_PROCESS, CELLULAR_COMPONENT,
@@ -92,33 +91,33 @@ class OntoDataset(Dataset):
         }
         return encoded_inputs
 
-    def getitem(self, idx):
-        term = self.all_terms[idx]
-        namespace = self.ont[term]['namespace']
-        ancestors = self.ontparser.get_ancestors(term)
-        ancestors = sorted(set([term for anc in ancestors for term in anc]))
+    # def getitem(self, idx):
+    #     term = self.all_terms[idx]
+    #     namespace = self.ont[term]['namespace']
+    #     ancestors = self.ontparser.get_ancestors(term)
+    #     ancestors = sorted(set([term for anc in ancestors for term in anc]))
 
-        term_id = self.vocab.to_ids(term)
-        neighbors_id = self.vocab.to_ids(ancestors)
-        label_id = self.name2code[namespace]
+    #     term_id = self.vocab.to_ids(term)
+    #     neighbors_id = self.vocab.to_ids(ancestors)
+    #     label_id = self.name2code[namespace]
 
-        term_id = torch.tensor(term_id)
-        neighbors_id = torch.tensor(neighbors_id)
-        label_id = torch.tensor(label_id)
+    #     term_id = torch.tensor(term_id)
+    #     neighbors_id = torch.tensor(neighbors_id)
+    #     label_id = torch.tensor(label_id)
 
-        term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz) * 1.0
-        neighbors2onehot = F.one_hot(
-            neighbors_id,
-            num_classes=self.vocab.vocab_sz) * (1.0 / neighbors_id.shape[0])
-        neighbors = torch.sum(neighbors2onehot, dim=0)
-        labels = F.one_hot(label_id, num_classes=3) * 1.0
+    #     term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz) * 1.0
+    #     neighbors2onehot = F.one_hot(
+    #         neighbors_id,
+    #         num_classes=self.vocab.vocab_sz) * (1.0 / neighbors_id.shape[0])
+    #     neighbors = torch.sum(neighbors2onehot, dim=0)
+    #     labels = F.one_hot(label_id, num_classes=3) * 1.0
 
-        encoded_inputs = {
-            'term_ids': term2onehot,
-            'neighbor_ids': neighbors,
-            'labels': labels
-        }
-        return encoded_inputs
+    #     encoded_inputs = {
+    #         'term_ids': term2onehot,
+    #         'neighbor_ids': neighbors,
+    #         'labels': labels
+    #     }
+    #     return encoded_inputs
 
     def build_dataset(self):
         """Create a train dataset from obo file."""
