@@ -60,21 +60,40 @@ class OntoDataset(Dataset):
         self.root_terms = [
             BIOLOGICAL_PROCESS, MOLECULAR_FUNCTION, CELLULAR_COMPONENT
         ]
-        self.filter_term = list(
-            set(self.all_terms).difference(set(self.root_terms)))
-
         self.name2code = {
             'biological_process': 0,
             'cellular_component': 1,
             'molecular_function': 2
         }
-        self.build_dataset(data_dir)
+        self.data = self.build_dataset(data_dir)
+
+        # save data
+        data_fin = os.path.join(data_dir, 'ds.txt')
+        if os.path.exists(data_fin):
+            pass
+        else:
+            self.save_processed_data(data_fin)
 
     def __len__(self):
-        return len(self.filter_term)
+        return len(self.data)
 
     def __getitem__(self, idx):
-        term = self.filter_term[idx]
+        return len(self.data)
+
+    def collate_fn(self, examples):
+        term_ids = torch.tensor([ex[0] for ex in examples])
+        ancestor_ids = torch.tensor([ex[1] for ex in examples])
+        namespace_ids = torch.tensor([ex[3] for ex in examples])
+
+        encoded_inputs = {
+            'term_ids': term_ids,
+            'neighbor_ids': ancestor_ids,
+            'labels': namespace_ids
+        }
+        return encoded_inputs
+
+    def getitem(self, idx):
+        term = self.all_terms[idx]
         namespace = self.ont[term]['namespace']
         ancestors = self.ontparser.get_ancestors(term)
         ancestors = sorted(set([term for anc in ancestors for term in anc]))
@@ -87,29 +106,41 @@ class OntoDataset(Dataset):
         neighbors_id = torch.tensor(neighbors_id)
         label_id = torch.tensor(label_id)
 
-        term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz)
+        term2onehot = F.one_hot(term_id, num_classes=self.vocab.vocab_sz) * 1.0
         neighbors2onehot = F.one_hot(
             neighbors_id,
             num_classes=self.vocab.vocab_sz) * (1.0 / neighbors_id.shape[0])
         neighbors = torch.sum(neighbors2onehot, dim=0)
-        labels = F.one_hot(label_id, num_classes=3)
-        return term2onehot, neighbors, labels
+        labels = F.one_hot(label_id, num_classes=3) * 1.0
 
-    def load_dataset(self, path):
-        with open(path) as f:
-            for line in f.readlines():
-                term, neighbors, namespace = line.strip().split('\t')
+        encoded_inputs = {
+            'term_ids': term2onehot,
+            'neighbor_ids': neighbors,
+            'labels': labels
+        }
+        return encoded_inputs
 
-                term_id = self.vocab.to_ids(term)
-                neighbors_id = [
-                    self.vocab.to_ids(t) for t in neighbors.split(',')
-                ]
-                namespace = self.name2code(namespace)
-                print(term_id, neighbors_id, namespace)
-
-    def build_dataset(self, path):
+    def build_dataset(self):
         """Create a train dataset from obo file."""
-        data_fin = os.path.join(path, 'ds.txt')
+        data = []
+        # loop over GO terms
+        for t in self.all_terms:
+            # skip roots
+            if t in self.root_terms:
+                continue
+            namespace = self.ont[t]['namespace']
+            ancestors = self.ontparser.get_ancestors(t)
+            ancestors = list(set([term for anc in ancestors for term in anc]))
+
+            term_id = self.vocab.to_ids(t)
+            ancestor_ids = self.vocab.to_ids(ancestors)
+            namespace_id = self.name2code[namespace]
+
+            data.extend([(term_id, ancestor_id, namespace_id)
+                         for ancestor_id in ancestor_ids])
+        return data
+
+    def save_processed_data(self, data_fin):
         # create dataset
         with open(data_fin, 'w+') as f:
             # loop over GO terms
