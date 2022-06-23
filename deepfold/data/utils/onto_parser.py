@@ -110,8 +110,6 @@ class OntologyParser(object):
                         rel_type = it[0]
                         term_in_rel = it[1]
                         obj[rel_type].append(term_in_rel)
-                    elif subline[0] == 'name':
-                        obj['name'] = subline[1]
                     elif subline[0] == 'is_obsolete' and subline[1] == 'true':
                         obj['is_obsolete'] = True
             if obj is not None:
