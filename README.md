@@ -7,7 +7,7 @@ X-DeepGO is toolkit using deep learning for protein function annotation
 
 ## Installation
 
-The sources for AutoTabular can be downloaded from the `Github repo`.
+The sources for Deepfold can be downloaded from the `Github repo`.
 
 You can either clone the public repository:
 
