@@ -1,5 +1,6 @@
 import os
 
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
@@ -54,19 +55,6 @@ class OntoTextDataset(Dataset):
 
         return encode_input
 
-    def collate_fn(self, examples):
-
-        term_ids = torch.tensor([ex[0] for ex in examples])
-        ancestor_ids = torch.tensor([ex[1] for ex in examples])
-        namespace_ids = torch.tensor([ex[2] for ex in examples])
-
-        encoded_inputs = {
-            'term_ids': term_ids,
-            'neighbor_ids': ancestor_ids,
-            'labels': namespace_ids
-        }
-        return encoded_inputs
-
     def build_dataset(self):
         """Create a train dataset from obo file."""
         data = []
@@ -91,3 +79,8 @@ class OntoTextDataset(Dataset):
                                                       textdef)
 
                 f.write(datapoint)
+
+        df = pd.DataFrame(self.data,
+                          columns=['term', 'name', 'namespace', 'deftext'])
+        data_fin = data_fin.replace('.txt', '.csv')
+        df.to_csv(data_fin, index=False)
