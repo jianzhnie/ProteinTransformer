@@ -100,9 +100,9 @@ class OntologyParser(object):
                     elif subline[0] == 'namespace':
                         obj['namespace'] = subline[1]
                     elif subline[0] == 'name':
-                        obj['name'] == subline[1]
+                        obj['name'] = subline[1]
                     elif subline[0] == 'def':
-                        obj['def'] == subline[1]
+                        obj['def'] = subline[1]
                     elif subline[0] == 'is_a':
                         obj['is_a'].append(subline[1].split(' ! ')[0])
                     elif with_rels and subline[0] == 'relationship':
