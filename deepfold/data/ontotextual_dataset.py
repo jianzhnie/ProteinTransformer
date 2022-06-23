@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+from deepfold import data
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
@@ -12,8 +13,12 @@ class OntoTextDataset(Dataset):
     def __init__(self,
                  data_dir,
                  tokenizer_name='Rostlab/prot_bert_bfd',
-                 obo_file='data/go.obo',
-                 max_length=1024):
+                 obo_file=None,
+                 max_length=512):
+        
+        if obo_file is None:
+            obo_file = os.path.join(data_dir, 'go.obo')
+
         self.ontparser = OntologyParser(obo_file,
                                         with_rels=True,
                                         include_alt_ids=False)
@@ -49,9 +54,8 @@ class OntoTextDataset(Dataset):
             padding='max_length',
             max_length=self.max_length,
             truncation=True,  # Truncate data beyond max length
-            return_tensors='pt'  # PyTorch Tensor format
         )
-        encode_input['labels'] = torch.tensor(label)
+        encode_input = {key: torch.tensor(val) for key, val in encode_input.items()}
 
         return encode_input
 

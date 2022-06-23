@@ -1,3 +1,5 @@
+from __future__ import division
+
 from typing import List
 
 
@@ -5,7 +7,11 @@ def jaccard_similarity(list1, list2):
     """Calculate the Jaccard Similarity of two lists containing strings."""
     intersection = len(list(set(list1).intersection(list2)))
     union = (len(set(list1)) + len(set(list2))) - intersection
-    return float(intersection) / union
+    try:
+        iou = float(intersection) / union 
+    except ZeroDivisionError:
+        iou = 0
+    return iou
 
 
 def compute_jaccard_matrix(list1: List[List[str]], list2: List[List[str]]):
