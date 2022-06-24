@@ -23,3 +23,10 @@ python extract_embeddings.py  \
 --data_path /home/niejianzheng/xbiome/datasets/protein \
 --split "train" \
 --batch-size 64
+
+
+python extract_ontotextual_embeddings.py \
+--data_path /home/niejianzheng/xbiome/datasets/protein \
+--split "train" \
+--batch-size 256
+

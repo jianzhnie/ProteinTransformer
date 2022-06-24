@@ -82,7 +82,7 @@ def main(args):
 
     df = pd.read_csv(data_file)
     df['embeddings'] = embeddings.tolist()
-    df.to_csv(save_path)
+    df.to_pickle(save_path)
 
     print('Embeddings saved to :', save_path)
 
