@@ -8,7 +8,7 @@ def jaccard_similarity(list1, list2):
     intersection = len(list(set(list1).intersection(list2)))
     union = (len(set(list1)) + len(set(list2))) - intersection
     try:
-        iou = float(intersection) / union 
+        iou = float(intersection) / union
     except ZeroDivisionError:
         iou = 0
     return iou
