@@ -2,17 +2,17 @@ import argparse
 import logging
 import os
 import sys
-import numpy as np
-from sklearn.model_selection import train_test_split
+
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
-from transformers import AutoModel
-sys.path.append('../')
+from transformers import AutoModelForSequenceClassification
+
 from deepfold.data.ontotextual_dataset import OntoTextDataset
 from deepfold.trainer.embeds import extract_sentence_embedds
 
+sys.path.append('../')
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -52,7 +52,8 @@ def main(args):
     data_file = os.path.join(args.data_path, 'GotermText.csv')
     assert os.path.exists(data_file)
     save_path = os.path.join(
-        args.data_path, 'onto_embeddings_' + args.pool_mode + '_' + args.split + '.pkl')
+        args.data_path,
+        'onto_embeddings_' + args.pool_mode + '_' + args.split + '.pkl')
     print('Pretrained model %s, pool_mode: %s,  file path: %s' %
           (model_name, args.pool_mode, data_file))
     print('Embeddings save path: ', save_path)
@@ -68,7 +69,7 @@ def main(args):
                              num_workers=args.workers,
                              pin_memory=True)
     # model
-    model = AutoModel.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     # run predict
@@ -78,7 +79,6 @@ def main(args):
                                           logger=logger,
                                           device=device)
     print(embeddings.shape)
-
 
     df = pd.read_csv(data_file)
     df['embeddings'] = embeddings.tolist()
