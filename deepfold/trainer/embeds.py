@@ -107,12 +107,12 @@ def extract_sentence_embedds(model,
             last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
             # batch_embeddings: batch_size * seq_length * embedding_dim
             if 'mean' in pool_mode:
-                mean_embedding = torch.mean(last_hidden_state, dim=1) 
-                batch_embeddings =  torch.squeeze(mean_embedding, 1)
+                mean_embedding = torch.mean(last_hidden_state, dim=1)
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
             # keep class token only
             if 'cls' in pool_mode:
                 mean_embedding = last_hidden_state[:, 0, :]
-                batch_embeddings =  torch.squeeze(mean_embedding, 1)
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
 
             embeddings = torch.cat((embeddings, batch_embeddings), dim=0)
             batch_time = time.time() - end
