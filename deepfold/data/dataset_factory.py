@@ -3,7 +3,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.data import DataLoader
 
-from .esm_dataset import EsmDataset, EsmEmbeddingDataset
+from .esm_dataset import EmbeddingDataset, EsmDataset
 from .protein_dataset import ProtBertDataset, ProtSeqDataset
 
 
@@ -13,10 +13,20 @@ def get_dataloaders(args):
         train_dataset = EsmDataset(data_path=args.data_path, split='train')
         val_dataset = EsmDataset(data_path=args.data_path, split='test')
     elif name == 'esm_embedding':
-        train_dataset = EsmEmbeddingDataset(data_path=args.data_path,
-                                            split='train')
-        val_dataset = EsmEmbeddingDataset(data_path=args.data_path,
-                                          split='test')
+        train_dataset = EmbeddingDataset(
+            data_path=args.data_path,
+            file_name='esm1b_t33_650M_UR50S_embeddings_mean_train.pkl')
+        val_dataset = EmbeddingDataset(
+            data_path=args.data_path,
+            file_name='esm1b_t33_650M_UR50S_embeddings_mean_test.pkl')
+    elif name == 'bert_embedding':
+        train_dataset = EmbeddingDataset(
+            data_path=args.data_path,
+            file_name='roberta_embeddings_mean_train.pkl')
+        val_dataset = EmbeddingDataset(
+            data_path=args.data_path,
+            file_name='roberta_embeddings_mean_test.pkl')
+
     elif name == 'protseq':
         train_dataset = ProtSeqDataset(data_path=args.data_path, split='train')
         val_dataset = ProtSeqDataset(data_path=args.data_path, split='test')

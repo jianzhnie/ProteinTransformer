@@ -6,13 +6,14 @@ python  evaluate_diamondscore.py \
     --ontology-obo-file /Users/robin/xbiome/datasets/protein/go.obo
 
 
-## evaluate model
-python  evaluate_deepmodel.py \
-    --train-data-file /Users/robin/xbiome/datasets/protein/train_data.pkl \
-    --test-data-file /Users/robin/xbiome/datasets/protein/test_data.pkl \
-    --terms-file /Users/robin/xbiome/datasets/protein/terms.pkl \
-    --ontology-obo-file /Users/robin/xbiome/datasets/protein/go.obo \
-    --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
+
+## af2
+python  tools/evaluate_deepmodel.py \
+    --train-data-file /data/xbiome/protein_classification/train_data.pkl \
+    --test-data-file /data/xbiome/protein_classification/bert_embedding_predictions.pkl \
+    --terms-file /data/xbiome/protein_classification/terms.pkl \
+    --ontology-obo-file /data/xbiome/protein_classification/go.obo \
+    --output_dir /home/af2/xbiome/DeepFold/work_dir
 
 
 ## 108

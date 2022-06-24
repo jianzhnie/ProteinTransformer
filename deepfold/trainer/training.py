@@ -14,7 +14,6 @@ from deepfold.utils.summary import update_summary
 
 def get_train_step(model, criterion, optimizer, scaler,
                    gradient_accumulation_steps, use_amp):
-
     def _step(inputs, optimizer_step=True):
         # Runs the forward pass with autocasting.
         with autocast(enabled=use_amp):
@@ -88,15 +87,14 @@ def train(model,
                     'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
                     'BatchTime: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
                     'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '
-                    'lr: {lr:>4.6f} '.format(
-                        log_name,
-                        epoch + 1,
-                        idx,
-                        steps_per_epoch,
-                        data_time=data_time_m,
-                        batch_time=batch_time_m,
-                        loss=losses_m,
-                        lr=learning_rate))
+                    'lr: {lr:>4.6f} '.format(log_name,
+                                             epoch + 1,
+                                             idx,
+                                             steps_per_epoch,
+                                             data_time=data_time_m,
+                                             batch_time=batch_time_m,
+                                             loss=losses_m,
+                                             lr=learning_rate))
 
     return OrderedDict([('loss', losses_m.avg)])
 
@@ -218,41 +216,62 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
-def extract_embeddings(model, data_loader, pool_mode, logger):
-    embeddings = []
-    true_labels = []
-    steps = len(data_loader)
-    with torch.no_grad():
-        end = time.time()
-        start = time.time()
-        for batch_idx, batch in enumerate(data_loader):
+def ProtLMPredict(model, loader, use_amp, logger, log_interval=10):
+    batch_time_m = AverageMeter('Time', ':6.3f')
+    data_time_m = AverageMeter('Data', ':6.3f')
+    losses_m = AverageMeter('Loss', ':.4e')
 
-            if torch.cuda.is_available():
-                batch = {
-                    key: val.to(device='cuda')
-                    for key, val in batch.items()
-                }
-            labels = batch['labels']
-            embeddings_dict = model.compute_embeddings(**batch)
-            batch_embeddings = embeddings_dict[pool_mode].to(
-                device='cpu').numpy()
-            labels = labels.to('cpu').numpy()
-            true_labels.append(labels)
-            embeddings.append(batch_embeddings)
-            batch_time = time.time() - end
-            total_time = time.time() - start
-            end = time.time()
-            logger.info('{0}: [{1:>2d}/{2}] '
-                        'Batch Time: {batch_time:.3f} '
-                        'Total Time: {total_time:.3f} '.format(
-                            'Extract embeddings',
-                            batch_idx + 1,
-                            steps + 1,
-                            batch_time=batch_time,
-                            total_time=total_time))
-    embeddings = np.concatenate(embeddings, axis=0)
+    model.eval()
+    steps_per_epoch = len(loader)
+    end = time.time()
+    # Variables to gather full output
+    true_labels, pred_labels = [], []
+    for idx, batch in enumerate(loader):
+        batch = {key: val.cuda() for key, val in batch.items()}
+        labels = batch['labels']
+        labels = labels.float()
+        data_time = time.time() - end
+        with torch.no_grad(), autocast(enabled=use_amp):
+            outputs = model(**batch)
+            loss = outputs[0] if isinstance(outputs, tuple) else outputs.loss
+            logits = outputs[1] if isinstance(outputs,
+                                              tuple) else outputs.logits
+
+        preds = torch.sigmoid(logits)
+        preds = preds.detach().cpu().numpy()
+        labels = labels.to('cpu').numpy()
+        true_labels.append(labels)
+        pred_labels.append(preds)
+
+        batch_size = labels.shape[0]
+        data_time = time.time() - end
+        it_time = time.time() - end
+        end = time.time()
+
+        batch_time_m.update(it_time)
+        data_time_m.update(data_time)
+        losses_m.update(loss.item(), batch_size)
+        if (idx % log_interval == 0) or (idx == steps_per_epoch - 1):
+            if not torch.distributed.is_initialized(
+            ) or torch.distributed.get_rank() == 0:
+                logger_name = 'Test-log'
+                logger.info(
+                    '{0}: [{1:>2d}/{2}] '
+                    'DataTime: {data_time.val:.3f} ({data_time.avg:.3f}) '
+                    'Time: {batch_time.val:.3f} ({batch_time.avg:.3f}) '
+                    'Loss: {loss.val:>7.4f} ({loss.avg:>6.4f}) '.format(
+                        logger_name,
+                        idx,
+                        steps_per_epoch,
+                        data_time=data_time_m,
+                        batch_time=batch_time_m,
+                        loss=losses_m))
+    # Flatten outputs
     true_labels = np.concatenate(true_labels, axis=0)
-    return embeddings, true_labels
+    pred_labels = np.concatenate(pred_labels, axis=0)
+    test_auc = compute_roc(true_labels, pred_labels)
+    metrics = OrderedDict([('loss', losses_m.avg), ('auc', test_auc)])
+    return (pred_labels, true_labels), metrics
 
 
 def train_loop(model,
@@ -305,13 +324,12 @@ def train_loop(model,
 
         if log_wandb and (not torch.distributed.is_initialized()
                           or torch.distributed.get_rank() == 0):
-            update_summary(
-                epoch,
-                train_metrics,
-                eval_metrics,
-                os.path.join(output_dir, 'summary.csv'),
-                write_header=best_metric is None,
-                log_wandb=log_wandb)
+            update_summary(epoch,
+                           train_metrics,
+                           eval_metrics,
+                           os.path.join(output_dir, 'summary.csv'),
+                           write_header=best_metric is None,
+                           log_wandb=log_wandb)
 
         if save_checkpoints and (not torch.distributed.is_initialized()
                                  or torch.distributed.get_rank() == 0):
@@ -322,8 +340,10 @@ def train_loop(model,
                 'optimizer': optimizer.state_dict(),
             }
             logger.info('[*] Saving model epoch %d...' % (epoch + 1))
-            save_checkpoint(
-                checkpoint_state, epoch, is_best, checkpoint_dir=output_dir)
+            save_checkpoint(checkpoint_state,
+                            epoch,
+                            is_best,
+                            checkpoint_dir=output_dir)
 
         if early_stopping_patience > 0:
             if not is_best:

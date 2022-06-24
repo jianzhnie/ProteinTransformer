@@ -27,6 +27,70 @@ class Ontology(object):
         self.ontology = self.load_obo(filename, with_rels=with_rels)
         self.ic = None
 
+    def load_obo(self, filename, with_rels=False):
+        ontlogy = dict()
+        goobj = None
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f.readlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if line == '[Term]':
+                    if goobj is not None:
+                        ontlogy[goobj['id']] = goobj
+
+                    goobj = dict()
+                    goobj['is_a'] = list()
+                    goobj['part_of'] = list()
+                    goobj['regulates'] = list()
+                    goobj['alt_ids'] = list()
+                    goobj['is_obsolete'] = False
+                    continue
+
+                elif line == '[Typedef]':
+                    if goobj is not None:
+                        ontlogy[goobj['id']] = goobj
+                    goobj = None
+
+                else:
+                    if goobj is None:
+                        continue
+
+                    subline = line.split(': ')
+                    if subline[0] == 'id':
+                        goobj['id'] = subline[1]
+                    elif subline[0] == 'alt_id':
+                        goobj['alt_ids'].append(subline[1])
+                    elif subline[0] == 'namespace':
+                        goobj['namespace'] = subline[1]
+                    elif subline[0] == 'is_a':
+                        goobj['is_a'].append(subline[1].split(' ! ')[0])
+                    elif with_rels and subline[0] == 'relationship':
+                        it = subline[1].split()
+                        # add all types of relationships
+                        goobj['is_a'].append(it[1])
+                    elif subline[0] == 'name':
+                        goobj['name'] = subline[1]
+                    elif subline[0] == 'is_obsolete' and subline[1] == 'true':
+                        goobj['is_obsolete'] = True
+            if goobj is not None:
+                ontlogy[goobj['id']] = goobj
+            for term_id in list(ontlogy.keys()):
+                for alt_id in ontlogy[term_id]['alt_ids']:
+                    ontlogy[alt_id] = ontlogy[term_id]
+                if ontlogy[term_id]['is_obsolete']:
+                    del ontlogy[term_id]
+
+            for term_id, val in ontlogy.items():
+                if 'children' not in val:
+                    val['children'] = set()
+                for p_id in val['is_a']:
+                    if p_id in ontlogy:
+                        if 'children' not in ontlogy[p_id]:
+                            ontlogy[p_id]['children'] = set()
+                        ontlogy[p_id]['children'].add(term_id)
+        return ontlogy
+
     def has_term(self, term_id):
         return term_id in self.ontology
 
@@ -103,70 +167,6 @@ class Ontology(object):
                 for ch_id in self.ontology[t_id]['children']:
                     q.append(ch_id)
         return term_set
-
-    def load_obo(self, filename, with_rels=False):
-        ontlogy = dict()
-        goobj = None
-        with open(filename, 'r', encoding='utf-8') as f:
-            for line in f.readlines():
-                line = line.strip()
-                if not line:
-                    continue
-                if line == '[Term]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
-
-                    goobj = dict()
-                    goobj['is_a'] = list()
-                    goobj['part_of'] = list()
-                    goobj['regulates'] = list()
-                    goobj['alt_ids'] = list()
-                    goobj['is_obsolete'] = False
-                    continue
-
-                elif line == '[Typedef]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
-                    goobj = None
-
-                else:
-                    if goobj is None:
-                        continue
-
-                    subline = line.split(': ')
-                    if subline[0] == 'id':
-                        goobj['id'] = subline[1]
-                    elif subline[0] == 'alt_id':
-                        goobj['alt_ids'].append(subline[1])
-                    elif subline[0] == 'namespace':
-                        goobj['namespace'] = subline[1]
-                    elif subline[0] == 'is_a':
-                        goobj['is_a'].append(subline[1].split(' ! ')[0])
-                    elif with_rels and subline[0] == 'relationship':
-                        it = subline[1].split()
-                        # add all types of relationships
-                        goobj['is_a'].append(it[1])
-                    elif subline[0] == 'name':
-                        goobj['name'] = subline[1]
-                    elif subline[0] == 'is_obsolete' and subline[1] == 'true':
-                        goobj['is_obsolete'] = True
-            if goobj is not None:
-                ontlogy[goobj['id']] = goobj
-            for term_id in list(ontlogy.keys()):
-                for alt_id in ontlogy[term_id]['alt_ids']:
-                    ontlogy[alt_id] = ontlogy[term_id]
-                if ontlogy[term_id]['is_obsolete']:
-                    del ontlogy[term_id]
-
-            for term_id, val in ontlogy.items():
-                if 'children' not in val:
-                    val['children'] = set()
-                for p_id in val['is_a']:
-                    if p_id in ontlogy:
-                        if 'children' not in ontlogy[p_id]:
-                            ontlogy[p_id]['children'] = set()
-                        ontlogy[p_id]['children'].add(term_id)
-        return ontlogy
 
 
 if __name__ == '__main__':

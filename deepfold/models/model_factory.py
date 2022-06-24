@@ -1,6 +1,7 @@
 from .deepgoplus import DeepGOPlusModel
-from .esm_model import EsmEmbeddingModel, EsmTransformer
-from .modeling_lstm import ContrastiveProteinLSTMModel, MultilabelProteinLSTMModel, ProteinLSTMConfig
+from .esm_model import MLP, EsmTransformer
+from .modeling_lstm import (ContrastiveProteinLSTMModel,
+                            MultilabelProteinLSTMModel, ProteinLSTMConfig)
 
 
 def get_model(args):
@@ -9,13 +10,16 @@ def get_model(args):
 
     if args.model == 'esm':
 
-        model = EsmTransformer(
-            num_labels=args.num_labels,
-            pool_mode=args.pool_mode,
-            fintune=False)
+        model = EsmTransformer(num_labels=args.num_labels,
+                               pool_mode=args.pool_mode,
+                               fintune=False)
     if args.model == 'esm_embedding':
 
-        model = EsmEmbeddingModel(input_size=1280, num_labels=args.num_labels)
+        model = MLP(input_size=1280, num_labels=args.num_labels)
+
+    if args.model == 'bert_embedding':
+
+        model = MLP(input_size=768, num_labels=args.num_labels)
 
     if args.model == 'lstm':
 

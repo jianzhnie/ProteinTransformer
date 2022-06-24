@@ -1,12 +1,11 @@
 import torch
-import torch.nn.functional as F
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers import (BertModel, BertPreTrainedModel, DistilBertModel,
                           ElectraForMaskedLM, ElectraForPreTraining,
                           FlaubertModel, LongformerModel, RobertaModel,
-                          XLMModel, XLMPreTrainedModel, XLNetModel,
-                          XLNetPreTrainedModel)
+                          RobertaPreTrainedModel, XLMModel, XLMPreTrainedModel,
+                          XLNetModel, XLNetPreTrainedModel)
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers.modeling_utils import PreTrainedModel, SequenceSummary
 from transformers.models.albert.modeling_albert import (AlbertModel,
@@ -40,7 +39,6 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
     """Bert model adapted for multi-label sequence classification."""
     def __init__(self, config, pos_weight=None):
         super(BertForMultiLabelSequenceClassification, self).__init__(config)
-        self.config = config
         self.num_labels = config.num_labels
         self.bert = BertModel(config)
         classifier_dropout = (config.classifier_dropout
@@ -80,26 +78,28 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
 
+        output = (logits, ) + outputs[2:]
+        # add hidden states and attention if they are here
+
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            preds = F.sigmoid(logits)
 
         if not return_dict:
-            output = (preds, ) + outputs[2:]
-            return ((loss, ) + output) if loss is not None else output
+            output = (loss, ) + output
+            return output
 
         return SequenceClassifierOutput(
             loss=loss,
-            logits=preds,
+            logits=logits,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
 
 
-class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
+class RobertaForMultiLabelSequenceClassification(RobertaPreTrainedModel):
     """Roberta model adapted for multi-label sequence classification."""
 
     config_class = RobertaConfig
@@ -115,35 +115,50 @@ class RobertaForMultiLabelSequenceClassification(BertPreTrainedModel):
         self.roberta = RobertaModel(config)
         self.classifier = RobertaClassificationHead(config)
 
-    def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
-        labels=None,
-    ):
+    def forward(self,
+                input_ids=None,
+                attention_mask=None,
+                token_type_ids=None,
+                position_ids=None,
+                head_mask=None,
+                inputs_embeds=None,
+                lengths=None,
+                labels=None,
+                output_attentions=None,
+                output_hidden_states=None,
+                return_dict=None):
+
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
         outputs = self.roberta(
             input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
             head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
         )
         sequence_output = outputs[0]
         logits = self.classifier(sequence_output)
 
-        outputs = (logits, ) + outputs[2:]
+        output = (logits, ) + outputs[2:]
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
-            outputs = (loss, ) + outputs
 
-        return outputs
+        if not return_dict:
+            output = (loss, ) + output
+            return output
+
+        return SequenceClassifierOutput(
+            loss=loss,
+            logits=logits,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
 
 
 class BertweetForMultiLabelSequenceClassification(

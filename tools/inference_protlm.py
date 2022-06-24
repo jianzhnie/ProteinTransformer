@@ -7,17 +7,20 @@ import time
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
-import torch.nn as nn
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-
-from deepfold.data.dataset_factory import get_dataloaders
-from deepfold.models.model_factory import get_model
-from deepfold.trainer.training import Predict
-from deepfold.utils.model import load_model_checkpoint
-
+from torch.utils.data import DataLoader
+from transformers import RobertaConfig
 sys.path.append('../')
+from deepfold.data.protein_dataset import ProtRobertaDataset
+from deepfold.models.transformers.multilabel_transformer import \
+    RobertaForMultiLabelSequenceClassification
+from deepfold.trainer.training import ProtLMPredict
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path.split('/')[:-1])
+
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
@@ -35,24 +38,11 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
-parser.add_argument('--dataset_name',
-                    default='',
+parser.add_argument('--tokenizer_model_dir',
+                    default='/data/xbiome/pre_trained_models/exp4_longformer',
                     type=str,
-                    help='dataset name: esm, esm_embedding, protseq, protbert')
-parser.add_argument('--model',
-                    metavar='MODEL',
-                    default='esm',
-                    help='model architecture: (default: esm)')
-parser.add_argument('--pool_mode',
-                    metavar='MODEL',
-                    default='mean',
-                    help='embedding method')
-parser.add_argument('--num_labels',
-                    default=5874,
-                    type=int,
-                    help='num labels for multi-label classification')
-parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
-parser.add_argument('--resume',
+                    help='path to latest checkpoint (default: none)')
+parser.add_argument('--pretrain_model_dir',
                     default=None,
                     type=str,
                     metavar='PATH',
@@ -82,32 +72,36 @@ parser.add_argument('--output-dir',
 
 
 def main(args):
-    args.distributed = False
     args.gpu = 0
-    # dataloders
+    pretrain_model_dir = args.pretrain_model_dir
     # Dataset and DataLoader
-    logger.info('=> lodding test datasets:( %s, %s)' %
-                (args.data_path, args.dataset_name))
-    _, test_loader = get_dataloaders(args)
+    test_dataset = ProtRobertaDataset(
+        data_path=args.data_path,
+        tokenizer_dir=args.tokenizer_model_dir,
+        split='test',
+        max_length=1024,
+    )
+    # dataloders
+    test_loader = DataLoader(test_dataset,
+                             batch_size=args.batch_size,
+                             shuffle=False,
+                             num_workers=args.workers,
+                             pin_memory=True)
+
     # model
-    logger.info('=> build models %s ' % args.model)
-    model = get_model(args)
-    if args.resume is not None:
-        if args.local_rank == 0:
-            model_state, optimizer_state = load_model_checkpoint(args.resume)
-            model.load_state_dict(model_state)
+    num_classes = test_dataset.num_classes
+    model_config = RobertaConfig.from_pretrained(
+        pretrained_model_name_or_path=pretrain_model_dir,
+        num_labels=num_classes)
+    model = RobertaForMultiLabelSequenceClassification.from_pretrained(
+        pretrained_model_name_or_path=pretrain_model_dir, config=model_config)
 
-    # define loss function (criterion) and optimizer
-    # optimizer and lr_policy
-    criterion = nn.BCEWithLogitsLoss().cuda()
     model = model.cuda()
-
     # run predict
-    predictions, test_metrics = Predict(model,
-                                        test_loader,
-                                        criterion,
-                                        use_amp=args.amp,
-                                        logger=logger)
+    predictions, test_metrics = ProtLMPredict(model,
+                                              test_loader,
+                                              use_amp=args.amp,
+                                              logger=logger)
 
     logger.info('Test metrics: %s' % (test_metrics))
 
@@ -117,8 +111,7 @@ def main(args):
     preds, test_labels = predictions
     test_df['labels'] = list(test_labels)
     test_df['preds'] = list(preds)
-    df_path = os.path.join(args.data_path, args.model + '_predictions.pkl')
-    logger.info('Saveing predictions %s' % df_path)
+    df_path = os.path.join(args.data_path, 'predictions.pkl')
     test_df.to_pickle(df_path)
 
 
@@ -144,7 +137,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.model
+    task_name = 'ProtLM' + 'Roberta'
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:
