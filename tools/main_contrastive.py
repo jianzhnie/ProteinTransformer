@@ -13,13 +13,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 
+sys.path.append('../')
+
 from deepfold.data.dataset_factory import get_dataloaders
 from deepfold.models.model_factory import get_model
 from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
-sys.path.append('../')
 
 try:
     import wandb
@@ -260,7 +261,7 @@ def main(args):
     )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    criterion = nn.BCEWithLogitsLoss().cuda()
+    # criterion = nn.BCEWithLogitsLoss().cuda()
     criterion = nn.L1Loss().cuda()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
                                    model.parameters()),

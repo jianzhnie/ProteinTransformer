@@ -104,17 +104,15 @@ def extract_sentence_embedds(model,
         for batch_idx, batch in enumerate(data_loader):
             model_inputs = {key: val.to(device) for key, val in batch.items()}
             model_outputs = model(**model_inputs, output_hidden_states=True)
-
             last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
             # batch_embeddings: batch_size * seq_length * embedding_dim
-            batch_embedding_list = [emb for emb in last_hidden_state]
             if 'mean' in pool_mode:
-                batch_embeddings = torch.stack(
-                    [torch.mean(emb, dim=0) for emb in batch_embedding_list])
+                mean_embedding = torch.mean(last_hidden_state, dim=1)
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
             # keep class token only
             if 'cls' in pool_mode:
-                batch_embeddings = torch.stack(
-                    [emb[0, :] for emb in batch_embedding_list])
+                mean_embedding = last_hidden_state[:, 0, :]
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
 
             embeddings = torch.cat((embeddings, batch_embeddings), dim=0)
             batch_time = time.time() - end
