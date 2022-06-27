@@ -13,7 +13,6 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.core.loss.asl_losses import AsymmetricLossOptimized
 from deepfold.data.esm_dataset import EmbeddingDataset
 from deepfold.models.esm_model import EsmTransformer
 from deepfold.trainer.training import train_loop
@@ -283,9 +282,6 @@ def main(args):
     )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    # criterion = nn.BCEWithLogitsLoss().cuda()
-    criterion = AsymmetricLossOptimized(gamma_neg=8, gamma_pos=0.1,
-                                        clip=0.1).cuda()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
                                    model.parameters()),
                             lr=args.lr,
@@ -330,7 +326,6 @@ def main(args):
 
     train_loop(model,
                optimizer,
-               criterion,
                lr_policy,
                scaler,
                gradient_accumulation_steps,

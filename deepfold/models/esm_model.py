@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 import esm
 import torch
 import torch.nn as nn
+from torch.nn import BCEWithLogitsLoss
 
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
@@ -17,6 +18,7 @@ class MLP(nn.Module):
         super().__init__()
 
         self.hidden_size = input_size * 2
+        self.num_labels = num_labels
         self.fc1 = nn.Linear(input_size, self.hidden_size)
         self.norm = nn.BatchNorm1d(self.hidden_size)
         self.relu = nn.ReLU(inplace=True)
@@ -29,7 +31,17 @@ class MLP(nn.Module):
         out = self.relu(out)
         out = self.dropout(out)
         logits = self.classifier(out)
-        return logits
+
+        outputs = (logits, )
+        if labels is not None:
+            loss_fct = BCEWithLogitsLoss()
+            labels = labels.float()
+            loss = loss_fct(logits.view(-1, self.num_labels),
+                            labels.view(-1, self.num_labels))
+
+            outputs = (loss, ) + outputs
+
+        return outputs
 
 
 class ESMPooler(nn.Module):
@@ -185,7 +197,18 @@ class EsmTransformer(nn.Module):
 
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)
-        return logits
+
+        outputs = (logits, )
+
+        if labels is not None:
+            loss_fct = BCEWithLogitsLoss()
+            labels = labels.float()
+            loss = loss_fct(logits.view(-1, self.num_labels),
+                            labels.view(-1, self.num_labels))
+
+            outputs = (loss, ) + outputs
+
+        return outputs
 
     def compute_embeddings(
             self, input_ids, lengths,

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 
-def extract_embeddings(model, data_loader, pool_mode, logger, device):
+def extract_esm_embedds(model, data_loader, pool_mode, logger, device):
     embeddings = []
     true_labels = []
     steps = len(data_loader)
@@ -37,11 +37,7 @@ def extract_embeddings(model, data_loader, pool_mode, logger, device):
     return embeddings, true_labels
 
 
-def extract_transformer_embedds(model,
-                                data_loader,
-                                pool_mode,
-                                logger,
-                                device='cuda'):
+def extract_seq_embedds(model, data_loader, pool_mode, logger, device='cuda'):
     true_labels = torch.Tensor()
     embeddings = torch.Tensor()
     steps = len(data_loader)
@@ -93,3 +89,42 @@ def extract_transformer_embedds(model,
     embeddings = embeddings.numpy()
     true_labels = true_labels.numpy()
     return embeddings, true_labels
+
+
+def extract_sentence_embedds(model,
+                             data_loader,
+                             pool_mode,
+                             logger,
+                             device='cuda'):
+    embeddings = torch.Tensor()
+    steps = len(data_loader)
+    with torch.no_grad():
+        end = time.time()
+        start = time.time()
+        for batch_idx, batch in enumerate(data_loader):
+            model_inputs = {key: val.to(device) for key, val in batch.items()}
+            model_outputs = model(**model_inputs, output_hidden_states=True)
+            last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
+            # batch_embeddings: batch_size * seq_length * embedding_dim
+            if 'mean' in pool_mode:
+                mean_embedding = torch.mean(last_hidden_state, dim=1)
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
+            # keep class token only
+            if 'cls' in pool_mode:
+                mean_embedding = last_hidden_state[:, 0, :]
+                batch_embeddings = torch.squeeze(mean_embedding, 1)
+
+            embeddings = torch.cat((embeddings, batch_embeddings), dim=0)
+            batch_time = time.time() - end
+            total_time = time.time() - start
+            end = time.time()
+            logger.info('{0}: [{1:>2d}/{2}] '
+                        'Batch Time: {batch_time:.3f} '
+                        'Total Time: {total_time:.3f} '.format(
+                            'Extract embeddings',
+                            batch_idx + 1,
+                            steps + 1,
+                            batch_time=batch_time,
+                            total_time=total_time))
+    embeddings = embeddings.numpy()
+    return embeddings

@@ -10,8 +10,10 @@ from .protein_dataset import ProtBertDataset, ProtSeqDataset
 def get_dataloaders(args):
     name = args.dataset_name.lower()
     if name == 'esm':
-        train_dataset = EsmDataset(data_path=args.data_path, split='train')
-        val_dataset = EsmDataset(data_path=args.data_path, split='test')
+        train_dataset = EsmDataset(data_path=args.data_path,
+                                   file_name='train_data.pkl')
+        val_dataset = EsmDataset(data_path=args.data_path,
+                                 file_name='test_data.pkl')
     elif name == 'esm_embedding':
         train_dataset = EmbeddingDataset(
             data_path=args.data_path,
@@ -28,12 +30,15 @@ def get_dataloaders(args):
             file_name='roberta_embeddings_mean_test.pkl')
 
     elif name == 'protseq':
-        train_dataset = ProtSeqDataset(data_path=args.data_path, split='train')
-        val_dataset = ProtSeqDataset(data_path=args.data_path, split='test')
+        train_dataset = ProtSeqDataset(data_path=args.data_path,
+                                       file_name='train_data.pkl')
+        val_dataset = ProtSeqDataset(data_path=args.data_path,
+                                     file_name='test_data.pkl')
     elif name == 'protbert':
         train_dataset = ProtBertDataset(data_path=args.data_path,
-                                        split='train')
-        val_dataset = ProtBertDataset(data_path=args.data_path, split='test')
+                                        file_name='train_data.pkl')
+        val_dataset = ProtBertDataset(data_path=args.data_path,
+                                      file_name='test_data.pkl')
     else:
         raise NotImplementedError
 

@@ -52,7 +52,6 @@ class OntologyParser(object):
                  remove_obs=True,
                  include_alt_ids=True):
         """if with_rels=False only consider is_a as relationship."""
-        self.fname = filename
         self.remove_obs = remove_obs
         self.include_alt_ids = include_alt_ids
         self.leaves = []
@@ -99,6 +98,10 @@ class OntologyParser(object):
                         obj['alt_ids'].add(subline[1])
                     elif subline[0] == 'namespace':
                         obj['namespace'] = subline[1]
+                    elif subline[0] == 'name':
+                        obj['name'] = subline[1]
+                    elif subline[0] == 'def':
+                        obj['def'] = subline[1]
                     elif subline[0] == 'is_a':
                         obj['is_a'].append(subline[1].split(' ! ')[0])
                     elif with_rels and subline[0] == 'relationship':
@@ -106,8 +109,6 @@ class OntologyParser(object):
                         rel_type = it[0]
                         term_in_rel = it[1]
                         obj[rel_type].append(term_in_rel)
-                    elif subline[0] == 'name':
-                        obj['name'] = subline[1]
                     elif subline[0] == 'is_obsolete' and subline[1] == 'true':
                         obj['is_obsolete'] = True
             if obj is not None:

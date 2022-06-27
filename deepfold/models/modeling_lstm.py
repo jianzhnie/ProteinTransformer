@@ -330,7 +330,7 @@ class ContrastiveProteinLSTMModel(ProteinLSTMModel):
         self.num_labels = config.num_labels
         self.lstm = ProteinLSTMModel(config)
 
-    def forward(self, input_ids, labels=None, lengths=None):
+    def forward(self, input_ids, labels=None, lengths=None, similarity=None):
         # cosine similarity as logits
         outputs = self.lstm(input_ids)
         pooled_output = outputs[1]

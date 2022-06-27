@@ -16,7 +16,7 @@ from transformers import RobertaConfig
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
-from deepfold.trainer.training import ProtLMPredict
+from deepfold.trainer.training import protlmpredict
 
 sys.path.append('../')
 
@@ -99,7 +99,7 @@ def main(args):
 
     model = model.cuda()
     # run predict
-    predictions, test_metrics = ProtLMPredict(model,
+    predictions, test_metrics = protlmpredict(model,
                                               test_loader,
                                               use_amp=args.amp,
                                               logger=logger)
