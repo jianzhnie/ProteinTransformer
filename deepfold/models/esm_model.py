@@ -16,8 +16,9 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
 class MLP(nn.Module):
     def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
         super().__init__()
-
+    
         self.hidden_size = input_size * 2
+        self.num_labels = num_labels
         self.fc1 = nn.Linear(input_size, self.hidden_size)
         self.norm = nn.BatchNorm1d(self.hidden_size)
         self.relu = nn.ReLU(inplace=True)
@@ -33,7 +34,7 @@ class MLP(nn.Module):
 
         outputs = (logits, )
         if labels is not None:
-            loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
+            loss_fct = BCEWithLogitsLoss()
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
@@ -197,10 +198,10 @@ class EsmTransformer(nn.Module):
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)
 
-        outputs = (logits, ) + last_hidden_state
+        outputs = (logits, )
 
         if labels is not None:
-            loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)
+            loss_fct = BCEWithLogitsLoss()
             labels = labels.float()
             loss = loss_fct(logits.view(-1, self.num_labels),
                             labels.view(-1, self.num_labels))
