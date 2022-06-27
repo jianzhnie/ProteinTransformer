@@ -33,7 +33,7 @@ class ProtRobertaDataset(Dataset):
             vocab_file=os.path.join(tokenizer_dir, 'vocab.json'),
             merges_file=os.path.join(tokenizer_dir, 'merges.txt'),
             local_files_only=True)
-            
+
         self.num_classes = len(self.terms)
         self.max_length = max_length
         self.id2label = {idx: label for idx, label in enumerate(self.terms)}
@@ -83,7 +83,6 @@ class ProtBertDataset(Dataset):
                  file_name: str = 'xxx.pkl',
                  tokenizer_name='Rostlab/prot_bert_bfd',
                  max_length=1024):
-
 
         self.file_path = os.path.join(data_path, file_name)
         self.terms_path = os.path.join(data_path, 'terms.pkl')
