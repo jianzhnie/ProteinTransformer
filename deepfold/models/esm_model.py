@@ -16,7 +16,7 @@ from .layers.transformer_represention import (AttentionPooling, CNNPooler,
 class MLP(nn.Module):
     def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
         super().__init__()
-    
+
         self.hidden_size = input_size * 2
         self.num_labels = num_labels
         self.fc1 = nn.Linear(input_size, self.hidden_size)
