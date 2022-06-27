@@ -7,7 +7,6 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
-import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
@@ -260,7 +259,6 @@ def main(args):
     )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    criterion = nn.BCEWithLogitsLoss().cuda()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
                                    model.parameters()),
                             lr=args.lr,
@@ -305,7 +303,6 @@ def main(args):
 
     train_loop(model,
                optimizer,
-               criterion,
                lr_policy,
                scaler,
                gradient_accumulation_steps,
