@@ -12,15 +12,13 @@ from deepfold.utils.model import reduce_tensor, save_checkpoint
 from deepfold.utils.summary import update_summary
 
 
-def get_train_step(model, criterion, optimizer, scaler,
-                   gradient_accumulation_steps, use_amp):
+def get_train_step(model, optimizer, scaler, gradient_accumulation_steps,
+                   use_amp):
     def _step(inputs, optimizer_step=True):
         # Runs the forward pass with autocasting.
         with autocast(enabled=use_amp):
-            labels = inputs['labels']
-            labels = labels.float()
-            logits = model(**inputs)
-            loss = criterion(logits, labels)
+            outputs = model(**inputs)
+            loss = outputs[0]
             loss /= gradient_accumulation_steps
             if torch.distributed.is_initialized():
                 reduced_loss = reduce_tensor(loss.data)
@@ -42,7 +40,6 @@ def get_train_step(model, criterion, optimizer, scaler,
 
 def train(model,
           loader,
-          criterion,
           optimizer,
           scaler,
           gradient_accumulation_steps,
@@ -54,7 +51,7 @@ def train(model,
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
 
-    step = get_train_step(model, criterion, optimizer, scaler,
+    step = get_train_step(model, optimizer, scaler,
                           gradient_accumulation_steps, use_amp)
 
     model.train()
@@ -99,7 +96,7 @@ def train(model,
     return OrderedDict([('loss', losses_m.avg)])
 
 
-def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
+def evaluate(model, loader, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -115,8 +112,9 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
         labels = labels.float()
         data_time = time.time() - end
         with torch.no_grad(), autocast(enabled=use_amp):
-            logits = model(**batch)
-            loss = criterion(logits, labels)
+            outputs = model(**batch)
+            loss = outputs[0]
+            logits = outputs[1]
 
         torch.cuda.synchronize()
 
@@ -158,7 +156,7 @@ def evaluate(model, loader, criterion, use_amp, logger, log_interval=10):
     return metrics
 
 
-def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
+def predict(model, loader, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -174,8 +172,9 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
         labels = labels.float()
         data_time = time.time() - end
         with torch.no_grad(), autocast(enabled=use_amp):
-            logits = model(**batch)
-            loss = criterion(logits, labels)
+            outputs = model(**batch)
+            loss = outputs[0]
+            logits = outputs[1]
 
         torch.cuda.synchronize()
 
@@ -216,7 +215,7 @@ def Predict(model, loader, criterion, use_amp, logger, log_interval=10):
     return (pred_labels, true_labels), metrics
 
 
-def ProtLMPredict(model, loader, use_amp, logger, log_interval=10):
+def protlmpredict(model, loader, use_amp, logger, log_interval=10):
     batch_time_m = AverageMeter('Time', ':6.3f')
     data_time_m = AverageMeter('Data', ':6.3f')
     losses_m = AverageMeter('Loss', ':.4e')
@@ -276,7 +275,6 @@ def ProtLMPredict(model, loader, use_amp, logger, log_interval=10):
 
 def train_loop(model,
                optimizer,
-               criterion,
                lr_scheduler,
                scaler,
                gradient_accumulation_steps,
@@ -299,21 +297,20 @@ def train_loop(model,
 
     best_metric = np.inf
     logger.info('Evaluate validation set before start training')
-    eval_metrics = evaluate(model, val_loader, criterion, use_amp, logger,
-                            log_interval)
+    eval_metrics = evaluate(model, val_loader, use_amp, logger, log_interval)
     logger.info(f'RUNNING EPOCHS FROM {start_epoch} TO {end_epoch}')
     for epoch in range(start_epoch, end_epoch):
         logger.info('[Epoch %d] Evaluation: %s' % (epoch + 1, eval_metrics))
         if not skip_training:
-            train_metrics = train(model, train_loader, criterion, optimizer,
-                                  scaler, gradient_accumulation_steps, use_amp,
-                                  epoch, logger, log_interval)
+            train_metrics = train(model, train_loader, optimizer, scaler,
+                                  gradient_accumulation_steps, use_amp, epoch,
+                                  logger, log_interval)
 
             logger.info('[Epoch %d] training: %s' % (epoch + 1, train_metrics))
 
         if not skip_validation:
-            eval_metrics = evaluate(model, val_loader, criterion, use_amp,
-                                    logger, log_interval)
+            eval_metrics = evaluate(model, val_loader, use_amp, logger,
+                                    log_interval)
 
             logger.info('[Epoch %d] Evaluation: %s' %
                         (epoch + 1, eval_metrics))

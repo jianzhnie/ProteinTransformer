@@ -52,7 +52,6 @@ class OntologyParser(object):
                  remove_obs=True,
                  include_alt_ids=True):
         """if with_rels=False only consider is_a as relationship."""
-        self.fname = filename
         self.remove_obs = remove_obs
         self.include_alt_ids = include_alt_ids
         self.leaves = []

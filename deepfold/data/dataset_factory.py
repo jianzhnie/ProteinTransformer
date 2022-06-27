@@ -10,8 +10,8 @@ from .protein_dataset import ProtBertDataset, ProtSeqDataset
 def get_dataloaders(args):
     name = args.dataset_name.lower()
     if name == 'esm':
-        train_dataset = EsmDataset(data_path=args.data_path, split='train')
-        val_dataset = EsmDataset(data_path=args.data_path, split='test')
+        train_dataset = EsmDataset(data_path=args.data_path, file_name='train_data.pkl')
+        val_dataset = EsmDataset(data_path=args.data_path, file_name='test_data.pkl')
     elif name == 'esm_embedding':
         train_dataset = EmbeddingDataset(
             data_path=args.data_path,

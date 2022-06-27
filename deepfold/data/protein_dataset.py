@@ -17,29 +17,23 @@ sys.path.append('../../')
 class ProtRobertaDataset(Dataset):
     def __init__(self,
                  data_path='dataset/',
+                 file_name: str = 'xxx.pkl',
                  tokenizer_dir='tokenizer/',
                  split='train',
                  max_length=1024):
-        self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(self.datasetFolderPath,
-                                          'train_data.pkl')
-        self.testFilePath = os.path.join(self.datasetFolderPath,
-                                         'test_data.pkl')
-        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+
+        self.file_path = os.path.join(data_path, file_name)
+        self.terms_path = os.path.join(data_path, 'terms.pkl')
+
+        self.seqs, self.labels, self.terms = self.load_dataset(
+            self.file_path, self.terms_path)
 
         # load pre-trained tokenizer
         self.tokenizer = RobertaTokenizer(
             vocab_file=os.path.join(tokenizer_dir, 'vocab.json'),
             merges_file=os.path.join(tokenizer_dir, 'merges.txt'),
             local_files_only=True)
-
-        if split == 'train':
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.trainFilePath, self.termsFilePath)
-        else:
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.testFilePath, self.termsFilePath)
-
+            
         self.num_classes = len(self.terms)
         self.max_length = max_length
         self.id2label = {idx: label for idx, label in enumerate(self.terms)}
@@ -86,25 +80,19 @@ class ProtRobertaDataset(Dataset):
 class ProtBertDataset(Dataset):
     def __init__(self,
                  data_path='dataset/',
-                 split='train',
+                 file_name: str = 'xxx.pkl',
                  tokenizer_name='Rostlab/prot_bert_bfd',
                  max_length=1024):
-        self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(self.datasetFolderPath,
-                                          'train_data.pkl')
-        self.testFilePath = os.path.join(self.datasetFolderPath,
-                                         'test_data.pkl')
-        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
+
+
+        self.file_path = os.path.join(data_path, file_name)
+        self.terms_path = os.path.join(data_path, 'terms.pkl')
+
+        self.seqs, self.labels, self.terms = self.load_dataset(
+            self.file_path, self.terms_path)
 
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name,
                                                        do_lower_case=False)
-
-        if split == 'train':
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.trainFilePath, self.termsFilePath)
-        else:
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.testFilePath, self.termsFilePath)
 
         self.num_classes = len(self.terms)
         self.max_length = max_length
@@ -157,25 +145,16 @@ class ProtBertDataset(Dataset):
 class ProtSeqDataset(Dataset):
     def __init__(self,
                  data_path: str = 'dataset/',
-                 split: str = 'train',
+                 file_name: str = 'xxx.pkl',
                  max_length: int = 1024,
                  truncate: bool = True,
                  random_crop: bool = False):
         super().__init__()
 
-        self.datasetFolderPath = data_path
-        self.trainFilePath = os.path.join(self.datasetFolderPath,
-                                          'train_data.pkl')
-        self.testFilePath = os.path.join(self.datasetFolderPath,
-                                         'test_data.pkl')
-        self.termsFilePath = os.path.join(self.datasetFolderPath, 'terms.pkl')
-
-        if split == 'train':
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.trainFilePath, self.termsFilePath)
-        else:
-            self.seqs, self.labels, self.terms = self.load_dataset(
-                self.testFilePath, self.termsFilePath)
+        self.file_path = os.path.join(data_path, file_name)
+        self.terms_path = os.path.join(data_path, 'terms.pkl')
+        self.seqs, self.labels, self.terms = self.load_dataset(
+            self.file_path, self.terms_path)
 
         # self.
         self.tokenizer = ProteinTokenizer()
