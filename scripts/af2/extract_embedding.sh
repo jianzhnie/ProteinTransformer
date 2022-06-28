@@ -12,22 +12,18 @@ python extract_embeddings.py  \
 --batch-size 64
 
 
-
-## 108
-python extract_embeddings.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---split "test" \
---batch-size 32
-
-python extract_embeddings.py  \
---data_path /home/niejianzheng/xbiome/datasets/protein \
---split "train" \
+## extract bert-pretrained model embeddings
+python extract_ontotextual_embeddings.py \
+--data_path /data/xbiome/protein_classification \
+--tokenizer_dir microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext \
+--pretrain_model_dir microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext  \
+--embedding_file_name bert_pretrain.pkl \
 --batch-size 64
 
-
+## extract bert-fintuned model embeddings
 python extract_ontotextual_embeddings.py \
---data_path /home/niejianzheng/xbiome/datasets/protein \
+--data_path /data/xbiome/protein_classification \
 --tokenizer_dir microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext \
---pretrain_model_dir /home/niejianzheng/xbiome/DeepFold/work_dir/ontotextual_embeddings/checkpoint/checkpoint-1650 \
+--pretrain_model_dir /home/af2/xbiome/DeepFold/work_dir/ontotextual_model/models  \
 --embedding_file_name bert_fintune.pkl \
---batch-size 256
+--batch-size 64
