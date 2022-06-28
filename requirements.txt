@@ -1,12 +1,8 @@
-Bio
-boto3
-botocore
-filelock
+datasets
 h5py
 matplotlib
 numpy
 pandas
-pytorch_lightning
 requests
 setuptools
 sklearn

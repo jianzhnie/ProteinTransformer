@@ -74,7 +74,8 @@ def main(args):
                              num_workers=args.workers,
                              pin_memory=True)
     # model
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name,
+                                                               num_labels=3)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     # run predict
