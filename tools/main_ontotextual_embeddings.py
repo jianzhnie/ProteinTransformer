@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 import numpy as np
 import torch
@@ -8,10 +7,6 @@ from transformers import (AutoModelForSequenceClassification,
                           EarlyStoppingCallback, Trainer, TrainingArguments)
 
 from deepfold.data.ontotextual_dataset import OntoTextDataset
-
-sys.path.append('../')
-
-sys.path.append('../')
 
 try:
     import wandb
