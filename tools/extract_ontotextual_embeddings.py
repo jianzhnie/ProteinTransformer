@@ -20,13 +20,14 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--tokenizer_dir',
+                    default='',
+                    type=str,
+                    help='tokenizer_dir')
 parser.add_argument('--pretrain_model_dir',
                     default='',
                     type=str,
                     help='pretrained model checkpoint dir')
-parser.add_argument('--split',
-                    default='train',
-                    help=' train or test data split')
 parser.add_argument('--model',
                     metavar='MODEL',
                     default='bert',
@@ -45,21 +46,25 @@ parser.add_argument('-b',
                     type=int,
                     metavar='N',
                     help='mini-batch size (default: 256) per gpu')
+parser.add_argument('--embedding_file_name',
+                    default='',
+                    type=str,
+                    help='embedding_file_name to be saved')
 
 
 def main(args):
-    model_name = 'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext'
+    model_name = args.pretrain_model_dir
     data_file = os.path.join(args.data_path, 'GotermText.csv')
     assert os.path.exists(data_file)
     save_path = os.path.join(
         args.data_path,
-        'onto_embeddings_' + args.pool_mode + '_' + args.split + '.pkl')
+        'onto_embeddings_' + args.pool_mode + '_' + args.embedding_file_name)
     print('Pretrained model %s, pool_mode: %s,  file path: %s' %
           (model_name, args.pool_mode, data_file))
     print('Embeddings save path: ', save_path)
     # Dataset and DataLoader
     dataset = OntoTextDataset(data_dir=args.data_path,
-                              tokenizer_name=model_name,
+                              tokenizer_name=args.tokenizer_dir,
                               max_length=512)
 
     # dataloders

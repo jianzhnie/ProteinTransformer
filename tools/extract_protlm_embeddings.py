@@ -13,7 +13,7 @@ from transformers import RobertaConfig
 from deepfold.data.protein_dataset import ProtRobertaDataset
 from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
-from deepfold.trainer.embeds import extract_transformer_embedds
+from deepfold.trainer.embeds import extract_seq_embedds
 
 sys.path.append('../')
 
@@ -100,12 +100,11 @@ def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     # run predict
-    embeddings, true_labels = extract_transformer_embedds(
-        model,
-        data_loader,
-        pool_mode=args.pool_mode,
-        logger=logger,
-        device=device)
+    embeddings, true_labels = extract_seq_embedds(model,
+                                                  data_loader,
+                                                  pool_mode=args.pool_mode,
+                                                  logger=logger,
+                                                  device=device)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
