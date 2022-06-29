@@ -74,7 +74,7 @@ class Seq2VecDataset(Dataset):
 
         all_tokens = all_tokens.to('cpu')
         encoded_inputs = {
-            'input_ids': all_tokens,
+            'inputs': all_tokens,
         }
         encoded_inputs['lengths'] = torch.tensor(lengths, dtype=torch.int)
         encoded_inputs['labels'] = torch.tensor(multilabel_list,
