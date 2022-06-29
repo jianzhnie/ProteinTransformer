@@ -3,6 +3,7 @@ import os
 import urllib.request
 from typing import Dict, List, Union
 
+import numpy as np
 import torch
 import torch.nn as nn
 from allennlp.modules.elmo import Elmo
@@ -76,6 +77,8 @@ class Seq2VecEmbedder(nn.Module):
     ) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
         model_outputs = self.elmo(inputs)
+        elmo_representations = model_outputs['elmo_representations']
+        print(elmo_representations.shape)
         last_hidden_state = model_outputs['elmo_representations'][0]
         # batch_embeddings: batch_size * seq_length * embedding_dim
         seqence_embeddings_list = [emb for emb in last_hidden_state]
@@ -94,6 +97,32 @@ class Seq2VecEmbedder(nn.Module):
             embeddings_dict['cls'] = torch.stack(
                 [emb[0, :] for emb in seqence_embeddings_list])
         return embeddings_dict
+
+    def process_embedding(self, embedding: np.ndarray, per_protein: bool,
+                          layer: str) -> np.ndarray:
+        """Direct output of ELMo has shape (3,L,1024), with L being the
+        protein's length, 3 being the number of layers used to train SeqVec (1
+        CharCNN, 2 LSTMs) and 1024 being a hyperparameter chosen to describe
+        each amino acid.
+
+        When a representation on residue level is required, you can sum over the first dimension, resulting in a tensor of size (L,1024), or just extract a
+        specific layer. If you want to reduce each protein to a fixed-size vector, regardless of its length, you can average over dimension L.
+        """
+        if layer == 'sum':
+            # sum over residue-embeddings of all layers (3k->1k)
+            embedding = embedding.sum(axis=0)
+        elif layer == 'CNN':
+            embedding = embedding[0]
+        elif layer == 'LSTM1':
+            embedding = embedding[1]
+        elif layer == 'LSTM2':
+            embedding = embedding[2]
+        else:
+            # Stack the layer (3,L,1024) -> (L,3072)
+            embedding = np.concatenate(embedding, axis=1)
+        if per_protein:  # if embeddings are required on the level of whole proteins
+            embedding = embedding.mean(axis=0)
+        return embedding
 
     def get_elmo_model(self, model_dir) -> Elmo:
         weights_path = os.path.join(model_dir, 'weights.hdf5')
