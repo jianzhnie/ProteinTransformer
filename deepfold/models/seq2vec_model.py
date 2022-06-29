@@ -13,14 +13,40 @@ logger = logging.getLogger(__name__)
 
 
 class Seq2VecEmbedder(nn.Module):
-    """SeqVec Embedder.
+    """SeqVec Embedder. Heinzinger, Michael, et al. "Modeling aspects of the
+    language of life through transfer-learning protein sequences." BMC
+    bioinformatics 20.1 (2019): 723. https://doi.org/10.1186/s12859-019-3220-8.
 
-    Heinzinger, Michael, et al. "Modeling aspects of the language of life through transfer-learning protein sequences." BMC bioinformatics 20.1 (2019): 723.
-    https://doi.org/10.1186/s12859-019-3220-8
+    Compute ELMo representations using a pre-trained bidirectional language model.
+
+    See "Deep contextualized word representations", Peters et al. for details.
+
+    This module takes character id input and computes `num_output_representations` different layers
+    of ELMo representations.  Typically `num_output_representations` is 1 or 2.  For example, in
+    the case of the SRL model in the above paper, `num_output_representations=1` where ELMo was included at
+    the input token representation layer.  In the case of the SQuAD model, `num_output_representations=2`
+    as ELMo was also included at the GRU output layer.
+
+    In the implementation below, we learn separate scalar weights for each output layer,
+    but only run the biLM once on each input sequence for efficiency.
+
+    # Parameters
+    model_dir: `str`, required, to save  ELMo JSON options file and ELMo hdf5 weight file
+    num_output_representations : `int`, required.
+        The number of ELMo representation to output with
+        different linear weighted combination of the 3 layers (i.e.,
+        character-convnet output, 1st lstm output, 2nd lstm output).
+    requires_grad : `bool`, optional
+        If True, compute gradient of ELMo parameters for fine tuning.
+    do_layer_norm : `bool`, optional, (default = `False`).
+        Should we apply layer normalization (passed to `ScalarMix`)?
+    dropout : `float`, optional, (default = `0.5`).
+        The dropout to be applied to the ELMo representations.
     """
     def __init__(
         self,
-        model_dir,
+        model_dir: str,
+        num_output_representations: int = 3,
         num_labels: int = 1000,
         dropout_ratio: float = 0.1,
         pool_mode: str = 'mean',
@@ -77,8 +103,6 @@ class Seq2VecEmbedder(nn.Module):
     ) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
         model_outputs = self.elmo(inputs)
-        elmo_representations = model_outputs['elmo_representations']
-        print(elmo_representations.shape)
         last_hidden_state = model_outputs['elmo_representations'][0]
         # batch_embeddings: batch_size * seq_length * embedding_dim
         seqence_embeddings_list = [emb for emb in last_hidden_state]
