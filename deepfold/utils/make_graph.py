@@ -158,3 +158,4 @@ if __name__ == '__main__':
     # multi-hot
     data_path = '/data/xbiome/protein_classification/cafa3'
     go_file = os.path.join(data_path, 'go_cafa3.obo')
+    build_graph(namespace='bpo')
