@@ -8,7 +8,8 @@ from torch.nn import BCEWithLogitsLoss
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
 
-from .layers.transformer_represention import (AttentionPooling, CNNPooler,
+from .layers.transformer_represention import (AttentionPooling,
+                                              AttentionPooling2, CNNPooler,
                                               LSTMPooling,
                                               WeightedLayerPooling)
 
@@ -123,6 +124,9 @@ class EsmTransformer(nn.Module):
                                       hidden_size=self.hidden_size,
                                       hiddendim_lstm=256)
 
+        if pool_mode == 'attention2':
+            self.pooler = AttentionPooling2(hidden_size=self.hidden_size)
+
         self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.hidden_size, num_labels)
         if self.pool_mode == 'mean_max':
@@ -194,6 +198,9 @@ class EsmTransformer(nn.Module):
 
         elif self.pool_mode == 'lstm':
             embeddings = self.pooler(all_hidden_states)
+
+        elif self.pool_mode == 'attention2':
+            embeddings = self.pooler(last_hidden_state)
 
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)

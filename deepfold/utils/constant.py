@@ -25,7 +25,7 @@ BACKEND_LIST = ESM_LIST + list(MAPPING_PROTBERT.keys())
 NATURAL_AAS_LIST = list('ACDEFGHIKLMNPQRSTVWY')
 
 POOLING_MODE_LIST = [
-    'cls', 'mean', 'mean_max', 'pooler', 'cnn', 'weighted', 'attention', 'lstm'
+    'cls', 'mean', 'mean_max', 'pooler', 'cnn', 'weighted', 'attention', 'lstm', 'attention2'
 ]
 
 DEFAULT_POOL_MODE = 'cls'

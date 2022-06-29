@@ -59,6 +59,32 @@ class AttentionPooling(nn.Module):
         return v
 
 
+class AttentionPooling2(nn.Module):
+    def __init__(self, hidden_size, dropout_rate=0.2):
+        super(AttentionPooling2, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.dropout_rate = dropout_rate
+        self.fc1 = nn.Linear(self.hidden_size, self.hidden_size // 2)
+        self.fc2 = nn.Linear(self.hidden_size // 2, 1)
+        self.tanh = nn.Tanh()
+        self.softmax = nn.Softmax(dim=1)
+        self.dropout = nn.Dropout(self.dropout_rate)
+
+    def forward(self, all_hidden_states, item_seq=None):
+        att_net = self.fc1(all_hidden_states)
+        att_net = self.tanh(att_net)
+        att_net = self.dropout(att_net)
+        att_net = self.fc2(att_net)
+        if item_seq is not None:  # padding sequence length
+            pass
+        att_net = self.softmax(att_net)
+
+        att_net = torch.sum(all_hidden_states * att_net, 1)
+
+        return att_net
+
+
 class WKPooling(nn.Module):
     def __init__(self, layer_start: int = 4, context_window_size: int = 2):
         super(WKPooling, self).__init__()
