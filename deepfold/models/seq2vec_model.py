@@ -25,9 +25,15 @@ class Seq2VecEmbedder(nn.Module):
         dropout_ratio: float = 0.1,
         pool_mode: str = 'mean',
     ) -> None:
-
+        """
+        num_output_representations : `int`, required.
+        The number of ELMo representation to output with
+        different linear weighted combination of the 3 layers (i.e.,
+        character-convnet output, 1st lstm output, 2nd lstm output).
+        """
         super().__init__()
-        self.elmo = self.get_elmo_model(model_dir)
+        self.elmo = self.get_elmo_model(model_dir,
+                                        num_output_representations=3)
         self.output_dim = self.elmo.get_output_dim()
         self.pool_mode = pool_mode
         self.dropout = nn.Dropout(dropout_ratio)
@@ -77,8 +83,7 @@ class Seq2VecEmbedder(nn.Module):
     ) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
         model_outputs = self.elmo(inputs)
-        elmo_representations = model_outputs['elmo_representations']
-        print(elmo_representations.shape)
+        # elmo_representations = model_outputs['elmo_representations']
         last_hidden_state = model_outputs['elmo_representations'][0]
         # batch_embeddings: batch_size * seq_length * embedding_dim
         seqence_embeddings_list = [emb for emb in last_hidden_state]
@@ -124,7 +129,7 @@ class Seq2VecEmbedder(nn.Module):
             embedding = embedding.mean(axis=0)
         return embedding
 
-    def get_elmo_model(self, model_dir) -> Elmo:
+    def get_elmo_model(self, model_dir, num_output_representations) -> Elmo:
         weights_path = os.path.join(model_dir, 'weights.hdf5')
         options_path = os.path.join(model_dir, 'options.json')
         # if no pre-trained model is available, yet --> download it
@@ -144,4 +149,4 @@ class Seq2VecEmbedder(nn.Module):
         logger.info('Loading the model')
         return Elmo(weight_file=str(weights_path),
                     options_file=str(options_path),
-                    num_output_representations=1)
+                    num_output_representations=num_output_representations)
