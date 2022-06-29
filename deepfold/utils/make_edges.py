@@ -1,27 +1,29 @@
-import os
-import pandas as pd
-from collections import defaultdict
 import math
-from collections import Counter
-
+import os
 import sys
-sys.path.append('../')
+from collections import Counter, defaultdict
+
+import pandas as pd
+
 from deepfold.data.utils.ontology import Ontology
+
+sys.path.append('../')
 
 
 # GOA_cnt
 def statistic_terms(train_data_path):
-    "get frequency dict from train file'"
+    """get frequency dict from train file'."""
     train_data = pd.read_pickle(train_data_path)
     cnt = Counter()
     for i, row in train_data.iterrows():
         for term in row['annotations']:
             cnt[term] += 1
-    print("Number of annotated terms:", len(cnt))
+    print('Number of annotated terms:', len(cnt))
     sorted_by_freq_tuples = sorted(cnt.items(), key=lambda x: x[0])
     sorted_by_freq_tuples.sort(key=lambda x: x[1], reverse=True)
-    freq_dict = {go:count for go,count in sorted_by_freq_tuples}
+    freq_dict = {go: count for go, count in sorted_by_freq_tuples}
     return freq_dict
+
 
 # make edges
 def make_edges(go_file, freq_dict, with_rels=True):
@@ -32,9 +34,10 @@ def make_edges(go_file, freq_dict, with_rels=True):
         objs = go_ont.get_parents(subj)
         if len(objs) > 0:
             for obj in objs:
-                if obj in  all_terms:
+                if obj in all_terms:
                     edges.append((subj, obj))
     return edges
+
 
 # make IC file
 def read_go_children(input_go_obo_file):
@@ -51,20 +54,21 @@ def read_go_children(input_go_obo_file):
                 go_id = ''
                 alt_ids = set()
             elif term and 'id: GO:' in line and 'alt_id' not in line:
-                go_id = "GO:{}".format(splitted_line[2].strip())
+                go_id = 'GO:{}'.format(splitted_line[2].strip())
             elif term and 'alt_id: GO' in line:
-                alt_id_id = "GO:{}".format(splitted_line[2].strip())
+                alt_id_id = 'GO:{}'.format(splitted_line[2].strip())
                 alt_ids.add(alt_id_id)
                 alt_id[go_id].append(alt_id_id)
             elif term and 'is_a:' in line:
-                splitted_term = splitted_line[2].split("!")
-                go_term = "GO:{}".format(splitted_term[0].strip())
+                splitted_term = splitted_line[2].split('!')
+                go_term = 'GO:{}'.format(splitted_term[0].strip())
                 children[go_term].append(go_id)
                 for a in alt_ids:
                     children[go_term].append(a)
             elif '[Typedef]' in line:
                 term = False
     return children, alt_id
+
 
 def find_all_descendants(input_go_term, children):
     children_set = set()
@@ -77,6 +81,7 @@ def find_all_descendants(input_go_term, children):
             queue.extend(node_children)
         children_set.add(node)
     return children_set
+
 
 def store_counts_for_GO_terms(freq_dict, alt_id):
     go_cnt = defaultdict()
@@ -96,6 +101,7 @@ def store_counts_for_GO_terms(freq_dict, alt_id):
                 go_cnt[term] = go_cnt[term] + cnt
     return go_cnt
 
+
 def calculate_freq(term, children_set, go_cnt):
     freq = 0
     if term in go_cnt.keys():
@@ -105,7 +111,9 @@ def calculate_freq(term, children_set, go_cnt):
             freq = freq + go_cnt[children]
     return freq
 
-def calculate_information_contents_of_GO_terms(input_go_cnt_file, children, alt_id):
+
+def calculate_information_contents_of_GO_terms(input_go_cnt_file, children,
+                                               alt_id):
     ic_dict = defaultdict()
     go_cnt = store_counts_for_GO_terms(input_go_cnt_file, alt_id)
     for x in range(0, 3):
@@ -126,16 +134,17 @@ def calculate_information_contents_of_GO_terms(input_go_cnt_file, children, alt_
             ic_dict[term] = term_ic
     return ic_dict
 
+
 # make final edge file
 def get_all_go_cnt(edges, go_cnt, all_children, go_ic):
     all_go_cnt = []
-    for children,parent in edges:
+    for children, parent in edges:
         cnt_every = 0.0
         cnt_chidren = 0.0
         cnt_freq_children = 0.0
         cnt_freq_parent = 0.0
         cnt_freq = 0.0
-        
+
         if children in go_cnt.keys():
             cnt_freq_children = go_cnt[children]
         if parent in go_cnt.keys():
@@ -157,34 +166,36 @@ def get_all_go_cnt(edges, go_cnt, all_children, go_ic):
 
         cnt_every += cnt_chidren
         final_cnt = (cnt_chidren / cnt_every) + cnt_freq
-        all_go_cnt.append((children,parent,final_cnt))
+        all_go_cnt.append((children, parent, final_cnt))
     return all_go_cnt
 
+
 def get_go_ic(namespace='bpo'):
-    
+
     data_path = '/data/xbiome/protein_classification/cafa3'
     go_file = os.path.join(data_path, 'go_cafa3.obo')
     if namespace == 'bpo':
         train_data_path = os.path.join(data_path, 'bpo')
-        train_data_file = os.path.join(train_data_path,'bpo_train_data.pkl')
+        train_data_file = os.path.join(train_data_path, 'bpo_train_data.pkl')
     elif namespace == 'mfo':
         train_data_path = os.path.join(data_path, 'mfo')
-        train_data_file = os.path.join(train_data_path,'mfo_train_data.pkl')
+        train_data_file = os.path.join(train_data_path, 'mfo_train_data.pkl')
     elif namespace == 'cco':
         train_data_path = os.path.join(data_path, 'cco')
-        train_data_file = os.path.join(train_data_path,'cco_train_data.pkl')
+        train_data_file = os.path.join(train_data_path, 'cco_train_data.pkl')
     freq_dict = statistic_terms(train_data_file)
-    edges = make_edges(go_file,freq_dict)
+    edges = make_edges(go_file, freq_dict)
     all_children, alt_id = read_go_children(go_file)
-    go_ic = calculate_information_contents_of_GO_terms(freq_dict, all_children, alt_id)
+    go_ic = calculate_information_contents_of_GO_terms(freq_dict, all_children,
+                                                       alt_id)
     all_go_cnt = get_all_go_cnt(edges, freq_dict, all_children, go_ic)
     return all_go_cnt
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     all_go_bpo_cnt = get_go_ic('bpo')
     print(len(all_go_bpo_cnt))
     all_go_mfo_cnt = get_go_ic('mfo')
     print(len(all_go_mfo_cnt))
     all_go_cco_cnt = get_go_ic('cco')
     print(len(all_go_cco_cnt))
-
