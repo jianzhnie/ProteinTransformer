@@ -158,4 +158,11 @@ if __name__ == '__main__':
     # multi-hot
     data_path = '/data/xbiome/protein_classification/cafa3'
     go_file = os.path.join(data_path, 'go_cafa3.obo')
-    build_graph(namespace='bpo')
+    for namespace in ['bpo', 'mfo', 'cco']:
+        print('---' * 5 + namespace + '----' * 5)
+        adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
+            namespace=namespace)
+        print(adj.shape)
+        print(multi_hot_vector.shape)
+        print(len(label_map))
+        print(len(label_map_ivs))
