@@ -31,7 +31,6 @@ parser.add_argument('--pool_mode',
                     metavar='MODEL',
                     default='mean',
                     help='embedding method')
-parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
 parser.add_argument('-j',
                     '--workers',
                     type=int,

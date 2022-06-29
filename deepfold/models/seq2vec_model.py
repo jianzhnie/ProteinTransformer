@@ -4,14 +4,14 @@ import urllib.request
 from typing import Dict, List, Union
 
 import torch
+import torch.nn as nn
 from allennlp.modules.elmo import Elmo
-from torch import nn as nn
 from torch.nn import BCEWithLogitsLoss
 
 logger = logging.getLogger(__name__)
 
 
-class Seq2VecEmbedder(nn.Model):
+class Seq2VecEmbedder(nn.Module):
     """SeqVec Embedder.
 
     Heinzinger, Michael, et al. "Modeling aspects of the language of life through transfer-learning protein sequences." BMC bioinformatics 20.1 (2019): 723.
@@ -31,27 +31,6 @@ class Seq2VecEmbedder(nn.Model):
         self.pool_mode = pool_mode
         self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.output_dim, num_labels)
-
-    def get_elmo_model(self, model_dir) -> Elmo:
-        weights_path = os.path.join(model_dir, 'weights.hdf5')
-        options_path = os.path.join(model_dir, 'options.json')
-        # if no pre-trained model is available, yet --> download it
-        if not os.path.exists(weights_path) and os.path.exists(options_path):
-            logger.info(
-                'No existing model found. Start downloading pre-trained SeqVec (~360MB)...'
-            )
-
-            os.makedirs(model_dir, exist_ok=True)
-            repo_link = 'http://rostlab.org/~deepppi/embedding_repo/embedding_models/seqvec'
-            options_link = repo_link + '/options.json'
-            weights_link = repo_link + '/weights.hdf5'
-            urllib.request.urlretrieve(options_link, str(options_path))
-            urllib.request.urlretrieve(weights_link, str(weights_path))
-
-        logger.info('Loading the model')
-        return Elmo(weight_file=str(weights_path),
-                    options_file=str(options_path),
-                    num_output_representations=1)
 
     def forward(
         self,
@@ -115,3 +94,25 @@ class Seq2VecEmbedder(nn.Model):
             embeddings_dict['cls'] = torch.stack(
                 [emb[0, :] for emb in seqence_embeddings_list])
         return embeddings_dict
+
+    def get_elmo_model(self, model_dir) -> Elmo:
+        weights_path = os.path.join(model_dir, 'weights.hdf5')
+        options_path = os.path.join(model_dir, 'options.json')
+        # if no pre-trained model is available, yet --> download it
+        if not (os.path.exists(weights_path) and os.path.exists(options_path)):
+            logger.info('Model dir %s' % model_dir)
+            logger.info(
+                'No existing model found. Start downloading pre-trained SeqVec (~360MB)...'
+            )
+
+            os.makedirs(model_dir, exist_ok=True)
+            repo_link = 'http://rostlab.org/~deepppi/embedding_repo/embedding_models/seqvec'
+            options_link = repo_link + '/options.json'
+            weights_link = repo_link + '/weights.hdf5'
+            urllib.request.urlretrieve(options_link, str(options_path))
+            urllib.request.urlretrieve(weights_link, str(weights_path))
+
+        logger.info('Loading the model')
+        return Elmo(weight_file=str(weights_path),
+                    options_file=str(options_path),
+                    num_output_representations=1)
