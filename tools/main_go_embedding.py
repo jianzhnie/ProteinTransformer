@@ -4,11 +4,11 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-sys.path.append('../')
-
 from deepfold.data.goterm_dataset import OntoDataset
 from deepfold.models.go_embedder import GoEmbedder
 from deepfold.utils.token_utils import save_token_embeddings
+
+sys.path.append('../')
 
 if __name__ == '__main__':
     embedding_dim = 256
@@ -17,8 +17,8 @@ if __name__ == '__main__':
     num_epoch = 10
 
     dataset = OntoDataset(
-        data_dir='/home/niejianzheng/xbiome/datasets/protein',
-        obo_file='/home/niejianzheng/xbiome/datasets/protein/go.obo')
+        data_dir='/data/xbiome/protein_classification/',
+        obo_file='/data/xbiome/protein_classification/go.obo')
 
     vocab = dataset.vocab
     data_loader = DataLoader(dataset,

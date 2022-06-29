@@ -265,27 +265,7 @@ class P2GO(nn.Module):
         return loss_namespace
 
 
-device = 'cuda:0'
-embedding = nn.Embedding(5874, 512)
-fc1 = nn.Linear(512, 5874)
-fc2 = nn.Linear(512, 5874)
-fc3 = nn.Linear(512, 3)
-
-ids = torch.arange(5874)
-go_embedding = embedding(ids)
-
-embedding, fc1, fc2, fc3, ids = embedding.to(device), fc1.to(device), fc2.to(
-    device), fc3.to(device), ids.to(device)
-go_embedding = go_embedding.to(device)
-print(go_embedding.shape)
-out1 = fc1(go_embedding)
-out2 = fc2(go_embedding)
-out3 = fc3(go_embedding)
-print(out1.shape)
-print(out2.shape)
-print(out3.shape)
-
-if __name__ == 'main':
+if __name__ == '__main__':
     # data, target, valid_len = next(iter(test_dataloader))
     # data = data.squeeze(1)
     # target = target.squeeze(1)
@@ -298,6 +278,7 @@ if __name__ == 'main':
     # out = model(data, valid_len, adj, go_embedding)
 
     # nn.NLLLoss()
+    device = 'cuda:0'
     embedding = nn.Embedding(5874, 512)
     fc1 = nn.Linear(512, 5874)
     fc2 = nn.Linear(512, 5874)
@@ -305,4 +286,14 @@ if __name__ == 'main':
 
     ids = torch.arange(5874)
     go_embedding = embedding(ids)
+
+    embedding, fc1, fc2, fc3, ids = embedding.to(device), fc1.to(
+        device), fc2.to(device), fc3.to(device), ids.to(device)
+    go_embedding = go_embedding.to(device)
     print(go_embedding.shape)
+    out1 = fc1(go_embedding)
+    out2 = fc2(go_embedding)
+    out3 = fc3(go_embedding)
+    print(out1.shape)
+    print(out2.shape)
+    print(out3.shape)

@@ -1,6 +1,7 @@
-from collections import defaultdict
 import math
 import os
+from collections import defaultdict
+
 
 def read_go_children(input_go_obo_file):
     children = defaultdict(list)
@@ -19,14 +20,14 @@ def read_go_children(input_go_obo_file):
                 alt_ids = set()
 
             elif term and 'id: GO:' in line and 'alt_id' not in line:
-                go_id = "GO:{}".format(splitted_line[2].strip())
+                go_id = 'GO:{}'.format(splitted_line[2].strip())
             elif term and 'alt_id: GO' in line:
-                alt_id_id = "GO:{}".format(splitted_line[2].strip())
+                alt_id_id = 'GO:{}'.format(splitted_line[2].strip())
                 alt_ids.add(alt_id_id)
                 alt_id[go_id].append(alt_id_id)
             elif term and 'is_a:' in line:
-                splitted_term = splitted_line[2].split("!")
-                go_term = "GO:{}".format(splitted_term[0].strip())
+                splitted_term = splitted_line[2].split('!')
+                go_term = 'GO:{}'.format(splitted_term[0].strip())
                 children[go_term].append(go_id)
                 for a in alt_ids:
                     children[go_term].append(a)
@@ -34,6 +35,7 @@ def read_go_children(input_go_obo_file):
                 term = False
 
     return children, alt_id
+
 
 if __name__ == 'main':
     data_path = '/data/xbiome/protein_classification/'
@@ -48,19 +50,19 @@ if __name__ == 'main':
             go_ic[data[0]] = ic
 
     go_cnt = {}
-    with open(os.path.join(data_path, "all_GOA_cnt.txt")) as lines:
+    with open(os.path.join(data_path, 'all_GOA_cnt.txt')) as lines:
         for line in lines:
             data = line.split('\t')
             cnt = float(data[1].replace('\n', ''))
             go_cnt[data[0]] = cnt
 
-    f1 = open(os.path.join(data_path, "all_go_cnt.tsv"), "w")
+    f1 = open(os.path.join(data_path, 'all_go_cnt.tsv'), 'w')
 
-    with open(os.path.join(data_path, "all_go_edge.txt")) as read_in:
+    with open(os.path.join(data_path, 'all_go_edge.txt')) as read_in:
         for line in read_in:
-            splitted_line = line.split("\t")
+            splitted_line = line.split('\t')
             children = splitted_line[0]
-            parent = splitted_line[1].replace("\n", "")
+            parent = splitted_line[1].replace('\n', '')
             cnt_every = 0.0
             cnt_chidren = 0.0
             cnt_freq_children = 0.0

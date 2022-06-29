@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import torch
+import scipy.sparse as sp
 
 
 def load_edge_list(edge_list_dir,terms_embedding_file,terms_file,symmetrize=False):
@@ -65,7 +67,9 @@ def build_adj(idx, IC, idx_map):
     adj_new = np.array(adj_new)
     return adj_new
 
-def build_graph(embedding_type = 'mean_embedding'):
+def build_graph(terms_file):
+    edge_list_dir = "all_go_cnt.tsv"
+    node_list_dir = "all_go_only_num.tsv"
     idx, objects, IC, terms_df = load_edge_list(edge_list_dir,go_embedding_file,terms_file,symmetrize=False)
     terms_df = terms_df.rename(columns={"1":"terms"})
     go_id = load_node_list(node_list_dir, terms_df)

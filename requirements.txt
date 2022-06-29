@@ -6,7 +6,6 @@ h5py
 matplotlib
 numpy
 pandas
-pytorch_lightning
 requests
 setuptools
 sklearn

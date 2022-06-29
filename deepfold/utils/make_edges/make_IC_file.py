@@ -1,9 +1,10 @@
-from collections import defaultdict
 import math
+import os
+from collections import defaultdict
 
 
 def read_go_children(input_go_obo_file):
-    """read 'go.obo' file
+    """read 'go.obo' file.
 
     Args:
         input_go_obo_file (string): go.obo official file
@@ -27,14 +28,14 @@ def read_go_children(input_go_obo_file):
                 alt_ids = set()
 
             elif term and 'id: GO:' in line and 'alt_id' not in line:
-                go_id = "GO:{}".format(splitted_line[2].strip())
+                go_id = 'GO:{}'.format(splitted_line[2].strip())
             elif term and 'alt_id: GO' in line:
-                alt_id_id = "GO:{}".format(splitted_line[2].strip())
+                alt_id_id = 'GO:{}'.format(splitted_line[2].strip())
                 alt_ids.add(alt_id_id)
                 alt_id[go_id].append(alt_id_id)
             elif term and 'is_a:' in line:
-                splitted_term = splitted_line[2].split("!")
-                go_term = "GO:{}".format(splitted_term[0].strip())
+                splitted_term = splitted_line[2].split('!')
+                go_term = 'GO:{}'.format(splitted_term[0].strip())
                 children[go_term].append(go_id)
                 for a in alt_ids:
                     children[go_term].append(a)
@@ -57,8 +58,9 @@ def find_all_descendants(input_go_term, children):
 
     return children_set
 
+
 def store_counts_for_GO_terms(input_go_cnt_file, alt_id):
-    """get terms count
+    """get terms count.
 
     Args:
         input_go_cnt_file (str): go.obo official file
@@ -68,11 +70,11 @@ def store_counts_for_GO_terms(input_go_cnt_file, alt_id):
         dict: count of all terms
     """
     go_cnt = defaultdict()
-    with open(input_go_cnt_file, "r") as read_in:
+    with open(input_go_cnt_file, 'r') as read_in:
         for line in read_in:
             tmp = line.split('\t')
             term = tmp[0]
-            cnt = int(tmp[1].replace("\n", ""))
+            cnt = int(tmp[1].replace('\n', ''))
             if term in alt_id.keys():
                 for x in alt_id[term]:
                     term = x
@@ -87,8 +89,9 @@ def store_counts_for_GO_terms(input_go_cnt_file, alt_id):
                     go_cnt[term] = go_cnt[term] + cnt
     return go_cnt
 
+
 def write_output_file(ic_dict, output_file):
-    f = open(output_file, "w")
+    f = open(output_file, 'w')
     for term in ic_dict.keys():
         ic = ic_dict[term]
         f.write('{}\t{}\n'.format(term, ic))
@@ -118,8 +121,9 @@ def calculate_freq(term, children_set, go_cnt):
     return freq
 
 
-def calculate_information_contents_of_GO_terms(input_go_cnt_file, children, alt_id):
-    """calculate IC for all terms
+def calculate_information_contents_of_GO_terms(input_go_cnt_file, children,
+                                               alt_id):
+    """calculate IC for all terms.
 
     Args:
         input_go_cnt_file (_type_): _description_
@@ -153,3 +157,16 @@ def calculate_information_contents_of_GO_terms(input_go_cnt_file, children, alt_
 
     return ic_dict
 
+
+if __name__ == 'main':
+    data_path = '/data/xbiome/protein_classification/'
+    input_go_obo_file = os.path.join(data_path, 'go.obo')
+    input_go_cnt_file = os.path.join(data_path, 'all_GOA_cnt.txt')
+    output_file = os.path.join(data_path, 'all_GOA_IC.txt')
+
+    children, alt_id = read_go_children(input_go_obo_file)
+    ic_dict = calculate_information_contents_of_GO_terms(
+        input_go_cnt_file, children, alt_id)
+    write_output_file(ic_dict, output_file)
+
+    print('FINISHED\n')
