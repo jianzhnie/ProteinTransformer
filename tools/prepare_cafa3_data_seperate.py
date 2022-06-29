@@ -1,9 +1,11 @@
-import pandas as pd
 import os
 import sys
-sys.path.append('../')
+
+import pandas as pd
+
 from deepfold.data.utils.ontology import Ontology
 
+sys.path.append('../')
 
 
 def seperate(data_file, go_file):
@@ -44,7 +46,7 @@ def seperate(data_file, go_file):
             cco_proteins.append(protien)
             cco_sequences.append(seq)
             cco_annotations.append(cco_annotation)
-        
+
     bpo_df = pd.DataFrame({
         'proteins': bpo_proteins,
         'sequences': bpo_sequences,
@@ -61,7 +63,6 @@ def seperate(data_file, go_file):
         'annotations': cco_annotations,
     })
     return bpo_df, mfo_df, cco_df
-
 
 
 if __name__ == '__main__':
