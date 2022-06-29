@@ -27,11 +27,12 @@ def get_elmo_model(model_dir: Path) -> Elmo:
     logger.info('Loading the model')
     # The string casting comes from a typing bug in allennlp
     # https://github.com/allenai/allennlp/pull/3358
-    return Elmo(weight_file=str(weights_path),
-                options_file=str(options_path),
-                num_output_representations=1)
+    return Elmo(weight_file=weights_path,
+                options_file=options_path,
+                num_output_representations=3)
 
 
 if __name__ == '__main__':
     model_dir = Path('.')
     model = get_elmo_model(model_dir)
+    print(model)
