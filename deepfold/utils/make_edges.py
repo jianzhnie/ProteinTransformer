@@ -12,7 +12,7 @@ sys.path.append('../')
 
 # GOA_cnt
 def statistic_terms(train_data_path):
-    """get frequency dict from train file'."""
+    """get frequency dict from train file."""
     train_data = pd.read_pickle(train_data_path)
     cnt = Counter()
     for i, row in train_data.iterrows():
@@ -26,9 +26,14 @@ def statistic_terms(train_data_path):
 
 
 # make edges
-def make_edges(go_file, freq_dict, with_rels=True):
+def make_edges(go_file, namespace='bpo', with_rels=False):
     go_ont = Ontology(go_file, with_rels=with_rels)
-    all_terms = freq_dict.keys()
+    if namespace == 'bpo':
+        all_terms = go_ont.get_namespace_terms('biological_process')
+    elif namespace == 'mfo':
+        all_terms = go_ont.get_namespace_terms('molecular_function')
+    elif namespace == 'cco':
+        all_terms = go_ont.get_namespace_terms('cellular_component')
     edges = []
     for subj in all_terms:
         objs = go_ont.get_parents(subj)
@@ -184,7 +189,7 @@ def get_go_ic(namespace='bpo'):
         train_data_path = os.path.join(data_path, 'cco')
         train_data_file = os.path.join(train_data_path, 'cco_train_data.pkl')
     freq_dict = statistic_terms(train_data_file)
-    edges = make_edges(go_file, freq_dict)
+    edges = make_edges(go_file, namespace)
     all_children, alt_id = read_go_children(go_file)
     go_ic = calculate_information_contents_of_GO_terms(freq_dict, all_children,
                                                        alt_id)
@@ -194,8 +199,8 @@ def get_go_ic(namespace='bpo'):
 
 if __name__ == '__main__':
     all_go_bpo_cnt = get_go_ic('bpo')
-    print(len(all_go_bpo_cnt))
+    print(f'edges in bpo: {len(all_go_bpo_cnt)}')
     all_go_mfo_cnt = get_go_ic('mfo')
-    print(len(all_go_mfo_cnt))
+    print(f'edges in mfo: {len(all_go_mfo_cnt)}')
     all_go_cco_cnt = get_go_ic('cco')
-    print(len(all_go_cco_cnt))
+    print(f'edges in cco: {len(all_go_cco_cnt)}')

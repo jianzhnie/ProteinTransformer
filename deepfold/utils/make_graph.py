@@ -19,11 +19,11 @@ def load_edge_list(all_go_bpo_ic, symmetrize=False):
     if symmetrize:
         rev = df.copy().rename(columns={0: 1, 1: 0})
         df = pd.concat([df, rev])
-    idx, objects = pd.factorize(df[[0, 1]].values.reshape(-1))
+    idx, _ = pd.factorize(df[[0, 1]].values.reshape(-1))
     idx = idx.reshape(-1, 2).astype('int')
     IC = df[2].astype('float')
 
-    return idx, objects.tolist(), IC.tolist()
+    return idx, IC.tolist()
 
 
 def load_node_list(all_go_ic):
@@ -120,7 +120,7 @@ def multi_hot_encoding(label_map, label_map_ivs, go_file):
 
 def build_graph(namespace='bpo'):
     all_go_bpo_ic = get_go_ic(namespace)
-    idx, objects, IC = load_edge_list(all_go_bpo_ic, symmetrize=False)
+    idx, IC = load_edge_list(all_go_bpo_ic, symmetrize=False)
     idx_2d = idx
     idx = idx.reshape(-1)
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     data_path = '/data/xbiome/protein_classification/cafa3'
     go_file = os.path.join(data_path, 'go_cafa3.obo')
     for namespace in ['bpo', 'mfo', 'cco']:
-        print('---' * 5 + namespace + '----' * 5)
+        print('---' * 5 + namespace + '---' * 5)
         adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
             namespace=namespace)
         print(adj.shape)
