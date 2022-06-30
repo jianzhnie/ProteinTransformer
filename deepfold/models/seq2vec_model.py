@@ -46,7 +46,7 @@ class Seq2VecEmbedder(nn.Module):
                  model_dir: str,
                  num_labels: int = 1000,
                  dropout_ratio: float = 0.1,
-                 pool_mode: str = 'mean',
+                 pool_mode: str = 'CNN',
                  num_output_representations: int = 3) -> None:
         super().__init__()
         self.elmo = self.get_elmo_model(model_dir, num_output_representations)
@@ -59,7 +59,6 @@ class Seq2VecEmbedder(nn.Module):
         self,
         inputs: torch.Tensor,
         word_inputs: torch.Tensor = None,
-        lengths: torch.Tensor = None,
         labels: torch.Tensor = None
     ) -> Dict[str, Union[torch.Tensor, List[torch.Tensor]]]:
         """get the ELMo word embedding vectors for a sentences."""
@@ -128,8 +127,9 @@ class Seq2VecEmbedder(nn.Module):
         if layer == 'sum':
             # sum over residue-embeddings of all layers (3k->1k)
             embedding = torch.stack(embedding)
-            embedding = torch.transpose(embedding, 0, 1)
             # 3 * B * L * 1024  ==>  B * 3 * L * 1024
+            embedding = torch.transpose(embedding, 0, 1)
+            # B * 3 * L * 1024  ==>  B * L * 1024
             embedding = torch.sum(embedding, dim=1)
         elif layer == 'CNN':
             embedding = embedding[0]
@@ -138,11 +138,12 @@ class Seq2VecEmbedder(nn.Module):
         elif layer == 'LSTM2':
             embedding = embedding[2]
         else:
-            # Stack the layer (3,L,1024) -> (L,3072)
-            embedding = [torch.cat(embeds, axis=1) for embeds in embedding]
+            # Stack the layer   3 * (B, L,1024) -> (L,3072)
+            embedding = [torch.cat(embeds, dim=1) for embeds in embedding]
             embedding = torch.stack(embedding, dim=0)
         if per_protein:  # if embeddings are required on the level of whole proteins
-            embedding = torch.mean(dim=1)
+            #  B * L * 3072/1024 ==> B * 3072/1024
+            embedding = torch.mean(embedding, dim=1)
         return embedding
 
     def get_elmo_model(self, model_dir, num_output_representations) -> Elmo:
