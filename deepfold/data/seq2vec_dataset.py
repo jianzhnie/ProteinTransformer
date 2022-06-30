@@ -7,27 +7,25 @@ import torch
 from allennlp.modules.elmo import batch_to_ids
 from torch.utils.data import Dataset
 
-from deepfold.data.utils.ontology import Ontology
-
 
 class Seq2VecDataset(Dataset):
     """ESMDataset."""
     def __init__(self,
-                 label_map,
-                 namespace: str = 'bpo',
-                 root_path: str = 'dataset/',
+                 data_path: str = 'dataset/',
                  file_name: str = 'xxx.pkl',
                  max_length: int = 1024,
                  truncate: bool = False,
                  random_crop: bool = False):
         super().__init__()
 
-        sub_path = os.path.join(root_path, namespace)
-        self.data_path = os.path.join(sub_path, file_name)
-        self.seqs, self.labels = self.load_dataset(self.data_path)
+        self.file_path = os.path.join(data_path, file_name)
+        self.terms_path = os.path.join(data_path, 'terms.pkl')
 
-        self.terms_dict = label_map
-        self.num_classes = len(self.terms_dict)
+        self.seqs, self.labels, self.terms = self.load_dataset(
+            self.file_path, self.terms_path)
+
+        self.terms_dict = {v: i for i, v in enumerate(self.terms)}
+        self.num_classes = len(self.terms)
         self.max_length = max_length
         self.truncate = truncate
         self.random_crop = random_crop
@@ -51,12 +49,15 @@ class Seq2VecDataset(Dataset):
                 multilabel[label_idx] = 1
         return sequence, multilabel
 
-    def load_dataset(self, data_path):
+    def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
+        terms_df = pd.read_pickle(term_path)
+        terms = terms_df['terms'].values.flatten()
+
         seq = list(df['sequences'])
-        label = list(df['annotations'])
+        label = list(df['prop_annotations'])
         assert len(seq) == len(label)
-        return seq, label
+        return seq, label, terms
 
     def collate_fn(self, examples) -> Dict[str, torch.Tensor]:
         """Function to transform tokens string to IDs; it depends on the model
@@ -89,26 +90,15 @@ def crop_sequence(sequence: str, crop_length: int) -> str:
 
 
 if __name__ == '__main__':
-    data_path = '/data/xbiome/protein_classification/cafa3'
-    go_file = os.path.join(data_path, 'go_cafa3.obo')
-    bpo_path = os.path.join(data_path, 'bpo')
-    bpo_train_data_file = os.path.join(bpo_path, 'bpo_train_data.pkl')
-    bpo_test_data_file = os.path.join(bpo_path, 'bpo_test_data.pkl')
-    # constract label map dict
-    go_ont = Ontology(go_file, with_rels=True)
-    bpo_label_map = {
-        v: i
-        for i, v in enumerate(go_ont.get_namespace_terms('biological_process'))
-    }
-    bpo_train_data = pd.read_pickle(bpo_train_data_file)
-    bpo_train_dataset = Seq2VecDataset(label_map=bpo_label_map,
-                                       namespace='bpo',
-                                       root_path=data_path,
-                                       file_name='bpo_train_data.pkl')
     from torch.utils.data import DataLoader
-    data_loader = DataLoader(bpo_train_dataset,
+    data_root = '/home/niejianzheng/xbiome/datasets/protein'
+    data_root = '/Users/robin/xbiome/datasets/protein'
+    pro_dataset = Seq2VecDataset(data_path=data_root,
+                                 file_name='test_data.pkl')
+    print(pro_dataset.num_classes)
+    data_loader = DataLoader(pro_dataset,
                              batch_size=8,
-                             collate_fn=bpo_train_dataset.collate_fn)
+                             collate_fn=pro_dataset.collate_fn)
 
     for index, batch in enumerate(data_loader):
         for key, val in batch.items():
