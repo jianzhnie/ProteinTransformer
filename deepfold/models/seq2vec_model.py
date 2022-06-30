@@ -106,11 +106,11 @@ class Seq2VecEmbedder(nn.Module):
                                             layer=self.pool_mode)
         embeddings_dict = {}
         if 'cnn' in self.pool_mode:
-            embeddings_dict['CNN'] = embeddings
+            embeddings_dict['cnn'] = embeddings
         if 'lstm1' in self.pool_mode:
-            embeddings_dict['LSTM1'] = embeddings
+            embeddings_dict['lstm1'] = embeddings
         if 'lstm2' in self.pool_mode:
-            embeddings_dict['LSTM2'] = embeddings
+            embeddings_dict['lstm2'] = embeddings
         if 'sum' in self.pool_mode:
             embeddings_dict['sum'] = embeddings
         if 'elmo' in self.pool_mode:
