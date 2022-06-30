@@ -41,14 +41,13 @@ class Seq2VecDataset(Dataset):
         if self.truncate:
             sequence = sequence[:self.max_length - 2]
 
-        length = len(sequence)
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
         for t_id in label_list:
             if t_id in self.terms_dict:
                 label_idx = self.terms_dict[t_id]
                 multilabel[label_idx] = 1
-        return sequence, length, multilabel
+        return sequence, multilabel
 
     def load_dataset(self, data_path, term_path):
         df = pd.read_pickle(data_path)
@@ -64,8 +63,7 @@ class Seq2VecDataset(Dataset):
         """Function to transform tokens string to IDs; it depends on the model
         used."""
         sequences_list = [ex[0] for ex in examples]
-        lengths = [ex[1] for ex in examples]
-        multilabel_list = [ex[2] for ex in examples]
+        multilabel_list = [ex[1] for ex in examples]
 
         all_tokens = batch_to_ids(sequences_list)
 
@@ -76,7 +74,6 @@ class Seq2VecDataset(Dataset):
         encoded_inputs = {
             'inputs': all_tokens,
         }
-        encoded_inputs['lengths'] = torch.tensor(lengths, dtype=torch.int)
         encoded_inputs['labels'] = torch.tensor(multilabel_list,
                                                 dtype=torch.int)
         return encoded_inputs
