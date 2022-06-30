@@ -46,14 +46,18 @@ class Seq2VecEmbedder(nn.Module):
                  model_dir: str,
                  num_labels: int = 1000,
                  dropout_ratio: float = 0.1,
-                 pool_mode: str = 'CNN',
+                 pool_mode: str = 'cnn',
                  num_output_representations: int = 3) -> None:
         super().__init__()
         self.elmo = self.get_elmo_model(model_dir, num_output_representations)
         self.output_dim = self.elmo.get_output_dim()
-        self.pool_mode = pool_mode
+        assert pool_mode in ['sum', 'cnn', 'lstm1', 'lstm2', 'elmo']
+        self.pool_mode = pool_mode.lower()
         self.dropout = nn.Dropout(dropout_ratio)
-        self.classifier = nn.Linear(self.output_dim, num_labels)
+        if pool_mode in ['sum', 'cnn', 'lstm1', 'lstm2']:
+            self.project = nn.Linear(self.output_dim, num_labels)
+        elif pool_mode == 'elmo':
+            self.classifier = nn.Linear(self.output_dim * 3, num_labels)
 
     def forward(
         self,
@@ -64,10 +68,9 @@ class Seq2VecEmbedder(nn.Module):
         """get the ELMo word embedding vectors for a sentences."""
         elmo_outputs = self.elmo(inputs)
         elmo_representations = elmo_outputs['elmo_representations']
-        # elmo_representations = torch.stack(elmo_representations)
-        # elmo_representations = torch.transpose(elmo_representations, 0, 1)
         embeddings = self.process_embedding(elmo_representations,
-                                            per_protein=True)
+                                            per_protein=True,
+                                            layer=self.pool_mode)
 
         pooled_output = self.dropout(embeddings)
         logits = self.classifier(pooled_output)
@@ -88,32 +91,28 @@ class Seq2VecEmbedder(nn.Module):
         self,
         inputs: torch.Tensor,
         word_inputs: torch.Tensor = None,
-        lengths: torch.Tensor = None,
         labels: torch.Tensor = None
     ) -> Dict[str, Union[List[torch.Tensor], torch.Tensor]]:
 
-        model_outputs = self.elmo(inputs)
-        # elmo_representations = model_outputs['elmo_representations']
-        last_hidden_state = model_outputs['elmo_representations'][0]
-        # batch_embeddings: batch_size * seq_length * embedding_dim
-        seqence_embeddings_list = [emb for emb in last_hidden_state]
-        # Remove class token and padding
-        seq_len_list = [ll for ll in lengths]
-        filtered_embeddings = [
-            emb[1:(length + 1), :]
-            for emb, length in zip(seqence_embeddings_list, seq_len_list)
-        ]
+        elmo_outputs = self.elmo(inputs)
+        elmo_representations = elmo_outputs['elmo_representations']
+        embeddings = self.process_embedding(elmo_representations,
+                                            per_protein=True,
+                                            layer=self.pool_mode)
         embeddings_dict = {}
-        if 'mean' in self.pool_mode:
-            embeddings_dict['mean'] = torch.stack(
-                [torch.mean(emb, dim=0) for emb in filtered_embeddings])
-        # keep class token only
-        if 'cls' in self.pool_mode:
-            embeddings_dict['cls'] = torch.stack(
-                [emb[0, :] for emb in seqence_embeddings_list])
+        if 'cnn' in self.pool_mode:
+            embeddings_dict['CNN'] = embeddings
+        if 'lstm1' in self.pool_mode:
+            embeddings_dict['LSTM1'] = embeddings
+        if 'lstm2' in self.pool_mode:
+            embeddings_dict['LSTM2'] = embeddings
+        if 'sum' in self.pool_mode:
+            embeddings_dict['sum'] = embeddings
+        if 'elmo' in self.pool_mode:
+            embeddings_dict['elmo'] = embeddings
         return embeddings_dict
 
-    def process_embedding(self, embedding: List[torch.tensor],
+    def process_embedding(self, embeddings: List[torch.tensor],
                           per_protein: bool, layer: str) -> torch.tensor:
         """Direct output of ELMo has shape (3, L,1024), with L being the
         protein's length, 3 being the number of layers used to train SeqVec (1
@@ -126,21 +125,20 @@ class Seq2VecEmbedder(nn.Module):
         #  3 * B * L * 1024
         if layer == 'sum':
             # sum over residue-embeddings of all layers (3k->1k)
-            embedding = torch.stack(embedding)
+            embedding = torch.stack(embeddings)
             # 3 * B * L * 1024  ==>  B * 3 * L * 1024
             embedding = torch.transpose(embedding, 0, 1)
             # B * 3 * L * 1024  ==>  B * L * 1024
             embedding = torch.sum(embedding, dim=1)
-        elif layer == 'CNN':
-            embedding = embedding[0]
-        elif layer == 'LSTM1':
-            embedding = embedding[1]
-        elif layer == 'LSTM2':
-            embedding = embedding[2]
+        elif layer == 'cnn':
+            embedding = embeddings[0]
+        elif layer == 'lstm1':
+            embedding = embeddings[1]
+        elif layer == 'lstm2':
+            embedding = embeddings[2]
         else:
-            # Stack the layer   3 * (B, L,1024) -> (L,3072)
-            embedding = [torch.cat(embeds, dim=1) for embeds in embedding]
-            embedding = torch.stack(embedding, dim=0)
+            # Stack the layer   3 * (B, L,1024) -> (B,  L, 3072)
+            embedding = torch.cat(embeddings, dim=2)
         if per_protein:  # if embeddings are required on the level of whole proteins
             #  B * L * 3072/1024 ==> B * 3072/1024
             embedding = torch.mean(embedding, dim=1)
