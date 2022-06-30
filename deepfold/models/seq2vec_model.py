@@ -44,6 +44,7 @@ class Seq2VecEmbedder(nn.Module):
     """
     def __init__(self,
                  model_dir: str,
+                 proj_dim: int = 512,
                  num_labels: int = 1000,
                  dropout_ratio: float = 0.1,
                  pool_mode: str = 'cnn',
@@ -53,11 +54,13 @@ class Seq2VecEmbedder(nn.Module):
         self.output_dim = self.elmo.get_output_dim()
         assert pool_mode in ['sum', 'cnn', 'lstm1', 'lstm2', 'elmo']
         self.pool_mode = pool_mode.lower()
-        self.dropout = nn.Dropout(dropout_ratio)
+
         if pool_mode in ['sum', 'cnn', 'lstm1', 'lstm2']:
-            self.project = nn.Linear(self.output_dim, num_labels)
+            self.proj = nn.Linear(self.output_dim, proj_dim)
         elif pool_mode == 'elmo':
-            self.classifier = nn.Linear(self.output_dim * 3, num_labels)
+            self.proj = nn.Linear(self.output_dim * 3, proj_dim)
+        self.dropout = nn.Dropout(dropout_ratio)
+        self.classifer = nn.Linear(proj_dim, num_labels)
 
     def forward(
         self,
@@ -72,8 +75,10 @@ class Seq2VecEmbedder(nn.Module):
                                             per_protein=True,
                                             layer=self.pool_mode)
 
-        pooled_output = self.dropout(embeddings)
-        logits = self.classifier(pooled_output)
+        output = self.proj(embeddings)
+        output = self.dropout(output)
+        output = self.classifer(output)
+        logits = self.proj(output)
 
         outputs = (logits, )
 
