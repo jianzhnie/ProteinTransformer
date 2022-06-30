@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import EsmDataset
 from deepfold.models.esm_model import EsmTransformer
-from deepfold.trainer.embeds import extract_embeddings
+from deepfold.trainer.embeds import extract_esm_embeddings
 
 sys.path.append('../')
 
@@ -94,10 +94,10 @@ def main(args):
                            num_labels=num_labels)
     model = model.cuda()
     # run predict
-    embeddings, true_labels = extract_embeddings(model,
-                                                 data_loader,
-                                                 pool_mode=args.pool_mode,
-                                                 logger=logger)
+    embeddings, true_labels = extract_esm_embeddings(model,
+                                                     data_loader,
+                                                     pool_mode=args.pool_mode,
+                                                     logger=logger)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
