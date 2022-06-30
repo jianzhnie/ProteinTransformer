@@ -27,3 +27,12 @@ python extract_ontotextual_embeddings.py \
 --pretrain_model_dir /home/af2/xbiome/DeepFold/work_dir/ontotextual_model/models  \
 --embedding_file_name bert_fintune.pkl \
 --batch-size 64
+
+
+## extract seq2vec model embeddings
+python extract_seq2vec_embeddings.py \
+--data_path /data/xbiome/protein_classification \
+--model seq2vec \
+--pool_mode sum \
+--split "test" \
+--batch-size 16
