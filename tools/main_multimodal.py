@@ -43,6 +43,14 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--train_file_name',
+                    default='',
+                    type=str,
+                    help='data dir of dataset')
+parser.add_argument('--val_file_name',
+                    default='',
+                    type=str,
+                    help='data dir of dataset')
 parser.add_argument('--namespace', default='', type=str, help='cc, mf, bp')
 parser.add_argument('--model',
                     metavar='MODEL',
