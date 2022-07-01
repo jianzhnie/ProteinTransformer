@@ -33,7 +33,8 @@ class GCNDataset(Dataset):
 
         embeddings = torch.from_numpy(np.array(embedding, dtype=np.float32))
         labels = torch.from_numpy(np.array(multilabel))
-        return embeddings, labels
+        encoded_inputs = {'embeddings': embeddings, 'labels': labels}
+        return encoded_inputs
 
     def load_dataset(self, data_path):
         df = pd.read_pickle(data_path)
