@@ -2,6 +2,7 @@ import collections
 
 import torch
 import torch.nn as nn
+from torch.nn import BCEWithLogitsLoss
 
 from .gnn_model import CustomGCN, Embedder
 
@@ -22,29 +23,42 @@ class ProtGCNModel(nn.Module):
         classification for Protein Function Prediction, arxiv, http://arxiv.org/abs/2112.02810
     """
     def __init__(self,
-                 seq_dim=1024,
-                 num_nodes=40000,
-                 node_feats=512,
-                 hidden_dim=512,
-                 num_labels=1000):
+                 nodes: torch.tensor,
+                 adjmat: torch.tensor,
+                 seq_dim: int = 1024,
+                 node_feats: int = 512,
+                 hidden_dim: int = 512):
         super().__init__()
-        self.num_labels = num_labels
+        assert nodes.shape[0] == adjmat.shape[0]
+        self.nodesMat = nodes
+        self.adjMat = adjmat
+        self.num_nodes = nodes.shape[0]
         self.seq_mlp = MLP(seq_dim, hidden_dim)
-        self.graph_embedder = Embedder(num_nodes, node_feats)
+        self.graph_embedder = Embedder(self.num_nodes, node_feats)
         self.gcn = CustomGCN(node_feats, hidden_dim)
+        self.num_labels = self.num_labels
 
-    def forward(self, seq, node, adj):
-        seq_out = self.seq_mlp(seq)
-        node_embd = self.graph_embedder(node)
-        graph_out = self.gcn(node_embd, adj)
+    def forward(self, seq_embeds, labels):
+        seq_out = self.seq_mlp(seq_embeds)
+        node_embd = self.graph_embedder(self.nodesMat)
+        graph_out = self.gcn(node_embd, self.adjMat)
         graph_out = graph_out.transpose(-2, -1)
 
         logits = torch.matmul(seq_out, graph_out)
         outputs = (logits, )
+        if labels is not None:
+            loss_fct = BCEWithLogitsLoss()
+            labels = labels.float()
+            loss = loss_fct(logits.view(-1, self.num_labels),
+                            labels.view(-1, self.num_labels))
+
+            outputs = (loss, ) + outputs
+
         return outputs
 
 
 class ProtPubMedBert(nn.Module):
+    """ProtPubMedBert."""
     def __init__(self,
                  seq_dim=1024,
                  hidden_dim=512,

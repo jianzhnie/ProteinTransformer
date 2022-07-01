@@ -5,14 +5,18 @@ import sys
 
 import numpy as np
 import pandas as pd
+import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import EsmDataset
 from deepfold.models.esm_model import EsmTransformer
-from deepfold.trainer.embeds import extract_esm_embeddings
+from deepfold.trainer.embeds import extract_esm_embedds
 
 sys.path.append('../')
+
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '5'
 
 parser = argparse.ArgumentParser(
     description='Protein function Classification Model Train config')
@@ -61,16 +65,16 @@ def compute_kernel_bias(vecs):
 def main(args):
     model_name = 'esm1b_t33_650M_UR50S'
     if args.split == 'train':
-        data_file = os.path.join(args.data_path, 'train_data.pkl')
-        file_name = 'train_data.pkl'
+        data_file = os.path.join(args.data_path, 'cco/cco_train_data.pkl')
+        file_name = 'cco/cco_train_data.pkl'
     else:
-        data_file = os.path.join(args.data_path, 'test_data.pkl')
-        file_name = 'test_data.pkl'
+        data_file = os.path.join(args.data_path, 'cco/cco_test_data.pkl')
+        file_name = 'cco/cco_test_data.pkl'
 
     assert os.path.exists(data_file)
     save_path = os.path.join(
-        args.data_path, model_name + '_embeddings_' + args.pool_mode + '_' +
-        args.split + '.pkl')
+        args.data_path, 'cco_' + model_name + '_embeddings_' + args.pool_mode +
+        '_' + args.split + '.pkl')
     print(
         'Pretrained model %s, pool_mode: %s,  data split: %s , file path: %s' %
         (model_name, args.pool_mode, args.split, data_file))
@@ -92,12 +96,14 @@ def main(args):
                            pool_mode=args.pool_mode,
                            fintune=args.fintune,
                            num_labels=num_labels)
-    model = model.cuda()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
     # run predict
-    embeddings, true_labels = extract_esm_embeddings(model,
-                                                     data_loader,
-                                                     pool_mode=args.pool_mode,
-                                                     logger=logger)
+    embeddings, true_labels = extract_esm_embedds(model,
+                                                  data_loader,
+                                                  pool_mode=args.pool_mode,
+                                                  logger=logger,
+                                                  device=device)
     print(embeddings.shape, true_labels.shape)
     df = pd.read_pickle(data_file)
     df['esm_embeddings'] = embeddings.tolist()
