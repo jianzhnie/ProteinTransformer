@@ -1,23 +1,19 @@
 import argparse
 import logging
 import os
-import sys
 import time
 
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
-import torch.nn as nn
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 
 from deepfold.data.dataset_factory import get_dataloaders
 from deepfold.models.model_factory import get_model
-from deepfold.trainer.training import Predict
+from deepfold.trainer.training import predict
 from deepfold.utils.model import load_model_checkpoint
-
-sys.path.append('../')
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
@@ -99,13 +95,11 @@ def main(args):
 
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    criterion = nn.BCEWithLogitsLoss().cuda()
     model = model.cuda()
 
     # run predict
-    predictions, test_metrics = Predict(model,
+    predictions, test_metrics = predict(model,
                                         test_loader,
-                                        criterion,
                                         use_amp=args.amp,
                                         logger=logger)
 
