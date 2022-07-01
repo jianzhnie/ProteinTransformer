@@ -13,7 +13,7 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.data.esm_dataset import EmbeddingDataset
+from deepfold.data.gcn_dataset import GCNDataset
 from deepfold.models.multimodal_model import ProtGCNModel
 from deepfold.trainer.training import train_loop
 from deepfold.utils.make_graph import build_graph
@@ -228,10 +228,14 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_dataset = EmbeddingDataset(data_path=args.data_path,
-                                     file_name='train_data.pkl')
-    val_dataset = EmbeddingDataset(data_path=args.data_path,
-                                   file_name='test_data.pkl')
+    adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
+        namespace=args.namespace)
+    train_dataset = GCNDataset(label_map,
+                               root_path=args.data_path,
+                               file_name=args.train_file_name)
+    val_dataset = GCNDataset(label_map,
+                             root_path=args.data_path,
+                             file_name=args.val_file_name)
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
@@ -262,8 +266,7 @@ def main(args):
     )
 
     # model
-    adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-        namespace=args.namespace)
+
     model = ProtGCNModel(nodes=multi_hot_vector,
                          adjmat=adj,
                          seq_dim=1280,
