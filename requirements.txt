@@ -1,7 +1,5 @@
-Bio
-boto3
-botocore
-filelock
+allennlp
+datasets
 h5py
 matplotlib
 numpy
