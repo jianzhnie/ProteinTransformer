@@ -21,6 +21,7 @@ from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
 sys.path.append('../')
+
 try:
     import wandb
     has_wandb = True
@@ -236,8 +237,9 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
+    go_file = os.path.join(args.data_path, 'go_cafa3.obo')
     adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-        namespace=args.namespace)
+        go_file=go_file, namespace=args.namespace)
     train_dataset = GCNDataset(label_map,
                                root_path=args.data_path,
                                file_name=args.train_file_name)
@@ -274,8 +276,9 @@ def main(args):
     )
 
     # model
-
-    model = ProtGCNModel(nodes=multi_hot_vector,
+    nodes = multi_hot_vector.cuda()
+    adj = adj.cuda()
+    model = ProtGCNModel(nodes=nodes,
                          adjmat=adj,
                          seq_dim=1280,
                          node_feats=512,
@@ -380,7 +383,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.model + '_' + args.pool_mode
+    task_name = 'ProtLM' + '_' + args.model
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:
