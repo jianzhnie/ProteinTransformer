@@ -7,20 +7,20 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
-import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
+from torch.utils.data import DataLoader
 
-from deepfold.data.dataset_factory import get_dataloaders
-from deepfold.models.model_factory import get_model
+from deepfold.data.esm_dataset import EmbeddingDataset
+from deepfold.models.multimodal_model import ProtGCNModel
 from deepfold.trainer.training import train_loop
+from deepfold.utils.make_graph import build_graph
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
 sys.path.append('../')
-
 try:
     import wandb
     has_wandb = True
@@ -43,20 +43,11 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
-parser.add_argument('--dataset_name',
-                    default='',
-                    type=str,
-                    help='dataset name: esm, esm_embedding, protseq, protbert')
-
+parser.add_argument('--namespace', default='', type=str, help='cc, mf, bp')
 parser.add_argument('--model',
                     metavar='MODEL',
-                    default='esm',
-                    help='model architecture: (default: esm)')
-parser.add_argument('--pool_mode',
-                    type=str,
-                    default='mean',
-                    help='embedding method')
-parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
+                    default='protgcn',
+                    help='model architecture: (default: protgcn)')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
@@ -78,10 +69,6 @@ parser.add_argument('-j',
                     default=4,
                     metavar='N',
                     help='how many training processes to use (default: 1)')
-parser.add_argument('--num_labels',
-                    default=5874,
-                    type=int,
-                    help='num labels for multi-label classification')
 parser.add_argument('-b',
                     '--batch-size',
                     default=256,
@@ -241,10 +228,47 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    train_loader, val_loader = get_dataloaders(args)
+    train_dataset = EmbeddingDataset(data_path=args.data_path,
+                                     file_name='train_data.pkl')
+    val_dataset = EmbeddingDataset(data_path=args.data_path,
+                                   file_name='test_data.pkl')
+
+    if args.distributed:
+        train_sampler = torch.utils.data.distributed.DistributedSampler(
+            train_dataset)
+        val_sampler = torch.utils.data.distributed.DistributedSampler(
+            val_dataset)
+    else:
+        train_sampler = torch.utils.data.RandomSampler(train_dataset)
+        val_sampler = torch.utils.data.RandomSampler(val_dataset)
+
+    # dataloders
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=(train_sampler is None),
+        num_workers=args.workers,
+        sampler=train_sampler,
+        pin_memory=True,
+    )
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        shuffle=(val_sampler is None),
+        num_workers=args.workers,
+        sampler=val_sampler,
+        pin_memory=True,
+    )
 
     # model
-    model = get_model(args)
+    adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
+        namespace=args.namespace)
+    model = ProtGCNModel(nodes=multi_hot_vector,
+                         adjmat=adj,
+                         seq_dim=1280,
+                         node_feats=512,
+                         hidden_dim=512)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -260,13 +284,11 @@ def main(args):
     )
     # define loss function (criterion) and optimizer
     # optimizer and lr_policy
-    # criterion = nn.BCEWithLogitsLoss().cuda()
-    criterion = nn.L1Loss().cuda()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad,
                                    model.parameters()),
                             lr=args.lr,
                             weight_decay=args.weight_decay)
-    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
+    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
@@ -287,8 +309,8 @@ def main(args):
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(model,
-                                                              output_device=0)
+            model = torch.nn.parallel.DistributedDataParallel(
+                model, output_device=0, find_unused_parameters=True)
     else:
         model.cuda()
 
@@ -306,7 +328,6 @@ def main(args):
 
     train_loop(model,
                optimizer,
-               criterion,
                lr_policy,
                scaler,
                gradient_accumulation_steps,

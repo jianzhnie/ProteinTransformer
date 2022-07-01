@@ -1,9 +1,6 @@
-import math
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.parameter import Parameter
 from torch_geometric.nn import (ChebConv, GCNConv, GINConv, GMMConv,
                                 global_add_pool)
 
@@ -20,22 +17,23 @@ class Embedder(nn.Module):
 
 
 class GraphConvolution(nn.Module):
-    def __init__(self, nfeat, nhid, bias=True):
+    """Simple GCN layer, similar to https://arxiv.org/abs/1609.02907."""
+    def __init__(self, in_features, out_features, bias=True):
         super(GraphConvolution, self).__init__()
-        self.nfeat = nfeat
-        self.nhid = nhid
-        self.weight = Parameter(torch.FloatTensor(nfeat, nhid))
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight = nn.Parameter(torch.Tensor(in_features, out_features))
         if bias:
-            self.bias = Parameter(torch.FloatTensor(nhid))
+            self.bias = nn.Parameter(torch.Tensor(out_features))
         else:
             self.register_parameter('bias', None)
+
         self.reset_parameters()
 
     def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.weight.size(1))
-        self.weight.data.uniform_(-stdv, stdv)
+        nn.init.kaiming_uniform_(self.weight)
         if self.bias is not None:
-            self.bias.data.uniform_(-stdv, stdv)
+            nn.init.zeros_(self.bias)
 
     def forward(self, input, adj):
         x = torch.mm(input, self.weight)
@@ -45,16 +43,28 @@ class GraphConvolution(nn.Module):
         else:
             return output
 
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' \
+               + str(self.in_features) + ' -> ' \
+               + str(self.out_features) + ')'
+
 
 class CustomGCN(nn.Module):
-    def __init__(self, nfeat, nhid):
+    """A custom two layers GCN."""
+    def __init__(self, nfeat, nhid, dropout):
         super().__init__()
-
         self.gc1 = GraphConvolution(nfeat, nhid)
+        self.gc2 = GraphConvolution(nhid, nhid)
+        self.activate = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout(p=dropout)
 
-    def forward(self, x, adj):
-        x = F.relu(self.gc1(x, adj))
-        return x
+    def forward(self, input, adj):
+        output = self.gc1(input, adj)
+        output = self.activate(output)
+        output = self.dropout(output)
+        output = self.gc2(output, adj)
+        output = self.activate(output)
+        return output
 
 
 class MLP(nn.Module):

@@ -4,44 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-# GCN module
-class GraphConvolution(nn.Module):
-    def __init__(self, nfeat, nhid, bias=True):
-        super(GraphConvolution, self).__init__()
-        self.nfeat = nfeat
-        self.nhid = nhid
-        self.weight = nn.Parameter(torch.FloatTensor(nfeat, nhid))
-        if bias:
-            self.bias = nn.Parameter(torch.FloatTensor(nhid))
-        else:
-            self.register_parameter('bias', None)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.weight.size(1))
-        self.weight.data.uniform_(-stdv, stdv)
-        if self.bias is not None:
-            self.bias.data.uniform_(-stdv, stdv)
-
-    def forward(self, input, adj):
-        x = torch.mm(input, self.weight)
-        output = torch.spmm(adj, x)
-        if self.bias is not None:
-            return output + self.bias
-        else:
-            return output
-
-
-class GCN(nn.Module):
-    def __init__(self, nfeat, nhid):
-        super(GCN, self).__init__()
-
-        self.gc1 = GraphConvolution(nfeat, nhid)
-
-    def forward(self, x, adj):
-        x = F.relu(self.gc1(x, adj))
-        return x
+from .gnn_model import CustomGCN
 
 
 # attention  module
@@ -197,7 +160,7 @@ class P2GO(nn.Module):
                                         requires_grad=True)
 
         # gnn module
-        self.gcn = GCN(latent_dim, latent_dim)
+        self.gcn = CustomGCN(latent_dim, latent_dim)
         # output layer
         self.go_transform2 = nn.Sequential(
             nn.Linear(int(2 * latent_dim), latent_dim), nn.ReLU())

@@ -18,8 +18,6 @@ from deepfold.models.transformers.multilabel_transformer import \
     RobertaForMultiLabelSequenceClassification
 from deepfold.trainer.training import protlmpredict
 
-sys.path.append('../')
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path.split('/')[:-1])
 
