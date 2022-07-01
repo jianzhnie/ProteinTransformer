@@ -23,11 +23,12 @@ class ProtGCNModel(nn.Module):
         classification for Protein Function Prediction, arxiv, http://arxiv.org/abs/2112.02810
     """
     def __init__(self,
-                 nodes: torch.tensor,
+                 nodes: torch.Tensor,
                  adjmat: torch.tensor,
                  seq_dim: int = 1024,
                  node_feats: int = 512,
-                 hidden_dim: int = 512):
+                 hidden_dim: int = 512,
+                 dropout=0.1):
         super().__init__()
         assert nodes.shape[0] == adjmat.shape[0]
         self.nodesMat = nodes
@@ -35,11 +36,11 @@ class ProtGCNModel(nn.Module):
         self.num_nodes = nodes.shape[0]
         self.seq_mlp = MLP(seq_dim, hidden_dim)
         self.graph_embedder = Embedder(self.num_nodes, node_feats)
-        self.gcn = CustomGCN(node_feats, hidden_dim)
-        self.num_labels = self.num_labels
+        self.gcn = CustomGCN(node_feats, hidden_dim, dropout=dropout)
+        self.num_labels = self.num_nodes
 
-    def forward(self, seq_embeds, labels):
-        seq_out = self.seq_mlp(seq_embeds)
+    def forward(self, embeddings, labels):
+        seq_out = self.seq_mlp(embeddings)
         node_embd = self.graph_embedder(self.nodesMat)
         graph_out = self.gcn(node_embd, self.adjMat)
         graph_out = graph_out.transpose(-2, -1)
