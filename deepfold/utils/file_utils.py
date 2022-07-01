@@ -10,6 +10,27 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
+def read_fasta(filename):
+    seqs = list()
+    info = list()
+    seq = ''
+    inf = ''
+    with open(filename, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith('>'):
+                if seq != '':
+                    seqs.append(seq)
+                    info.append(inf)
+                    seq = ''
+                inf = line[1:]
+            else:
+                seq += line
+        seqs.append(seq)
+        info.append(inf)
+    return info, seqs
+
+
 def read_go_annotations(file_in):
     """Read known GO annotations from file.
 
