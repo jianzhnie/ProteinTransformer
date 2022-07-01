@@ -19,8 +19,9 @@ class MLP(nn.Module):
 
 
 class ProtGCNModel(nn.Module):
-    """ ProtGCNModel: Kyudam Choi, Yurim Lee, Cheongwon Kim, Minsung Yoon, An Effective GCN-based Hierarchical Multi-label \
-        classification for Protein Function Prediction, arxiv, http://arxiv.org/abs/2112.02810
+    """ ProtGCNModel: Kyudam Choi, Yurim Lee, Cheongwon Kim, Minsung Yoon \
+        An Effective GCN-based Hierarchical Multi-label classification for Protein Function Prediction \
+        arxiv, http://arxiv.org/abs/2112.02810
     """
     def __init__(self,
                  nodes: torch.Tensor,
