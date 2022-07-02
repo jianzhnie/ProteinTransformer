@@ -118,7 +118,7 @@ def multi_hot_encoding(label_map, label_map_ivs, go_file):
     return multi_hot
 
 
-def build_graph(namespace='bpo'):
+def build_graph(go_file, namespace='bpo'):
     all_go_bpo_ic = get_go_ic(namespace)
     idx, IC = load_edge_list(all_go_bpo_ic, symmetrize=False)
     idx_2d = idx
