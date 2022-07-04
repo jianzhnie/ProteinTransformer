@@ -7,15 +7,14 @@ import time
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
-import torch.nn as nn
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.trainer.training import predict
 from deepfold.data.gcn_dataset import GCNDataset
 from deepfold.models.multimodal_model import ProtGCNModel
+from deepfold.trainer.training import predict
 from deepfold.utils.make_graph import build_graph
 from deepfold.utils.model import load_model_checkpoint
 
@@ -45,7 +44,7 @@ parser.add_argument('--namespace', default='', type=str, help='cc, mf, bp')
 parser.add_argument('--model',
                     metavar='MODEL',
                     default='protgcn',
-                    help='model architecture: (default: protgcn)')                
+                    help='model architecture: (default: protgcn)')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
@@ -81,8 +80,8 @@ def main(args):
     adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
         data_path=args.data_path, namespace=args.namespace)
     test_dataset = GCNDataset(label_map,
-                             root_path=args.data_path,
-                             file_name=args.test_file_name)
+                              root_path=args.data_path,
+                              file_name=args.test_file_name)
     # dataloders
     test_loader = DataLoader(test_dataset,
                              batch_size=args.batch_size,
@@ -113,7 +112,8 @@ def main(args):
 
     logger.info('Test metrics: %s' % (test_metrics))
 
-    test_data_path = os.path.join(args.data_path, args.namespace,  args.namespace + '_test_data.pkl')
+    test_data_path = os.path.join(args.data_path, args.namespace,
+                                  args.namespace + '_test_data.pkl')
     test_df = pd.read_pickle(test_data_path)
 
     preds, test_labels = predictions
