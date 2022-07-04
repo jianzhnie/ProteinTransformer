@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 
 from deepfold.data.esm_dataset import EmbeddingDataset
 from deepfold.models.esm_model import MLP
-from deepfold.trainer.training import Predict
+from deepfold.trainer.training import predict
 from deepfold.utils.model import load_model_checkpoint
 
 sys.path.append('../')
@@ -77,7 +77,9 @@ parser.add_argument('--output-dir',
 def main(args):
     args.gpu = 0
     # Dataset and DataLoader
-    test_dataset = EmbeddingDataset(data_path=args.data_path, split='test')
+    test_dataset = EmbeddingDataset(
+        data_path=args.data_path,
+        file_name='esm1b_t33_650M_UR50S_embeddings_mean_test.pkl')
     # dataloders
     test_loader = DataLoader(test_dataset,
                              batch_size=args.batch_size,
@@ -100,7 +102,7 @@ def main(args):
     model = model.cuda()
 
     # run predict
-    predictions, test_metrics = Predict(model,
+    predictions, test_metrics = predict(model,
                                         test_loader,
                                         criterion,
                                         use_amp=args.amp,
