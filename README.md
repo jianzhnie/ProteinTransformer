@@ -13,7 +13,7 @@ You can either clone the public repository:
 
 ```bash
 # clone project
-git clone https://github.com/jianzhnie/X-DeepGO.git
+git clone https://github.com/jianzhnie/X-DeepGO.git  
 # First, install dependencies
 pip install -r requirements.txt
 ```
