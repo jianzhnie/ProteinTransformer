@@ -28,24 +28,24 @@ class GoEmbedder(nn.Module):
         self.cross_entropy = nn.CrossEntropyLoss()
         self.init_weights()
 
-    # def forward_(self, term_ids, neighbor_ids, labels, retrun_dict=True):
-    #     """forward."""
-    #     embed = self.embedding(term_ids)
-    #     hidden = self.activate(embed)
-    #     out1 = self.fc1(hidden)
-    #     out2 = self.fc2(hidden)
-    #     out3 = self.fc3(hidden)
-    #     # term
-    #     log_probs_term = F.log_softmax(out1, dim=1)
-    #     # neighbor
-    #     log_probs_neighbor = F.log_softmax(out2, dim=1)
+    def forward_(self, term_ids, neighbor_ids, labels, retrun_dict=True):
+        """forward."""
+        embed = self.embedding(term_ids)
+        hidden = self.activate(embed)
+        out1 = self.fc1(hidden)
+        out2 = self.fc2(hidden)
+        out3 = self.fc3(hidden)
+        # term
+        log_probs_term = F.log_softmax(out1, dim=1)
+        # neighbor
+        log_probs_neighbor = F.log_softmax(out2, dim=1)
 
-    #     loss_term = self.nll_loss(log_probs_term, term_ids)
-    #     loss_neighbor = self.nll_loss(log_probs_neighbor, neighbor_ids)
+        loss_term = self.nll_loss(log_probs_term, term_ids)
+        loss_neighbor = self.nll_loss(log_probs_neighbor, neighbor_ids)
 
-    #     # three sub module
-    #     loss_namespace = F.cross_entropy(out3, labels)
-    #     return loss_term, loss_neighbor, loss_namespace
+        # three sub module
+        loss_namespace = F.cross_entropy(out3, labels)
+        return loss_term, loss_neighbor, loss_namespace
 
     def forward(self, term_ids, neighbor_ids, labels, retrun_dict=True):
         """forward."""

@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 class Seq2VecDataset(Dataset):
-    """ESMDataset."""
+    """Seq2vec Dataset."""
     def __init__(self,
                  data_path: str = 'dataset/',
                  file_name: str = 'xxx.pkl',
