@@ -175,9 +175,7 @@ def get_all_go_cnt(edges, go_cnt, all_children, go_ic):
     return all_go_cnt
 
 
-def get_go_ic(namespace='bpo'):
-
-    data_path = '/data/xbiome/protein_classification/cafa3'
+def get_go_ic(namespace='bpo', data_path=None):
     go_file = os.path.join(data_path, 'go_cafa3.obo')
     if namespace == 'bpo':
         train_data_path = os.path.join(data_path, 'bpo')
