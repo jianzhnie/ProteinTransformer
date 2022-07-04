@@ -239,7 +239,7 @@ def main(args):
     # Dataset and DataLoader
     go_file = os.path.join(args.data_path, 'go_cafa3.obo')
     adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-        go_file=go_file, namespace=args.namespace)
+        data_path=args.data_path, namespace=args.namespace)
     train_dataset = GCNDataset(label_map,
                                root_path=args.data_path,
                                file_name=args.train_file_name)
@@ -302,7 +302,7 @@ def main(args):
                                    model.parameters()),
                             lr=args.lr,
                             weight_decay=args.weight_decay)
-    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
+    lr_policy = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
 
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
