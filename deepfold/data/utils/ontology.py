@@ -29,52 +29,52 @@ class Ontology(object):
 
     def load_obo(self, filename, with_rels=False):
         ontlogy = dict()
-        goobj = None
+        obj = None
         with open(filename, 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 line = line.strip()
                 if not line:
                     continue
                 if line == '[Term]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
+                    if obj is not None:
+                        ontlogy[obj['id']] = obj
 
-                    goobj = dict()
-                    goobj['is_a'] = list()
-                    goobj['part_of'] = list()
-                    goobj['regulates'] = list()
-                    goobj['alt_ids'] = list()
-                    goobj['is_obsolete'] = False
+                    obj = dict()
+                    obj['is_a'] = list()
+                    obj['part_of'] = list()
+                    obj['regulates'] = list()
+                    obj['alt_ids'] = list()
+                    obj['is_obsolete'] = False
                     continue
 
                 elif line == '[Typedef]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
-                    goobj = None
+                    if obj is not None:
+                        ontlogy[obj['id']] = obj
+                    obj = None
 
                 else:
-                    if goobj is None:
+                    if obj is None:
                         continue
 
                     subline = line.split(': ')
                     if subline[0] == 'id':
-                        goobj['id'] = subline[1]
+                        obj['id'] = subline[1]
                     elif subline[0] == 'alt_id':
-                        goobj['alt_ids'].append(subline[1])
+                        obj['alt_ids'].append(subline[1])
                     elif subline[0] == 'namespace':
-                        goobj['namespace'] = subline[1]
+                        obj['namespace'] = subline[1]
                     elif subline[0] == 'is_a':
-                        goobj['is_a'].append(subline[1].split(' ! ')[0])
+                        obj['is_a'].append(subline[1].split(' ! ')[0])
                     elif with_rels and subline[0] == 'relationship':
                         it = subline[1].split()
                         # add all types of relationships
-                        goobj['is_a'].append(it[1])
+                        obj['is_a'].append(it[1])
                     elif subline[0] == 'name':
-                        goobj['name'] = subline[1]
+                        obj['name'] = subline[1]
                     elif subline[0] == 'is_obsolete' and subline[1] == 'true':
-                        goobj['is_obsolete'] = True
-            if goobj is not None:
-                ontlogy[goobj['id']] = goobj
+                        obj['is_obsolete'] = True
+                if obj is not None:
+                    ontlogy[obj['id']] = obj
             for term_id in list(ontlogy.keys()):
                 for alt_id in ontlogy[term_id]['alt_ids']:
                     ontlogy[alt_id] = ontlogy[term_id]
@@ -146,8 +146,8 @@ class Ontology(object):
 
     def get_namespace_terms(self, namespace):
         terms = set()
-        for go_id, goobj in self.ontology.items():
-            if goobj['namespace'] == namespace:
+        for go_id, obj in self.ontology.items():
+            if obj['namespace'] == namespace:
                 terms.add(go_id)
         return terms
 
