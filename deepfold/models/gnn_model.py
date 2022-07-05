@@ -16,26 +16,27 @@ class Embedder(nn.Module):
 
 class GraphConvolution(nn.Module):
     """Simple GCN layer, similar to https://arxiv.org/abs/1609.02907."""
-    def __init__(self, in_features, out_features, bias=True):
+    def __init__(self, input_dim, output_dim, bias=True):
         super(GraphConvolution, self).__init__()
-        self.in_features = in_features
-        self.out_features = out_features
-        self.weight = nn.Parameter(torch.Tensor(in_features, out_features))
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.weight = nn.Parameter(torch.FloatTensor(input_dim, output_dim))
         if bias:
-            self.bias = nn.Parameter(torch.Tensor(out_features))
+            self.bias = nn.Parameter(torch.FloatTensor(output_dim))
         else:
             self.register_parameter('bias', None)
 
-        self.reset_parameters()
+        self.init_parameters()
 
-    def reset_parameters(self):
+    def init_parameters(self):
         nn.init.kaiming_uniform_(self.weight)
         if self.bias is not None:
             nn.init.zeros_(self.bias)
 
     def forward(self, input, adj):
-        x = torch.mm(input, self.weight)
-        output = torch.spmm(adj, x)
+        # inputs: (N, n_channels), adj: sparse_matrix (N, N)
+        support = torch.mm(input, self.weight)
+        output = torch.spmm(adj, support)
         if self.bias is not None:
             return output + self.bias
         else:
