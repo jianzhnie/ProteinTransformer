@@ -16,7 +16,7 @@ def statistic_terms(train_data_path):
     train_data = pd.read_pickle(train_data_path)
     cnt = Counter()
     for i, row in train_data.iterrows():
-        for term in row['annotations']:
+        for term in row['prop_annotations']:
             cnt[term] += 1
     print('Number of annotated terms:', len(cnt))
     sorted_by_freq_tuples = sorted(cnt.items(), key=lambda x: x[0])
@@ -196,9 +196,10 @@ def get_go_ic(namespace='bpo', data_path=None):
 
 
 if __name__ == '__main__':
-    all_go_bpo_cnt = get_go_ic('bpo')
+    data_path = '/home/niejianzheng/xbiome/DeepFold/protein_data/cafa3/process'
+    all_go_bpo_cnt = get_go_ic('bpo', data_path)
     print(f'edges in bpo: {len(all_go_bpo_cnt)}')
-    all_go_mfo_cnt = get_go_ic('mfo')
+    all_go_mfo_cnt = get_go_ic('mfo', data_path)
     print(f'edges in mfo: {len(all_go_mfo_cnt)}')
-    all_go_cco_cnt = get_go_ic('cco')
+    all_go_cco_cnt = get_go_ic('cco', data_path)
     print(f'edges in cco: {len(all_go_cco_cnt)}')

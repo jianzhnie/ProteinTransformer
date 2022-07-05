@@ -1,4 +1,3 @@
-allennlp
 datasets
 h5py
 matplotlib

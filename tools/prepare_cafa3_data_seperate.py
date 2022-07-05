@@ -14,16 +14,19 @@ def seperate(data_file, go_file):
     bpo_proteins = []
     bpo_sequences = []
     bpo_annotations = []
+
     mfo_proteins = []
     mfo_sequences = []
     mfo_annotations = []
+
     cco_proteins = []
     cco_sequences = []
     cco_annotations = []
+
     for item in df.iterrows():
         protien = item[1]['proteins']
         seq = item[1]['sequences']
-        annotation = item[1]['annotations']
+        annotation = item[1]['prop_annotations']
         bpo_annotation = []
         mfo_annotation = []
         cco_annotation = []
@@ -50,23 +53,23 @@ def seperate(data_file, go_file):
     bpo_df = pd.DataFrame({
         'proteins': bpo_proteins,
         'sequences': bpo_sequences,
-        'annotations': bpo_annotations,
+        'prop_annotations': bpo_annotations,
     })
     mfo_df = pd.DataFrame({
         'proteins': mfo_proteins,
         'sequences': mfo_sequences,
-        'annotations': mfo_annotations,
+        'prop_annotations': mfo_annotations,
     })
     cco_df = pd.DataFrame({
         'proteins': cco_proteins,
         'sequences': cco_sequences,
-        'annotations': cco_annotations,
+        'prop_annotations': cco_annotations,
     })
     return bpo_df, mfo_df, cco_df
 
 
 if __name__ == '__main__':
-    data_path = '/data/xbiome/protein_classification/cafa3'
+    data_path = '/home/niejianzheng/xbiome/DeepFold/protein_data/cafa3/process'
     train_data_file = os.path.join(data_path, 'train_data.pkl')
     test_data_file = os.path.join(data_path, 'test_data.pkl')
     terms_file = os.path.join(data_path, 'terms.pkl')

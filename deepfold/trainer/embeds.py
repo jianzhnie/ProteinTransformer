@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 
-def extract_esm_embedds(model, data_loader, pool_mode, logger, device):
+def extract_esm_embedds(model, data_loader, pool_mode, logger, device='cuda'):
     embeddings = []
     true_labels = []
     steps = len(data_loader)

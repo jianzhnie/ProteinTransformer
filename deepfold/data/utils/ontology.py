@@ -24,79 +24,79 @@ class Ontology(object):
     disjoint_from: GO:0044848 ! biological phase
     """
     def __init__(self, filename='data/go.obo', with_rels=False):
-        self.ontology = self.load_obo(filename, with_rels=with_rels)
+        self.ont = self.load_obo(filename, with_rels=with_rels)
         self.ic = None
 
     def load_obo(self, filename, with_rels=False):
-        ontlogy = dict()
-        goobj = None
+        ont = dict()
+        obj = None
         with open(filename, 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 line = line.strip()
                 if not line:
                     continue
                 if line == '[Term]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
+                    if obj is not None:
+                        ont[obj['id']] = obj
 
-                    goobj = dict()
-                    goobj['is_a'] = list()
-                    goobj['part_of'] = list()
-                    goobj['regulates'] = list()
-                    goobj['alt_ids'] = list()
-                    goobj['is_obsolete'] = False
+                    obj = dict()
+                    obj['is_a'] = list()
+                    obj['part_of'] = list()
+                    obj['regulates'] = list()
+                    obj['alt_ids'] = list()
+                    obj['is_obsolete'] = False
                     continue
 
                 elif line == '[Typedef]':
-                    if goobj is not None:
-                        ontlogy[goobj['id']] = goobj
-                    goobj = None
+                    if obj is not None:
+                        ont[obj['id']] = obj
+                    obj = None
 
                 else:
-                    if goobj is None:
+                    if obj is None:
                         continue
 
                     subline = line.split(': ')
                     if subline[0] == 'id':
-                        goobj['id'] = subline[1]
+                        obj['id'] = subline[1]
                     elif subline[0] == 'alt_id':
-                        goobj['alt_ids'].append(subline[1])
+                        obj['alt_ids'].append(subline[1])
                     elif subline[0] == 'namespace':
-                        goobj['namespace'] = subline[1]
+                        obj['namespace'] = subline[1]
                     elif subline[0] == 'is_a':
-                        goobj['is_a'].append(subline[1].split(' ! ')[0])
+                        obj['is_a'].append(subline[1].split(' ! ')[0])
                     elif with_rels and subline[0] == 'relationship':
                         it = subline[1].split()
                         # add all types of relationships
-                        goobj['is_a'].append(it[1])
+                        obj['is_a'].append(it[1])
                     elif subline[0] == 'name':
-                        goobj['name'] = subline[1]
+                        obj['name'] = subline[1]
                     elif subline[0] == 'is_obsolete' and subline[1] == 'true':
-                        goobj['is_obsolete'] = True
-            if goobj is not None:
-                ontlogy[goobj['id']] = goobj
-            for term_id in list(ontlogy.keys()):
-                for alt_id in ontlogy[term_id]['alt_ids']:
-                    ontlogy[alt_id] = ontlogy[term_id]
-                if ontlogy[term_id]['is_obsolete']:
-                    del ontlogy[term_id]
+                        obj['is_obsolete'] = True
+                if obj is not None:
+                    ont[obj['id']] = obj
+            for term_id in list(ont.keys()):
+                for alt_id in ont[term_id]['alt_ids']:
+                    ont[alt_id] = ont[term_id]
+                if ont[term_id]['is_obsolete']:
+                    del ont[term_id]
 
-            for term_id, val in ontlogy.items():
+            for term_id, val in ont.items():
                 if 'children' not in val:
                     val['children'] = set()
                 for p_id in val['is_a']:
-                    if p_id in ontlogy:
-                        if 'children' not in ontlogy[p_id]:
-                            ontlogy[p_id]['children'] = set()
-                        ontlogy[p_id]['children'].add(term_id)
-        return ontlogy
+                    if p_id in ont:
+                        if 'children' not in ont[p_id]:
+                            ont[p_id]['children'] = set()
+                        ont[p_id]['children'].add(term_id)
+        return ont
 
     def has_term(self, term_id):
-        return term_id in self.ontology
+        return term_id in self.ont
 
     def get_term(self, term_id):
         if self.has_term(term_id):
-            return self.ontology[term_id]
+            return self.ont[term_id]
         return None
 
     def calculate_ic(self, annots):
@@ -121,7 +121,7 @@ class Ontology(object):
         return self.ic[go_id]
 
     def get_anchestors(self, term_id):
-        if term_id not in self.ontology:
+        if term_id not in self.ont:
             return set()
         term_set = set()
         q = deque()
@@ -130,32 +130,32 @@ class Ontology(object):
             t_id = q.popleft()
             if t_id not in term_set:
                 term_set.add(t_id)
-                for parent_id in self.ontology[t_id]['is_a']:
-                    if parent_id in self.ontology:
+                for parent_id in self.ont[t_id]['is_a']:
+                    if parent_id in self.ont:
                         q.append(parent_id)
         return term_set
 
     def get_parents(self, term_id):
-        if term_id not in self.ontology:
+        if term_id not in self.ont:
             return set()
         term_set = set()
-        for parent_id in self.ontology[term_id]['is_a']:
-            if parent_id in self.ontology:
+        for parent_id in self.ont[term_id]['is_a']:
+            if parent_id in self.ont:
                 term_set.add(parent_id)
         return term_set
 
     def get_namespace_terms(self, namespace):
         terms = set()
-        for go_id, goobj in self.ontology.items():
-            if goobj['namespace'] == namespace:
+        for go_id, obj in self.ont.items():
+            if obj['namespace'] == namespace:
                 terms.add(go_id)
         return terms
 
     def get_namespace(self, term_id):
-        return self.ontology[term_id]['namespace']
+        return self.ont[term_id]['namespace']
 
     def get_term_set(self, term_id):
-        if term_id not in self.ontology:
+        if term_id not in self.ont:
             return set()
         term_set = set()
         q = deque()
@@ -164,7 +164,7 @@ class Ontology(object):
             t_id = q.popleft()
             if t_id not in term_set:
                 term_set.add(t_id)
-                for ch_id in self.ontology[t_id]['children']:
+                for ch_id in self.ont[t_id]['children']:
                     q.append(ch_id)
         return term_set
 
@@ -172,5 +172,5 @@ class Ontology(object):
 if __name__ == '__main__':
     gofile = '/Users/robin/xbiome/datasets/xbiome/go.obo'
     go = Ontology(filename=gofile)
-    ontology = go.ontology
+    ontology = go.ont
     print(ontology)
