@@ -133,3 +133,4 @@ work_dirs/
 logs/
 wandb/
 nohup.out
+protein_data
