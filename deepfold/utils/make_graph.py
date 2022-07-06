@@ -31,6 +31,7 @@ def load_node_list(all_go_ic):
     for item in all_go_ic:
         tmp = [int(item[0][3:]), int(item[1][3:])]
         go_id.append(tmp)
+    go_id = sorted(go_id)
     return go_id
 
 
@@ -132,6 +133,7 @@ def build_graph(data_path='.data/', namespace='bpo'):
 
     # remove duplicate values
     go_id = pd.unique(go_id).tolist()
+    # print(go_id)
     tmp = []
     idx = pd.unique(idx).tolist()
     for i in range(len(go_id)):
@@ -157,12 +159,12 @@ def build_graph(data_path='.data/', namespace='bpo'):
 
 if __name__ == '__main__':
     # multi-hot
-    data_path = '/data/xbiome/protein_classification/cafa3'
+    data_path = '../../data/cafa3'
     go_file = os.path.join(data_path, 'go_cafa3.obo')
-    for namespace in ['bpo', 'mfo', 'cco']:
+    for namespace in ['cco']:  # 'bpo', 'mfo',
         print('---' * 5 + namespace + '---' * 5)
         adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-            namespace=namespace)
+            data_path=data_path, namespace=namespace)
         print(adj.shape)
         print(multi_hot_vector.shape)
         print(len(label_map))
