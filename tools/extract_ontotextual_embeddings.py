@@ -20,6 +20,7 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
+parser.add_argument('--obo_file', default=None, type=str, help='GO obo file')
 parser.add_argument('--tokenizer_dir',
                     default='',
                     type=str,
@@ -53,6 +54,19 @@ parser.add_argument('--embedding_file_name',
 
 
 def main(args):
+    # Dataset and DataLoader
+    dataset = OntoTextDataset(data_dir=args.data_path,
+                              tokenizer_name=args.tokenizer_dir,
+                              obo_file=args.obo_file,
+                              max_length=512)
+
+    # dataloders
+    data_loader = DataLoader(dataset,
+                             batch_size=args.batch_size,
+                             shuffle=False,
+                             num_workers=args.workers,
+                             pin_memory=True)
+    # model
     model_name = args.pretrain_model_dir
     data_file = os.path.join(args.data_path, 'GotermText.csv')
     assert os.path.exists(data_file)
@@ -62,17 +76,6 @@ def main(args):
     print('Pretrained model %s, pool_mode: %s,  file path: %s' %
           (model_name, args.pool_mode, data_file))
     print('Embeddings save path: ', save_path)
-    # Dataset and DataLoader
-    dataset = OntoTextDataset(data_dir=args.data_path,
-                              tokenizer_name=args.tokenizer_dir,
-                              max_length=512)
-
-    # dataloders
-    data_loader = DataLoader(dataset,
-                             batch_size=args.batch_size,
-                             shuffle=False,
-                             num_workers=args.workers,
-                             pin_memory=True)
     # model
     model = AutoModelForSequenceClassification.from_pretrained(model_name,
                                                                num_labels=3)
