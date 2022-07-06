@@ -104,7 +104,7 @@ def extract_sentence_embedds(model,
         for batch_idx, batch in enumerate(data_loader):
             model_inputs = {key: val.to(device) for key, val in batch.items()}
             model_outputs = model(**model_inputs, output_hidden_states=True)
-            last_hidden_state = model_outputs.hidden_states[-1].detach().cpu()
+            last_hidden_state = model_outputs.last_hidden_state.detach().cpu()
             # batch_embeddings: batch_size * seq_length * embedding_dim
             if 'mean' in pool_mode:
                 mean_embedding = torch.mean(last_hidden_state, dim=1)
