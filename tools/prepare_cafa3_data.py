@@ -15,6 +15,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 @ck.command()
+@ck.option('--data_path',
+           '-dp',
+           default='./data',
+           help='data root path for all files')
 @ck.option('--go-file',
            '-gf',
            default='go_cafa3.obo',
@@ -29,11 +33,11 @@ logging.basicConfig(level=logging.INFO)
            help='CAFA training annotations fasta')
 @ck.option('--test-sequences-file',
            '-tssf',
-           default='CAFA3_targets/targets_all.fasta',
+           default='CAFA3_targets/test_data.fasta',
            help='CAFA training annotations fasta')
 @ck.option('--test-annotations-file',
            '-tsaf',
-           default='benchmark20171115/groundtruth/leafonly_all.txt',
+           default='CAFA3_targets/leafonly_all.txt',
            help='CAFA training annotations fasta')
 @ck.option('--out-terms-file',
            '-otf',
@@ -51,26 +55,29 @@ logging.basicConfig(level=logging.INFO)
            '-mc',
            default=1,
            help='Minimum number of annotated proteins')
-def main(go_file, train_sequences_file, train_annotations_file,
-         test_sequences_file, test_annotations_file, out_terms_file,
-         train_data_file, test_data_file, min_count):
+@ck.option('--output_path',
+           '-op',
+           default='./data',
+           help='data root path to save all output files')
+def main(data_path, output_path, go_file, train_sequences_file,
+         train_annotations_file, test_sequences_file, test_annotations_file,
+         out_terms_file, train_data_file, test_data_file, min_count):
     logging.info('Loading GO')
-    data_path = '/data/xbiome/protein_classification/cafa3'
     go_file = os.path.join(data_path, go_file)
     train_sequences_file = os.path.join(data_path, train_sequences_file)
     train_annotations_file = os.path.join(data_path, train_annotations_file)
     test_sequences_file = os.path.join(data_path, test_sequences_file)
     test_annotations_file = os.path.join(data_path, test_annotations_file)
-    out_terms_file = os.path.join(data_path, out_terms_file)
-    train_data_file = os.path.join(data_path, train_data_file)
-    test_data_file = os.path.join(data_path, test_data_file)
+    out_terms_file = os.path.join(output_path, out_terms_file)
+    train_data_file = os.path.join(output_path, train_data_file)
+    test_data_file = os.path.join(output_path, test_data_file)
 
     go = Ontology(go_file, with_rels=True)
 
     logging.info('Loading training annotations')
     train_annots = {}
     with open(train_annotations_file, 'r') as f:
-        for line in f:
+        for line in f.readlines():
             it = line.strip().split('\t')
             prot_id = it[0]
             if prot_id not in train_annots:
@@ -104,7 +111,8 @@ def main(go_file, train_sequences_file, train_annotations_file,
     df = pd.DataFrame({
         'proteins': proteins,
         'sequences': sequences,
-        'annotations': prop_annotations,
+        'annotations': annotations,
+        'prop_annotations': prop_annotations,
     })
     logging.info(f'Train proteins: {len(df)}')
     logging.info(f'Saving training data to {train_data_file}')
@@ -131,7 +139,7 @@ def main(go_file, train_sequences_file, train_annotations_file,
     logging.info('Loading testing annotations')
     test_annots = {}
     with open(test_annotations_file, 'r') as f:
-        for line in f:
+        for line in f.readlines():
             it = line.strip().split('\t')
             prot_id = it[0]
             if prot_id not in test_annots:
@@ -162,7 +170,8 @@ def main(go_file, train_sequences_file, train_annotations_file,
     df = pd.DataFrame({
         'proteins': proteins,
         'sequences': sequences,
-        'annotations': prop_annotations,
+        'annotations': annotations,
+        'prop_annotations': prop_annotations,
     })
     logging.info(f'Test proteins {len(df)}')
     logging.info(f'Saving testing data to {test_data_file}')
