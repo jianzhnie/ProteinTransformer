@@ -41,3 +41,13 @@ python  evaluate_gosim.py \
     --gosim-scores-file /home/niejianzheng/xbiome/goPredSim/results/all_predicts.txt \
     --ontology-obo-file /home/niejianzheng/xbiome/datasets/protein/go.obo \
     --output_dir /home/niejianzheng/xbiome/DeepFold/work_dir
+
+## evaluate multi modal
+python tools/evaluate_multimodal.py 
+    --data_path data/cafa3 
+    --train-data-file data/cafa3/mfo_esm1b_t33_650M_UR50S_embeddings_mean_train.pkl 
+    --test-data-file data/cafa3/mfo_predictions1.pkl 
+    --ontology-obo-file data/cafa3/go_cafa3.obo 
+    --namespace 'mfo' 
+    --output_dir ./work_dir
+    --ont mf

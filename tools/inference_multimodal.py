@@ -119,7 +119,7 @@ def main(args):
     preds, test_labels = predictions
     test_df['labels'] = list(test_labels)
     test_df['preds'] = list(preds)
-    df_path = os.path.join(args.data_path, args.namespace + '_predictions.pkl')
+    df_path = os.path.join(args.data_path, args.namespace + '_predictions1.pkl')
     test_df.to_pickle(df_path)
     logger.info(f'Saving results to {df_path}')
 

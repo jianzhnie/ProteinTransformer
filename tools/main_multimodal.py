@@ -383,7 +383,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.model
+    task_name = 'ProtLM' + '_' + args.namespace + '_' + args.model
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:

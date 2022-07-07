@@ -13,7 +13,8 @@ sys.path.append('../')
 
 
 def load_edge_list(all_go_bpo_ic, symmetrize=False):
-    df = pd.DataFrame(all_go_bpo_ic)
+    sorted_go_ic = sorted(all_go_bpo_ic, key=lambda k: (k[0], k[1]))
+    df = pd.DataFrame(sorted_go_ic)
     df.dropna(inplace=True)
 
     if symmetrize:
@@ -31,7 +32,6 @@ def load_node_list(all_go_ic):
     for item in all_go_ic:
         tmp = [int(item[0][3:]), int(item[1][3:])]
         go_id.append(tmp)
-    go_id = sorted(go_id)
     return go_id
 
 
@@ -133,6 +133,7 @@ def build_graph(data_path='.data/', namespace='bpo'):
 
     # remove duplicate values
     go_id = pd.unique(go_id).tolist()
+    go_id = sorted(go_id)
     # print(go_id)
     tmp = []
     idx = pd.unique(idx).tolist()
