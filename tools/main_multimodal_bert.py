@@ -4,6 +4,7 @@ import os
 import sys
 import time
 
+import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
@@ -13,10 +14,9 @@ import torch.utils.data.distributed
 import yaml
 from torch.utils.data import DataLoader
 
-from deepfold.data.gcn_dataset import GCNDataset
-from deepfold.models.multimodal_model import ProtGCNModel
-from deepfold.trainer.training import train_loop
-from deepfold.utils.make_graph import build_graph
+from deepfold.data.multimodal_dataset import MultiModalDataset
+from deepfold.models.multimodal_model import ProtPubMedBert
+from deepfold.trainer.training import predict, train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
@@ -237,14 +237,12 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-        data_path=args.data_path, namespace=args.namespace)
-    train_dataset = GCNDataset(label_map,
-                               root_path=args.data_path,
-                               file_name=args.train_file_name)
-    val_dataset = GCNDataset(label_map,
-                             root_path=args.data_path,
-                             file_name=args.val_file_name)
+    train_dataset = MultiModalDataset(data_path=args.data_path,
+                                      file_name=args.train_file_name,
+                                      namespace=args.namespace)
+    val_dataset = MultiModalDataset(data_path=args.data_path,
+                                    file_name=args.val_file_name,
+                                    namespace=args.namespace)
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(
@@ -275,13 +273,9 @@ def main(args):
     )
 
     # model
-    nodes = multi_hot_vector.cuda()
-    adj = adj.cuda()
-    model = ProtGCNModel(nodes=nodes,
-                         adjmat=adj,
-                         seq_dim=1280,
-                         node_feats=512,
-                         hidden_dim=512)
+    embeds = train_dataset.goterm_embedding
+    embeds = embeds.cuda()
+    model = ProtPubMedBert(embeds, seq_dim=1280, hidden_dim=512)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -359,6 +353,24 @@ def main(args):
                log_interval=args.log_interval)
     print('Experiment ended')
 
+    predictions, test_metrics = predict(model,
+                                        val_loader,
+                                        use_amp=args.amp,
+                                        logger=logger)
+
+    logger.info('Test metrics: %s' % (test_metrics))
+
+    test_data_path = os.path.join(args.data_path, args.namespace,
+                                  args.namespace + '_test_data.pkl')
+    test_df = pd.read_pickle(test_data_path)
+
+    preds, test_labels = predictions
+    test_df['labels'] = list(test_labels)
+    test_df['preds'] = list(preds)
+    df_path = os.path.join(args.data_path, args.namespace + '_predictions.pkl')
+    test_df.to_pickle(df_path)
+    logger.info(f'Saving results to {df_path}')
+
 
 def _parse_args():
     # Do we have a config file to parse?
@@ -382,7 +394,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.namespace + '_' + args.model
+    task_name = 'ProtLM' + '_' + args.model
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:

@@ -1,5 +1,3 @@
-import collections
-
 import torch
 import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
@@ -62,45 +60,36 @@ class ProtGCNModel(nn.Module):
 class ProtPubMedBert(nn.Module):
     """ProtPubMedBert."""
     def __init__(self,
-                 seq_dim=1024,
-                 hidden_dim=512,
-                 vector_dim=800,
-                 description_dim=768,
-                 emb_dim=768):
+                 embeds: torch.Tensor,
+                 seq_dim: int = 1280,
+                 hidden_dim: int = 512):
 
         super(ProtPubMedBert, self).__init__()
-        self.fc = nn.Linear(seq_dim, hidden_dim)
-        self.fc_description = nn.Linear(description_dim, hidden_dim)
-        self.fc_vector = nn.Linear(vector_dim, hidden_dim)
-        self.fc_embed = nn.Linear(vector_dim, emb_dim)
-        self.activation = torch.nn.Sigmoid()
+        self.embeds = embeds
+        emb_dim = self.embeds.shape[1]
+        self.fc_seq = nn.Linear(seq_dim, hidden_dim)
+        self.fc_embed = nn.Linear(emb_dim, hidden_dim)
+        self.num_labels = self.embeds.shape[0]
 
-    def forward(self,
-                seq=None,
-                prot_description=None,
-                prot_structure=None,
-                gotext_embde=None):
+    def forward(self, embeddings, labels):
+        seq_out = self.fc_seq(embeddings)
+        embed_out = self.fc_embed(self.embeds)
+        embed_out = embed_out.transpose(-2, -1)
 
-        features = collections.OrderedDict()
-        if 'seqs' in self.feature:
-            features['seqs'] = self.fc(seq)
+        logits = torch.matmul(seq_out, embed_out)
+        outputs = (logits, )
+        if labels is not None:
+            loss_fct = BCEWithLogitsLoss()
+            labels = labels.float()
+            loss = loss_fct(logits.view(-1, self.num_labels),
+                            labels.view(-1, self.num_labels))
 
-        if 'protein description' in self.feature:
-            features['protein description'] = self.fc_description(
-                prot_description)
+            outputs = (loss, ) + outputs
 
-        if 'network' in self.feature:
-            features['network'] = self.fc_vector(prot_structure)
+        return outputs
 
-        for i in range(len(self.feature)):
-            if i == 0:
-                prot_cat = features[self.feature[0]]
-            else:
-                prot_cat = torch.cat((prot_cat, features[self.feature[i]]),
-                                     dim=1)
 
-        prot_feature = self.fc_embed(prot_cat)
-        emb2 = gotext_embde.permute(1, 0)
-        logits = torch.mm(prot_feature, emb2)
-        probs = self.activation(logits)
-        return probs
+if __name__ == '__main__':
+    embeds = torch.ones((100, 2000))
+    model = ProtPubMedBert(embeds=embeds)
+    print(model)

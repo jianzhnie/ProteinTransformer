@@ -12,7 +12,7 @@ def extract_esm_embedds(model, data_loader, pool_mode, logger, device='cuda'):
         end = time.time()
         start = time.time()
         for batch_idx, batch in enumerate(data_loader):
-
+            data_time = time.time() - end
             if torch.cuda.is_available():
                 batch = {key: val.to(device) for key, val in batch.items()}
             labels = batch['labels']
@@ -25,11 +25,13 @@ def extract_esm_embedds(model, data_loader, pool_mode, logger, device='cuda'):
             total_time = time.time() - start
             end = time.time()
             logger.info('{0}: [{1:>2d}/{2}] '
+                        'Datat Time: {data_time:.3f} '
                         'Batch Time: {batch_time:.3f} '
                         'Total Time: {total_time:.3f} '.format(
                             'Extract embeddings',
                             batch_idx + 1,
                             steps + 1,
+                            data_time=data_time,
                             batch_time=batch_time,
                             total_time=total_time))
     embeddings = np.concatenate(embeddings, axis=0)
