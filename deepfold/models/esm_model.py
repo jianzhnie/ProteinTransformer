@@ -4,6 +4,7 @@ import esm
 import torch
 import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
+from deepfold.models.esm_model import MLP
 
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
@@ -128,7 +129,7 @@ class EsmTransformer(nn.Module):
             self.pooler = AttentionPooling2(hidden_size=self.hidden_size)
 
         self.dropout = nn.Dropout(dropout_ratio)
-        self.classifier = nn.Linear(self.hidden_size, num_labels)
+        self.classifier = MLP(self.hidden_size, num_labels)
         if self.pool_mode == 'mean_max':
             self.classifier = nn.Linear(self.hidden_size * 2, num_labels)
 
