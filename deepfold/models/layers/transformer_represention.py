@@ -60,7 +60,7 @@ class AttentionPooling(nn.Module):
 
 
 class AttentionPooling2(nn.Module):
-    def __init__(self, hidden_size, dropout_rate=0.2):
+    def __init__(self, hidden_size, dropout_rate=0.):
         super(AttentionPooling2, self).__init__()
 
         self.hidden_size = hidden_size
@@ -80,7 +80,7 @@ class AttentionPooling2(nn.Module):
             pass
         att_net = self.softmax(att_net)
 
-        att_net = torch.sum(all_hidden_states * att_net, 1)
+        att_net = torch.sum(all_hidden_states * att_net, 1)  # batch_size*seq_len*1
 
         return att_net
 
