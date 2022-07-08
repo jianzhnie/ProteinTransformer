@@ -4,7 +4,6 @@ import esm
 import torch
 import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
-from deepfold.models.esm_model import MLP
 
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
