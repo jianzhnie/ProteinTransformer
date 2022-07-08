@@ -5,13 +5,11 @@ import torch
 import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 
+from deepfold.models.layers.transformer_represention import (
+    AttentionPooling, AttentionPooling2, CNNPooler, LSTMPooling,
+    SelfAttentionPooling, WeightedLayerPooling)
 from deepfold.utils.constant import (DEFAULT_ESM_MODEL, ESM_LIST,
                                      POOLING_MODE_LIST)
-
-from .layers.transformer_represention import (AttentionPooling,
-                                              AttentionPooling2, CNNPooler,
-                                              LSTMPooling,
-                                              WeightedLayerPooling)
 
 
 class MLP(nn.Module):
@@ -43,6 +41,27 @@ class MLP(nn.Module):
             outputs = (loss, ) + outputs
 
         return outputs
+
+
+class MLPLayer(nn.Module):
+    def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
+        super().__init__()
+
+        self.hidden_size = input_size * 2
+        self.num_labels = num_labels
+        self.fc1 = nn.Linear(input_size, self.hidden_size)
+        self.norm = nn.BatchNorm1d(self.hidden_size)
+        self.relu = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout(dropout_ratio)
+        self.classifier = nn.Linear(self.hidden_size, num_labels)
+
+    def forward(self, embeddings):
+        out = self.fc1(embeddings)
+        out = self.norm(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+        logits = self.classifier(out)
+        return logits
 
 
 class ESMPooler(nn.Module):
@@ -127,8 +146,11 @@ class EsmTransformer(nn.Module):
         if pool_mode == 'attention2':
             self.pooler = AttentionPooling2(hidden_size=self.hidden_size)
 
+        if pool_mode == 'self_attention':
+            self.pooler = SelfAttentionPooling(hidden_size=self.hidden_size)
+
         self.dropout = nn.Dropout(dropout_ratio)
-        self.classifier = MLP(self.hidden_size, num_labels)
+        self.classifier = MLPLayer(self.hidden_size, num_labels)
         if self.pool_mode == 'mean_max':
             self.classifier = nn.Linear(self.hidden_size * 2, num_labels)
 
@@ -200,6 +222,9 @@ class EsmTransformer(nn.Module):
             embeddings = self.pooler(all_hidden_states)
 
         elif self.pool_mode == 'attention2':
+            embeddings = self.pooler(last_hidden_state)
+
+        elif self.pool_mode == 'self_attention':
             embeddings = self.pooler(last_hidden_state)
 
         pooled_output = self.dropout(embeddings)
