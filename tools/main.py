@@ -43,7 +43,7 @@ parser.add_argument('--data_path',
                     type=str,
                     help='data dir of dataset')
 parser.add_argument('--dataset_name',
-                    default='',
+                    default='esm',
                     type=str,
                     help='dataset name: esm, esm_embedding, protseq, protbert')
 
@@ -53,16 +53,16 @@ parser.add_argument('--model',
                     help='model architecture: (default: esm)')
 parser.add_argument('--pool_mode',
                     type=str,
-                    default='mean',
+                    default='attention2',
                     help='embedding method')
-parser.add_argument('--fintune', default=True, type=bool, help='fintune model')
+parser.add_argument('--fintune', default=False, type=bool, help='fintune model')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
                     metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--epochs',
-                    default=90,
+                    default=30,
                     type=int,
                     metavar='N',
                     help='number of total epochs to run')
@@ -74,7 +74,7 @@ parser.add_argument('--start-epoch',
 parser.add_argument('-j',
                     '--workers',
                     type=int,
-                    default=4,
+                    default=8,
                     metavar='N',
                     help='how many training processes to use (default: 1)')
 parser.add_argument('--num_labels',
@@ -96,7 +96,7 @@ parser.add_argument('--lr',
                     dest='lr')
 parser.add_argument('--end-lr',
                     '--minimum learning-rate',
-                    default=1e-8,
+                    default=1e-6,
                     type=float,
                     metavar='END-LR',
                     help='initial learning rate')
@@ -116,7 +116,7 @@ parser.add_argument('--warmup',
                     metavar='E',
                     help='number of warmup epochs')
 parser.add_argument('--optimizer',
-                    default='sgd',
+                    default='adamw',
                     type=str,
                     choices=('sgd', 'rmsprop', 'adamw'))
 parser.add_argument('--momentum',
