@@ -11,7 +11,6 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-sys.path.append('../')
 
 from deepfold.data.dataset_factory import get_dataloaders
 from deepfold.models.model_factory import get_model
@@ -19,6 +18,7 @@ from deepfold.trainer.training import train_loop
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
+sys.path.append('../')
 
 try:
     import wandb
@@ -53,9 +53,12 @@ parser.add_argument('--model',
                     help='model architecture: (default: esm)')
 parser.add_argument('--pool_mode',
                     type=str,
-                    default='attention2',
+                    default='self_attention',
                     help='embedding method')
-parser.add_argument('--fintune', default=False, type=bool, help='fintune model')
+parser.add_argument('--fintune',
+                    default=False,
+                    type=bool,
+                    help='fintune model')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
