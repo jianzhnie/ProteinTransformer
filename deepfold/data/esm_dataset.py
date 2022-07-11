@@ -123,7 +123,6 @@ class EsmDataset(Dataset):
             sequence = crop_sequence(sequence, crop_length=self.max_length - 2)
         if self.truncate:
             sequence = sequence[:self.max_length - 2]
-
         length = len(sequence)
         label_list = self.labels[idx]
         multilabel = [0] * self.num_classes
@@ -162,6 +161,10 @@ class EsmDataset(Dataset):
         if self.truncate:
             all_tokens = all_tokens[:, :self.max_length]
 
+        if all_tokens.shape[1] < 1024:
+            tmp = torch.ones((all_tokens.shape[0], 1024 - all_tokens.shape[1]))
+            all_tokens = torch.cat([all_tokens, tmp], dim=1)
+        all_tokens = all_tokens.int()
         all_tokens = all_tokens.to('cpu')
         encoded_inputs = {
             'input_ids': all_tokens,
@@ -187,10 +190,11 @@ def crop_sequence(sequence: str, crop_length: int) -> str:
 
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
-    data_root = '/home/niejianzheng/xbiome/datasets/protein'
+    data_root = '../../data'
     # data_root = '/Users/robin/xbiome/datasets/protein'
     pro_dataset = EsmDataset(data_path=data_root,
-                             model_dir='esm1b_t33_650M_UR50S')
+                             model_dir='esm1b_t33_650M_UR50S',
+                             file_name='train_data.pkl')
     print(pro_dataset.num_classes)
     data_loader = DataLoader(pro_dataset,
                              batch_size=8,
@@ -198,6 +202,6 @@ if __name__ == '__main__':
 
     for index, batch in enumerate(data_loader):
         for key, val in batch.items():
-            print(key, val.shape, val)
+            print(key, val.shape)
         if index > 10:
             break
