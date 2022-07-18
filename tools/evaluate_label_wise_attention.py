@@ -4,7 +4,6 @@ import argparse
 import logging
 import os
 import sys
-from ast import arg
 
 import numpy as np
 import pandas as pd
@@ -13,7 +12,6 @@ from matplotlib import pyplot as plt
 from deepfold.core.metrics.custom_metrics import evaluate_annotations
 from deepfold.data.utils.data_utils import FUNC_DICT, NAMESPACES
 from deepfold.data.utils.ontology import Ontology
-from deepfold.utils.make_graph import build_graph
 
 sys.path.append('../')
 
@@ -31,13 +29,22 @@ parser.add_argument('--test-data-file',
                     '-tsdf',
                     default='data/test_data.pkl',
                     help='Data file with test')
+parser.add_argument(
+    '--terms-file',
+    '-tf',
+    default='data/terms.pkl',
+    help='Data file with sequences and complete set of annotations')
+parser.add_argument('--diamond-scores-file',
+                    '-dsf',
+                    default='data/test_diamond.res',
+                    help='Diamond output')
 parser.add_argument('--ontology-obo-file',
                     '-obo',
                     default='data/go.obo',
                     help='Ontology file')
-parser.add_argument('--namespace', default='', type=str, help='cco, mfo, bpo')
 parser.add_argument('--output_dir', '-o', default='./', help='output dir')
-parser.add_argument('--ont', default='bp', help='bp, mf, cc')
+
+alphas = {NAMESPACES['mf']: 0, NAMESPACES['bp']: 0, NAMESPACES['cc']: 0}
 
 
 def get_model_preds(test_df, terms):
@@ -52,8 +59,7 @@ def get_model_preds(test_df, terms):
     return model_preds
 
 
-def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont,
-                              logger):
+def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont):
     fmax = 0.0
     tmax = 0.0
     smin = 1000.0
@@ -80,7 +86,7 @@ def evaluate_model_prediction(labels, terms, model_preds, go_rels, ont,
 
         # Filter classes
         preds = list(
-            map(lambda x: set(filter(lambda y: y in go_set and y in terms, x)), preds))
+            map(lambda x: set(filter(lambda y: y in go_set, x)), preds))
 
         fscore, prec, rec, s, _, _, _, _ = evaluate_annotations(
             go_rels, labels, preds)
@@ -124,39 +130,38 @@ def plot_diamond_aupr(precisions, recalls, aupr, ont, save_path):
 
 def main(train_data_file,
          test_data_file,
+         terms_file,
          go_obo_file,
          output_dir=None,
-         ont='bp'):
+         onts=('bp', 'mf', 'cc')):
 
     go_rels = Ontology(go_obo_file, with_rels=True)
-    _, _, label_map, label_map_ivs = build_graph(data_path=args.data_path,
-                                                 namespace=args.namespace)
-
-    df = pd.DataFrame({'terms': list(label_map.keys())})
-    terms = df['terms'].values.flatten()
+    terms_df = pd.read_pickle(terms_file)
+    terms = terms_df['terms'].values.flatten()
 
     train_df = pd.read_pickle(train_data_file)
-    annotations = train_df['annotations'].values
+    annotations = train_df['prop_annotations'].values
     annotations = list(map(lambda x: set(x), annotations))
 
     test_df = pd.read_pickle(test_data_file)
-    test_annotations = test_df['annotations'].values
+    test_annotations = test_df['prop_annotations'].values
     test_annotations = list(map(lambda x: set(x), test_annotations))
     go_rels.calculate_ic(annotations + test_annotations)
 
     ics = {}
     for term in terms:
         ics[term] = go_rels.get_ic(term)
+
     prot_index = {}
     for i, row in enumerate(train_df.itertuples()):
         prot_index[row.proteins] = i
 
     model_preds = list(test_df.preds)
-
-    logger.info(f'Evaluate the {ont} protein family')
-    precisions, recalls, aupr = evaluate_model_prediction(
-        test_annotations, terms, model_preds, go_rels, ont, logger)
-    plot_diamond_aupr(precisions, recalls, aupr, ont, output_dir)
+    for ont in onts:
+        logger.info(f'Evaluate the {ont} protein family')
+        precisions, recalls, aupr = evaluate_model_prediction(
+            test_annotations, terms, model_preds, go_rels, ont)
+        plot_diamond_aupr(precisions, recalls, aupr, ont, output_dir)
 
 
 if __name__ == '__main__':
@@ -165,5 +170,6 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
     logger.addHandler(streamhandler)
     args = parser.parse_args()
-    main(args.train_data_file, args.test_data_file, args.ontology_obo_file,
-         args.output_dir, args.ont)
+
+    main(args.train_data_file, args.test_data_file, args.terms_file,
+         args.ontology_obo_file, args.output_dir)

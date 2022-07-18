@@ -11,12 +11,10 @@ import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
 import yaml
-from torch.utils.data import DataLoader
 
-from deepfold.data.gcn_dataset import GCNDataset
-from deepfold.models.multimodal_model import ProtGCNModel
+from deepfold.data.dataset_factory import get_dataloaders
+from deepfold.models.model_factory import get_model
 from deepfold.trainer.training import train_loop
-from deepfold.utils.make_graph import build_graph
 from deepfold.utils.model import load_model_checkpoint
 from deepfold.utils.random_utils import random_seed
 
@@ -44,26 +42,30 @@ parser.add_argument('--data_path',
                     default='',
                     type=str,
                     help='data dir of dataset')
-parser.add_argument('--train_file_name',
-                    default='',
+parser.add_argument('--dataset_name',
+                    default='esm',
                     type=str,
-                    help='data dir of dataset')
-parser.add_argument('--val_file_name',
-                    default='',
-                    type=str,
-                    help='data dir of dataset')
-parser.add_argument('--namespace', default='', type=str, help='cco, mfo, bpo')
+                    help='dataset name: esm, esm_embedding, protseq, protbert')
+
 parser.add_argument('--model',
                     metavar='MODEL',
-                    default='protgcn',
-                    help='model architecture: (default: protgcn)')
+                    default='esm',
+                    help='model architecture: (default: esm)')
+parser.add_argument('--pool_mode',
+                    type=str,
+                    default='self_attention',
+                    help='embedding method')
+parser.add_argument('--fintune',
+                    default=False,
+                    type=bool,
+                    help='fintune model')
 parser.add_argument('--resume',
                     default=None,
                     type=str,
                     metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--epochs',
-                    default=90,
+                    default=30,
                     type=int,
                     metavar='N',
                     help='number of total epochs to run')
@@ -75,9 +77,13 @@ parser.add_argument('--start-epoch',
 parser.add_argument('-j',
                     '--workers',
                     type=int,
-                    default=4,
+                    default=8,
                     metavar='N',
                     help='how many training processes to use (default: 1)')
+parser.add_argument('--num_labels',
+                    default=5874,
+                    type=int,
+                    help='num labels for multi-label classification')
 parser.add_argument('-b',
                     '--batch-size',
                     default=256,
@@ -93,7 +99,7 @@ parser.add_argument('--lr',
                     dest='lr')
 parser.add_argument('--end-lr',
                     '--minimum learning-rate',
-                    default=1e-8,
+                    default=1e-6,
                     type=float,
                     metavar='END-LR',
                     help='initial learning rate')
@@ -113,7 +119,7 @@ parser.add_argument('--warmup',
                     metavar='E',
                     help='number of warmup epochs')
 parser.add_argument('--optimizer',
-                    default='sgd',
+                    default='adamw',
                     type=str,
                     choices=('sgd', 'rmsprop', 'adamw'))
 parser.add_argument('--momentum',
@@ -202,7 +208,7 @@ def main(args):
         if has_wandb:
             wandb.init(project=args.experiment,
                        config=args,
-                       entity='hushuangwei')
+                       entity='jianzhnie')
         else:
             logger.warning(
                 "You've requested to log metrics to wandb but package not found. "
@@ -237,51 +243,10 @@ def main(args):
 
     # get data loaders
     # Dataset and DataLoader
-    adj, multi_hot_vector, label_map, label_map_ivs = build_graph(
-        data_path=args.data_path, namespace=args.namespace)
-    train_dataset = GCNDataset(label_map,
-                               root_path=args.data_path,
-                               file_name=args.train_file_name)
-    val_dataset = GCNDataset(label_map,
-                             root_path=args.data_path,
-                             file_name=args.val_file_name)
-
-    if args.distributed:
-        train_sampler = torch.utils.data.distributed.DistributedSampler(
-            train_dataset)
-        val_sampler = torch.utils.data.distributed.DistributedSampler(
-            val_dataset)
-    else:
-        train_sampler = torch.utils.data.RandomSampler(train_dataset)
-        val_sampler = torch.utils.data.RandomSampler(val_dataset)
-
-    # dataloders
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        shuffle=(train_sampler is None),
-        num_workers=args.workers,
-        sampler=train_sampler,
-        pin_memory=True,
-    )
-
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=args.batch_size,
-        shuffle=(val_sampler is None),
-        num_workers=args.workers,
-        sampler=val_sampler,
-        pin_memory=True,
-    )
+    train_loader, val_loader = get_dataloaders(args)
 
     # model
-    nodes = multi_hot_vector.cuda()
-    adj = adj.cuda()
-    model = ProtGCNModel(nodes=nodes,
-                         adjmat=adj,
-                         seq_dim=1280,
-                         node_feats=512,
-                         hidden_dim=512)
+    model = get_model(args)
 
     if args.resume is not None:
         if args.local_rank == 0:
@@ -322,8 +287,8 @@ def main(args):
             model.cuda()
             # DistributedDataParallel will divide and allocate batch_size to all
             # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(
-                model, output_device=0, find_unused_parameters=True)
+            model = torch.nn.parallel.DistributedDataParallel(model,
+                                                              output_device=0)
     else:
         model.cuda()
 
@@ -382,7 +347,7 @@ if __name__ == '__main__':
     # Cache the args as a text string to save them in the output dir later
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
 
-    task_name = 'ProtLM' + '_' + args.namespace + '_' + args.model + 'less_terms'
+    task_name = 'ProtLM' + '_' + args.model + '_' + args.pool_mode
     args.output_dir = os.path.join(args.output_dir, task_name)
     if not torch.distributed.is_initialized() or torch.distributed.get_rank(
     ) == 0:

@@ -269,3 +269,35 @@ class EsmTransformer(nn.Module):
             embeddings_dict['cls'] = torch.stack(
                 [emb[0, :] for emb in seqence_embeddings_list])
         return embeddings_dict
+
+
+if __name__ == '__main__':
+    from deepfold.data.dataset_factory import get_dataloaders
+
+    class Args:
+        def __init__(self) -> None:
+            self.name='esm'
+            self.data_path='../../data'
+            self.dataset_name = 'esm'
+            self.distributed = False
+            self.batch_size = 4
+            self.workers=1
+    
+
+    # Dataset and DataLoader
+    args = Args()
+    train_loader, val_loader = get_dataloaders(args)
+    for batch in train_loader:
+        print(batch['input_ids'].shape)
+        print(batch['lengths'].shape)
+        print(batch['labels'].shape)
+
+
+        model = EsmTransformer(num_labels=5874,pool_mode='self_attention')
+        model=model.cuda()
+        batch = {key: val.cuda() for key, val in batch.items()}
+        out = model(**batch)
+        print(out[0])
+        print(out[1].shape)
+        break
+
