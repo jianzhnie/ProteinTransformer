@@ -94,6 +94,7 @@ class MLPWithHierarchicalRegularization(nn.Module):
 
 
 class MLPLayer(nn.Module):
+    # convert shape [batch_size, latent_dim1] => [batch_size, latent_dim2]
     def __init__(self, input_size=1280, output_size=10000, dropout_ratio=0.1):
         super().__init__()
 
@@ -115,6 +116,7 @@ class MLPLayer(nn.Module):
 
 
 class MLPLayer3D(nn.Module):
+    # convert shape [batch_size,seq_len,latent_dim1] => [batch_size,seq_len,latent_dim2]
     def __init__(self, input_size=1280, output_size=10000, dropout_ratio=0.1):
         super().__init__()
 
