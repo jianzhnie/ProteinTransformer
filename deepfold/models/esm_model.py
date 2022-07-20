@@ -43,10 +43,14 @@ class MLP(nn.Module):
         return outputs
 
 
-class MLPLayer(nn.Module):
-    def __init__(self, input_size=1280, num_labels=10000, dropout_ratio=0.1):
+class MLPWithHierarchicalRegularization(nn.Module):
+    def __init__(self,
+                 edges,
+                 input_size=1280,
+                 num_labels=10000,
+                 dropout_ratio=0.1):
         super().__init__()
-
+        self.edges = edges
         self.hidden_size = input_size * 2
         self.num_labels = num_labels
         self.fc1 = nn.Linear(input_size, self.hidden_size)
@@ -55,9 +59,78 @@ class MLPLayer(nn.Module):
         self.dropout = nn.Dropout(dropout_ratio)
         self.classifier = nn.Linear(self.hidden_size, num_labels)
 
+    def forward(self, embeddings, labels=None):
+        out = self.fc1(embeddings)
+        out = self.norm(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+        logits = self.classifier(out)
+
+        outputs = (logits, )
+        if labels is not None:
+            loss_fct = BCEWithLogitsLoss()
+            labels = labels.float()
+            loss = loss_fct(logits.view(-1, self.num_labels),
+                            labels.view(-1, self.num_labels))
+            hiera_loss = self.hierarchical_loss(torch.sigmoid(logits))
+            outputs = (loss + hiera_loss, ) + outputs
+        return outputs
+
+    def hierarchical_loss(self, preds):
+        ind_fa = torch.LongTensor(self.edges.transpose()[0])
+        ind_child = torch.LongTensor(self.edges.transpose()[1])
+        ind_fa = ind_fa.to(preds.device)
+        ind_child = ind_child.to(preds.device)
+        r1_fa = torch.gather(preds,
+                             dim=1,
+                             index=ind_fa.unsqueeze(0).repeat(
+                                 (preds.shape[0], 1)))
+        r1_child = torch.gather(preds,
+                                dim=1,
+                                index=ind_child.unsqueeze(0).repeat(
+                                    (preds.shape[0], 1)))
+        loss = torch.relu(r1_fa - r1_child).mean()
+        return loss
+
+
+class MLPLayer(nn.Module):
+    def __init__(self, input_size=1280, output_size=10000, dropout_ratio=0.1):
+        super().__init__()
+
+        self.hidden_size = input_size * 2
+        self.output_size = output_size
+        self.fc1 = nn.Linear(input_size, self.hidden_size)
+        self.norm = nn.BatchNorm1d(self.hidden_size)
+        self.relu = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout(dropout_ratio)
+        self.classifier = nn.Linear(self.hidden_size, output_size)
+
     def forward(self, embeddings):
         out = self.fc1(embeddings)
         out = self.norm(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+        logits = self.classifier(out)
+        return logits
+
+
+class MLPLayer3D(nn.Module):
+    def __init__(self, input_size=1280, output_size=10000, dropout_ratio=0.1):
+        super().__init__()
+
+        self.hidden_size = input_size * 2
+        self.output_size = output_size
+        self.fc1 = nn.Linear(input_size, self.hidden_size)
+        self.norm = nn.BatchNorm1d(self.hidden_size)
+        self.relu = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout(dropout_ratio)
+        self.classifier = nn.Linear(self.hidden_size, output_size)
+
+    def forward(self, embeddings):
+        out = self.fc1(embeddings)
+        out = out.transpose(-1, -2)
+        out = self.norm(out)
+        out = out.transpose(-1, -2)
         out = self.relu(out)
         out = self.dropout(out)
         logits = self.classifier(out)
@@ -272,32 +345,30 @@ class EsmTransformer(nn.Module):
 
 
 if __name__ == '__main__':
-    from deepfold.data.dataset_factory import get_dataloaders
+    pass
+    # from deepfold.data.dataset_factory import get_dataloaders
 
-    class Args:
-        def __init__(self) -> None:
-            self.name='esm'
-            self.data_path='../../data'
-            self.dataset_name = 'esm'
-            self.distributed = False
-            self.batch_size = 4
-            self.workers=1
-    
+    # class Args:
+    #     def __init__(self) -> None:
+    #         self.name='esm'
+    #         self.data_path='../../data'
+    #         self.dataset_name = 'esm'
+    #         self.distributed = False
+    #         self.batch_size = 4
+    #         self.workers=1
 
-    # Dataset and DataLoader
-    args = Args()
-    train_loader, val_loader = get_dataloaders(args)
-    for batch in train_loader:
-        print(batch['input_ids'].shape)
-        print(batch['lengths'].shape)
-        print(batch['labels'].shape)
+    # # Dataset and DataLoader
+    # args = Args()
+    # train_loader, val_loader = get_dataloaders(args)
+    # for batch in train_loader:
+    #     print(batch['input_ids'].shape)
+    #     print(batch['lengths'].shape)
+    #     print(batch['labels'].shape)
 
-
-        model = EsmTransformer(num_labels=5874,pool_mode='self_attention')
-        model=model.cuda()
-        batch = {key: val.cuda() for key, val in batch.items()}
-        out = model(**batch)
-        print(out[0])
-        print(out[1].shape)
-        break
-
+    #     model = EsmTransformer(num_labels=5874,pool_mode='self_attention')
+    #     model=model.cuda()
+    #     batch = {key: val.cuda() for key, val in batch.items()}
+    #     out = model(**batch)
+    #     print(out[0])
+    #     print(out[1].shape)
+    #     break
