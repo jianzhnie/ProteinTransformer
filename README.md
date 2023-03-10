@@ -1,4 +1,4 @@
-# X-DeepGO
+# DeepFold
 
 [![OSCS Status](https://www.oscs1024.com/platform/badge/jianzhnie/X-DeepGO.svg?size=small)](https://www.oscs1024.com/project/jianzhnie/X-DeepGO?ref=badge_small)
 
